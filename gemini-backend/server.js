@@ -9,8 +9,10 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const User = require('./models/User');
-const Post = require('./models/Post');
+
+// FIX: Use lowercase filenames for Linux compatibility
+const User = require('./models/user');
+const Post = require('./models/post');
 
 const app = express();
 // Render assigns a port automatically via process.env.PORT
