@@ -92,24 +92,32 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
   const [resetTokenForPage, setResetTokenForPage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>('learn');
+  const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
 
   const checkSystemHealth = useCallback(async () => {
     // If we are already in demo mode, don't check health
     if (user?.isDemo) return;
 
     setAppStatus(null); 
+    setShowLongWaitMessage(false);
+
+    // Set a timer to show a "please wait" message if it takes longer than 3 seconds
+    const msgTimeout = setTimeout(() => setShowLongWaitMessage(true), 3000);
+
     try {
-      // Set a timeout for the fetch so it doesn't hang forever
+      // Render Free Tier sleeps after inactivity. We increase timeout to 60s to allow it to wake up.
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); 
 
       const response = await fetch(`${API_BASE_URL}/api/health`, { signal: controller.signal });
       clearTimeout(timeoutId);
+      clearTimeout(msgTimeout);
 
       if (!response.ok) throw new Error('Server not healthy');
       const data = await response.json();
       setAppStatus(data.dbConnection === 'connected' ? 'healthy' : 'db-error');
     } catch (error) {
+      clearTimeout(msgTimeout);
       console.error('Could not connect to the backend server.', error);
       setAppStatus('server-error');
     }
@@ -283,9 +291,18 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
 
   if (appStatus === null) {
      return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900 px-4 text-center">
         <SparkleIcon className="w-12 h-12 text-primary-500 animate-spin" />
-        <p className="mt-4 text-lg text-neutral-700 dark:text-neutral-300">{t('status_initializing')}</p>
+        <p className="mt-4 text-lg text-neutral-700 dark:text-neutral-300 font-medium">{t('status_initializing')}</p>
+        {showLongWaitMessage && (
+            <div className="mt-4 animate-fade-in">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Waking up the secure server...<br/>
+                    This can take up to 60 seconds on the free plan.
+                </p>
+                <p className="text-xs text-neutral-400 mt-2">Please don't refresh.</p>
+            </div>
+        )}
       </div>
     );
   }
