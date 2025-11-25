@@ -5,7 +5,7 @@ import ResetPasswordPage from './components/ResetPasswordPage';
 import { SparkleIcon } from './components/icons/SparkleIcon';
 import LanguageSelectionPage from './components/LanguageSelectionPage';
 import { I18nProvider, useI18n } from './contexts/I18nContext';
-import { UserProgressProvider } from './contexts/UserProgressContext';
+import { UserProgressProvider, useUserProgress } from './contexts/UserProgressContext';
 import BottomNavBar from './components/navigation/BottomNavBar';
 import LearnPage from './components/learn/LearnPage';
 import CommunityPage from './components/community/CommunityPage';
@@ -80,6 +80,7 @@ interface MainAppProps {
 
 const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const { t } = useI18n();
+  const { refreshProgress } = useUserProgress(); // Import refreshProgress
   const [appStatus, setAppStatus] = useState<AppStatus | null>(null);
   const [user, setUser] = useState<UserSession | null>(() => {
     const token = localStorage.getItem('authToken');
@@ -143,6 +144,9 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
         localStorage.setItem('authToken', userSession.token);
         localStorage.setItem('userEmail', userSession.email);
         setUser(userSession);
+        
+        // CRITICAL FIX: Fetch progress immediately after login so the user sees their data
+        await refreshProgress(); 
       } else {
         setAuthError(data.error || 'Invalid email or password.');
       }

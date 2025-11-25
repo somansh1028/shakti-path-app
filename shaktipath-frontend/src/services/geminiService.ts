@@ -29,6 +29,9 @@ export const sendMessageToGeminiStream = async (
         try {
             const errorData = await response.json();
             errorMsg = errorData.error || errorMsg;
+            if (errorData.details) {
+                errorMsg += ` Details: ${errorData.details}`;
+            }
         } catch(e) {
             // Ignore if response is not json
         }
@@ -110,6 +113,9 @@ export const generateGeminiResponse = async (
         const errorData = await response.json();
         // Pass the specific error message from the backend
         errorMsg = errorData.error || errorMsg;
+        if (errorData.details) {
+            errorMsg += ` Details: ${errorData.details}`;
+        }
       } catch (e) {
         // Ignore if response is not json
       }

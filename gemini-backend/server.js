@@ -106,7 +106,14 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
         const user = req.user;
         if (!user.progress) user.progress = {};
         
-        user.progress.points = points;
+        // Safer Sync: Ensure points never decrease if frontend sends 0 by mistake
+        // However, if points legitimately increase, take the max or add (logic depends on frontend, here we assume frontend calculates total)
+        // To be safe: If backend has points and frontend sends 0, keep backend. If frontend > backend, take frontend.
+        const currentPoints = user.progress.points || 0;
+        const incomingPoints = points || 0;
+        if (incomingPoints > currentPoints) {
+            user.progress.points = incomingPoints;
+        }
         
         const mergeUnique = (current, incoming) => {
             const set = new Set(current || []);
@@ -129,6 +136,7 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
         
         if (assignmentScores) {
             if (!user.progress.assignmentScores) user.progress.assignmentScores = new Map();
+            // Merge logic: Don't overwrite existing scores with nothing, but allow updates
             Object.keys(assignmentScores).forEach(courseId => {
                 user.progress.assignmentScores.set(courseId, assignmentScores[courseId]);
             });
@@ -237,14 +245,22 @@ app.post('/api/community/circles/:id/join', ensureAuthenticated, async (req, res
 app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res) => {
     if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
     try {
+        const { contents, responseSchema } = req.body;
+        
+        const config = {};
+        // Only add responseSchema if it exists, and enforce JSON mime type
+        if (responseSchema) {
+            config.responseMimeType = "application/json";
+            config.responseSchema = responseSchema;
+        }
+        // REMOVED: else { config.responseMimeType = "text/plain"; } 
+        // Default behavior is better for generic prompts.
+
         // Use gemini-2.5-flash for broader support (including multimodal)
         const result = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: req.body.contents,
-            config: { 
-                responseMimeType: req.body.responseSchema ? "application/json" : "text/plain", 
-                responseSchema: req.body.responseSchema 
-            }
+            contents: contents,
+            config: config
         });
         res.json({ response: result.text });
     } catch (e) { 

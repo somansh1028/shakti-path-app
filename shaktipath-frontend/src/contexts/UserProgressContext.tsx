@@ -22,6 +22,7 @@ interface UserProgressContextType extends UserProgressState {
     isQuizCompleted: (quizId: string) => boolean;
     isCourseCompleted: (courseId: string) => boolean;
     resetProgress: () => void;
+    refreshProgress: () => Promise<void>; // New function exposed
 }
 
 const UserProgressContext = createContext<UserProgressContextType | undefined>(undefined);
@@ -65,38 +66,40 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
     };
 
-    // --- FETCH FROM BACKEND ON LOAD ---
-    useEffect(() => {
-        const fetchProgress = async () => {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                setProgress(prev => ({ ...prev, isInitialized: true }));
-                return;
-            }
+    // --- FETCH FROM BACKEND ---
+    const fetchProgress = useCallback(async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            setProgress(prev => ({ ...prev, isInitialized: true }));
+            return;
+        }
 
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/user/progress`, { headers: getHeaders(token) });
-                if (res.ok) {
-                    const data = await res.json();
-                    setProgress({
-                        points: data.points || 0,
-                        completedLessonIds: new Set(data.completedLessons || []),
-                        completedQuizIds: new Set(data.completedQuizzes || []),
-                        completedCourseIds: new Set(data.completedCourses || []),
-                        assignmentScores: data.assignmentScores || {},
-                        earnedBadges: data.badges || [],
-                        isInitialized: true
-                    });
-                } else {
-                    setProgress(prev => ({ ...prev, isInitialized: true }));
-                }
-            } catch (e) {
-                console.error("Failed to load progress:", e);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/user/progress`, { headers: getHeaders(token) });
+            if (res.ok) {
+                const data = await res.json();
+                setProgress({
+                    points: data.points || 0,
+                    completedLessonIds: new Set(data.completedLessons || []),
+                    completedQuizIds: new Set(data.completedQuizzes || []),
+                    completedCourseIds: new Set(data.completedCourses || []),
+                    assignmentScores: data.assignmentScores || {},
+                    earnedBadges: data.badges || [],
+                    isInitialized: true
+                });
+            } else {
                 setProgress(prev => ({ ...prev, isInitialized: true }));
             }
-        };
-        fetchProgress();
+        } catch (e) {
+            console.error("Failed to load progress:", e);
+            setProgress(prev => ({ ...prev, isInitialized: true }));
+        }
     }, []);
+
+    // Initial load
+    useEffect(() => {
+        fetchProgress();
+    }, [fetchProgress]);
 
     // --- ACTIONS ---
     const completeLesson = useCallback((lessonId: string) => {
@@ -159,8 +162,9 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         isLessonCompleted,
         isQuizCompleted,
         isCourseCompleted,
-        resetProgress
-    }), [progress, completeLesson, completeQuiz, completeCourse, saveAssignmentScore, isLessonCompleted, isQuizCompleted, isCourseCompleted, resetProgress]);
+        resetProgress,
+        refreshProgress: fetchProgress
+    }), [progress, completeLesson, completeQuiz, completeCourse, saveAssignmentScore, isLessonCompleted, isQuizCompleted, isCourseCompleted, resetProgress, fetchProgress]);
 
     return (
         <UserProgressContext.Provider value={value}>
