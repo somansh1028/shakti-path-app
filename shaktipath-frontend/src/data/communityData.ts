@@ -6,6 +6,9 @@ export interface CommunityChallenge {
   categoryKey: string;
   titleKey: string;
   descriptionKey: string;
+  fullDescriptionKey: string;
+  rulesKey: string;
+  prizeKey: string;
   participants: number;
   daysLeft: number;
 }
@@ -15,6 +18,9 @@ export const activeChallenge: CommunityChallenge = {
   categoryKey: 'community_challenge_category',
   titleKey: 'community_challenge_name',
   descriptionKey: 'community_challenge_desc',
+  fullDescriptionKey: 'community_challenge_full_desc',
+  rulesKey: 'community_challenge_rules',
+  prizeKey: 'community_challenge_prize',
   participants: 234,
   daysLeft: 5,
 };

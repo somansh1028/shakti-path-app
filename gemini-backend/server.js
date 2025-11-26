@@ -169,10 +169,21 @@ app.get('/api/community/posts', async (req, res) => {
 
 app.post('/api/community/posts', ensureAuthenticated, async (req, res) => {
     try {
-        const { content, circleId } = req.body;
+        const { content, circleId, isGuruji } = req.body;
+        
+        let authorName = req.user.email.split('@')[0];
+        let authorRole = 'Student';
+        
+        // Allow forcing "Guruji" persona if requested (could secure this more in prod)
+        if (isGuruji) {
+            authorName = "Guruji 🤖";
+            authorRole = "AI Mentor";
+        }
+
         const newPost = new Post({
             authorId: req.user._id,
-            authorName: req.user.email.split('@')[0],
+            authorName: authorName,
+            authorRole: authorRole,
             content,
             circleId: circleId || null,
             likes: [],
@@ -199,9 +210,12 @@ app.post('/api/community/posts/:id/comments', ensureAuthenticated, async (req, r
     try {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Not found' });
-        if (post.authorId.toString() === req.user._id.toString()) return res.status(400).json({ error: 'Cannot comment on own post' });
-
-        post.comments.push({ userId: req.user._id, authorName: req.user.email.split('@')[0], content: req.body.content });
+        
+        post.comments.push({ 
+            userId: req.user._id, 
+            authorName: req.user.email.split('@')[0], 
+            content: req.body.content 
+        });
         await post.save();
         res.json(post.comments);
     } catch (err) { res.status(500).json({ error: 'Comment failed' }); }
@@ -241,6 +255,41 @@ app.post('/api/community/circles/:id/join', ensureAuthenticated, async (req, res
     } catch (e) { res.status(500).json({ error: 'Join failed' }); }
 });
 
+// --- COMMUNITY AI ROUTE (GURUJI) ---
+app.post('/api/community/ask-guruji', ensureAuthenticated, async (req, res) => {
+    if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
+    try {
+        const { mode, context, userQuestion } = req.body;
+        // mode: 'answer' or 'starter'
+        // context: { circleName: string, circleDesc: string }
+        
+        let prompt = "";
+        if (mode === 'starter') {
+            prompt = `You are "Guruji", a wise, friendly, and encouraging Indian community mentor. 
+            You are managing a community circle called "${context.circleName}" (${context.circleDesc}).
+            The group has been silent for a while.
+            Generate a short, engaging, and relevant discussion starter question to wake up the group.
+            Use emojis. Keep it warm and inviting. Do not sound robotic.
+            Example: "Namaste everyone! 🌟 I was wondering, what is one challenge you faced in your business this week? Let's help each other!"`;
+        } else {
+            prompt = `You are "Guruji", a wise, friendly, and encouraging Indian community mentor.
+            A student in the "${context.circleName}" circle has asked this question: "${userQuestion}".
+            Please provide a helpful, concise, and actionable answer.
+            Use emojis. Keep it professional but warm.`;
+        }
+
+        const result = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        });
+        
+        res.json({ response: result.text });
+    } catch (e) {
+        console.error("Guruji AI Failed:", e);
+        res.status(500).json({ error: 'Guruji is meditating (Error generating response).' });
+    }
+});
+
 // --- AI ROUTE ---
 app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res) => {
     if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
@@ -253,8 +302,6 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
             config.responseMimeType = "application/json";
             config.responseSchema = responseSchema;
         }
-        // REMOVED: else { config.responseMimeType = "text/plain"; } 
-        // Default behavior is better for generic prompts.
 
         // Use gemini-2.5-flash for broader support (including multimodal)
         const result = await ai.models.generateContent({
@@ -265,7 +312,31 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
         res.json({ response: result.text });
     } catch (e) { 
         console.error("Gemini API Failed:", e);
-        res.status(500).json({ error: 'AI Generation failed.', details: e.message }); 
+        
+        let error = 'AI Generation failed.';
+        let details = e.message;
+
+        // Sanitize Google GenAI error if possible
+        try {
+            // If message is a JSON string (e.g. "Error: [403] ..."), try to extract inner message
+            const jsonStart = e.message.indexOf('{');
+            const jsonEnd = e.message.lastIndexOf('}');
+            if (jsonStart !== -1 && jsonEnd !== -1) {
+                const jsonStr = e.message.substring(jsonStart, jsonEnd + 1);
+                const parsed = JSON.parse(jsonStr);
+                if (parsed.error && parsed.error.message) {
+                    details = parsed.error.message;
+                }
+            }
+        } catch (parseErr) {
+            // If parsing fails, use original message
+        }
+
+        if (details && (details.includes('API key') || details.includes('403'))) {
+            error = 'AI Configuration Error: API Key Invalid or Expired.';
+        }
+
+        res.status(500).json({ error, details }); 
     }
 });
 
