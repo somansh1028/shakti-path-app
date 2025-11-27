@@ -56,11 +56,15 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 badges: newProgress.earnedBadges
             };
 
-            await fetch(`${API_BASE_URL}/api/user/progress/sync`, {
+            const res = await fetch(`${API_BASE_URL}/api/user/progress/sync`, {
                 method: 'POST',
                 headers: getHeaders(token),
                 body: JSON.stringify(payload)
             });
+            
+            if (res.status === 401) {
+                window.dispatchEvent(new Event('auth-unauthorized'));
+            }
         } catch (error) {
             console.error("Failed to sync progress:", error);
         }
@@ -76,6 +80,12 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
 
         try {
             const res = await fetch(`${API_BASE_URL}/api/user/progress`, { headers: getHeaders(token) });
+            
+            if (res.status === 401) {
+                window.dispatchEvent(new Event('auth-unauthorized'));
+                return;
+            }
+
             if (res.ok) {
                 const data = await res.json();
                 setProgress({

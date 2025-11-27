@@ -1,8 +1,4 @@
 
-
-
-
-
 // --- Career Hub Types ---
 
 export type CareerToolId = 
@@ -48,43 +44,52 @@ export interface Prospect {
 
 export interface Badge {
   id: string;
-  nameKey: string;
+  nameKey?: string;
+  name?: string; // Direct text support
   icon: string;
 }
 
 export interface QuizOption {
   id: string;
-  textKey: string;
+  textKey?: string; 
+  text?: string;    // Direct text support
 }
 
 export interface Quiz {
   id: string;
-  questionKey: string;
+  questionKey?: string;
+  question?: string; // Direct text support
   options: QuizOption[];
   correctOptionId: string;
 }
 
 export interface LessonContent {
   type: 'paragraph' | 'list' | 'heading' | 'checklist' | 'video';
-  contentKey: string;
+  contentKey?: string; 
+  text?: string;       // Direct text support
 }
 
 export interface AssignmentCriterion {
-    nameKey: string;
-    descriptionKey: string;
+    nameKey?: string;
+    name?: string;
+    descriptionKey?: string;
+    description?: string;
     maxScore: number;
 }
 
 export interface Assignment {
-    titleKey: string;
-    descriptionKey: string;
+    titleKey?: string;
+    title?: string;
+    descriptionKey?: string;
+    description?: string;
     submissionFormat: string;
     reviewCriteria: AssignmentCriterion[];
 }
 
 export interface Lesson {
   id: string;
-  titleKey: string;
+  titleKey?: string; 
+  title?: string; // Direct text support
   duration: number; 
   content?: LessonContent[];
   quiz?: Quiz;
@@ -92,8 +97,10 @@ export interface Lesson {
 
 export interface Course {
   id: string;
-  titleKey: string;
-  descriptionKey: string;
+  titleKey?: string;
+  title?: string;
+  descriptionKey?: string;
+  description?: string;
   icon: string;
   lessons: Lesson[];
   assignment?: Assignment;
@@ -102,8 +109,10 @@ export interface Course {
 
 export interface LearningPath {
   id: string;
-  titleKey: string;
-  descriptionKey: string;
+  titleKey?: string;
+  title?: string;
+  descriptionKey?: string;
+  description?: string;
   icon: string;
   courses: Course[];
 }
@@ -160,4 +169,41 @@ export interface CareerPathRecommendation {
   motivation_style: string;
   suggested_first_course: string;
   suggested_micro_challenge: string;
+}
+
+// --- User Profile & Preferences Types ---
+export interface UserProfile {
+    name: string;
+    city: string;
+    bio: string;
+    skills: string[];
+    interests: string[];
+    avatar?: string;
+}
+
+export interface UserPreferences {
+    dailyGoal: number;
+    studyTime: string;
+    reminderDays: string[];
+    notifications: {
+        practice: boolean;
+        streaks: boolean;
+        community: boolean;
+    };
+}
+
+// --- Progress Types (UI Representation) ---
+export interface UserProgressStats {
+  points: number;
+  lessonsDone: number;
+  pathsMastered: number;
+}
+
+// --- Combined User Data Interface ---
+export interface UserData {
+  profile: UserProfile;
+  progress: UserProgressStats;
+  completedCourses: string[]; // Array of course IDs
+  badges: Badge[];
+  prospects: Prospect[];
 }

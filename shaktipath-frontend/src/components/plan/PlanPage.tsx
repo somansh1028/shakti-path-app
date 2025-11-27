@@ -2,11 +2,14 @@
 import React, { useState } from 'react';
 import { useI18n } from '../../contexts/I18nContext';
 import CareerGuideChat from './CareerGuideChat';
-import type { CareerPathRecommendation } from '../../types';
+import type { CareerPathRecommendation, UserProfile } from '../../types';
 import { learningPaths } from '../../data/learningData';
+import { API_BASE_URL, getHeaders } from '../../config';
+import { useToast } from '../../contexts/ToastContext';
 
 const PlanPage: React.FC = () => {
   const { t } = useI18n();
+  const { showToast } = useToast();
   const [recommendation, setRecommendation] = useState<CareerPathRecommendation | null>(null);
 
   // Map the AI's ID to our actual App Path IDs
@@ -23,6 +26,50 @@ const PlanPage: React.FC = () => {
       return learningPaths.find(p => p.id === appPathId);
   };
 
+  const handleRecommendationComplete = async (rec: CareerPathRecommendation) => {
+      setRecommendation(rec);
+
+      // --- SYNC TO PROFILE ---
+      // We automatically add the "Good At" summary to Skills and "Love" summary to Interests
+      try {
+          const token = localStorage.getItem('authToken');
+          if (!token) return;
+
+          // 1. Fetch current profile to ensure we don't overwrite existing tags
+          const getRes = await fetch(`${API_BASE_URL}/api/user/profile`, { headers: getHeaders(token) });
+          if (getRes.ok) {
+              const currentProfile: UserProfile = await getRes.json();
+              
+              // 2. Create clean arrays (avoid duplicates)
+              // The AI summary might be a sentence, so we treat it as one tag for now.
+              const newSkills = currentProfile.skills || [];
+              if (!newSkills.includes(rec.good_at_summary)) {
+                  newSkills.push(rec.good_at_summary);
+              }
+
+              const newInterests = currentProfile.interests || [];
+              if (!newInterests.includes(rec.love_summary)) {
+                  newInterests.push(rec.love_summary);
+              }
+
+              // 3. Update Profile
+              await fetch(`${API_BASE_URL}/api/user/profile`, {
+                  method: 'PUT',
+                  headers: getHeaders(token),
+                  body: JSON.stringify({
+                      skills: newSkills,
+                      interests: newInterests
+                  })
+              });
+              
+              showToast("Profile updated with your new insights! ✨");
+          }
+      } catch (error) {
+          console.error("Failed to sync plan to profile", error);
+          // Fail silently, user still sees the plan
+      }
+  };
+
   if (recommendation) {
       const primaryPath = getPathById(recommendation.primary_path);
       
@@ -37,6 +84,9 @@ const PlanPage: React.FC = () => {
                       <p><strong>{t('plan_strength_label')}</strong> {recommendation.good_at_summary}</p>
                       <p><strong>{t('plan_need_label')}</strong> {recommendation.community_need_summary}</p>
                       <p><strong>{t('plan_money_label')}</strong> {recommendation.earning_goal_summary}</p>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-white/20 text-xs text-primary-200 flex items-center">
+                      <span className="mr-2">✓</span> Saved to your Profile Settings
                   </div>
               </div>
 
@@ -81,10 +131,10 @@ const PlanPage: React.FC = () => {
     <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full">
       <div className="max-w-lg mx-auto">
         <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('nav_plan')}</h1>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('plan_page_title')}</h1>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">{t('plan_page_subtitle')}</p>
         </div>
-        <CareerGuideChat onRecommendationComplete={setRecommendation} />
+        <CareerGuideChat onRecommendationComplete={handleRecommendationComplete} />
       </div>
     </div>
   );

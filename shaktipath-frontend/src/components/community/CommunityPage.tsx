@@ -33,6 +33,7 @@ const CommunityPage: React.FC = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   
   const [joinedCircles, setJoinedCircles] = useState<Set<string>>(new Set());
   const [viewingCircle, setViewingCircle] = useState<CommunityCircle | null>(null);
@@ -51,7 +52,9 @@ const CommunityPage: React.FC = () => {
               const res = await fetch(`${API_BASE_URL}/api/community/user-circles`, { headers: getHeaders(token) });
               if (res.ok) {
                   const data = await res.json();
-                  setJoinedCircles(new Set(data.joinedCircles));
+                  if (data && Array.isArray(data.joinedCircles)) {
+                      setJoinedCircles(new Set(data.joinedCircles));
+                  }
               }
           } catch (e) { console.error("Failed to fetch circles", e); }
       };
@@ -67,6 +70,7 @@ const CommunityPage: React.FC = () => {
 
   const fetchPosts = async () => {
       setIsLoading(true);
+      setFetchError(false);
       const token = localStorage.getItem('authToken'); 
       try {
           const endpoint = viewingCircle 
@@ -77,10 +81,21 @@ const CommunityPage: React.FC = () => {
           const res = await fetch(endpoint, { headers });
           if (res.ok) {
               const data = await res.json();
-              setPosts(data);
+              if (Array.isArray(data)) {
+                  setPosts(data);
+              } else {
+                  console.warn("API returned invalid posts data:", data);
+                  setPosts([]);
+              }
+          } else {
+              console.error("Error fetching posts, status:", res.status);
+              setFetchError(true);
+              setPosts([]);
           }
       } catch (error) {
           console.error("Failed to fetch posts", error);
+          setFetchError(true);
+          setPosts([]);
       } finally {
           setIsLoading(false);
       }
@@ -343,13 +358,20 @@ const CommunityPage: React.FC = () => {
               </div>
               <h3 className="font-bold text-lg mb-4 px-2">Group Posts</h3>
               {isJoined ? (
-                  <Feed 
-                    posts={posts} isLoading={isLoading} isPosting={isPosting} viewingCircle={viewingCircle}
-                    newPostContent={newPostContent} onPostContentChange={setNewPostContent}
-                    onCreatePost={handleCreatePost} onLikePost={handleLike}
-                    onEditPost={handleEditPost} onCommentPost={handleCommentPost}
-                    onRefreshNeeded={fetchPosts}
-                  />
+                  fetchError ? (
+                      <div className="text-center py-8 bg-red-50 dark:bg-red-900/20 rounded-3xl">
+                          <p className="text-red-500 mb-2">Could not load posts.</p>
+                          <button onClick={fetchPosts} className="text-xs font-bold text-white bg-red-500 px-3 py-1 rounded-full hover:bg-red-600">Retry</button>
+                      </div>
+                  ) : (
+                    <Feed 
+                        posts={posts} isLoading={isLoading} isPosting={isPosting} viewingCircle={viewingCircle}
+                        newPostContent={newPostContent} onPostContentChange={setNewPostContent}
+                        onCreatePost={handleCreatePost} onLikePost={handleLike}
+                        onEditPost={handleEditPost} onCommentPost={handleCommentPost}
+                        onRefreshNeeded={fetchPosts}
+                    />
+                  )
               ) : (
                   <div className="text-center py-10 bg-neutral-50 dark:bg-neutral-900/30 rounded-3xl border-2 border-dashed border-neutral-200 dark:border-neutral-700"><p className="text-neutral-500">Join this circle to see and post content.</p></div>
               )}
@@ -374,13 +396,22 @@ const CommunityPage: React.FC = () => {
 
       <div className="animate-fade-in">
           {activeTab === 'feed' && (
-              <Feed 
-                posts={posts} isLoading={isLoading} isPosting={isPosting} viewingCircle={null}
-                newPostContent={newPostContent} onPostContentChange={setNewPostContent}
-                onCreatePost={handleCreatePost} onLikePost={handleLike}
-                onEditPost={handleEditPost} onCommentPost={handleCommentPost}
-                onRefreshNeeded={fetchPosts}
-              />
+              fetchError ? (
+                  <div className="text-center py-10 bg-white dark:bg-neutral-800 rounded-3xl shadow-soft">
+                      <p className="text-red-500 font-medium mb-3">Unable to connect to the community feed.</p>
+                      <button onClick={fetchPosts} className="px-4 py-2 bg-primary-600 text-white rounded-lg shadow-md hover:bg-primary-700 transition-colors">
+                          Retry Connection
+                      </button>
+                  </div>
+              ) : (
+                <Feed 
+                    posts={posts} isLoading={isLoading} isPosting={isPosting} viewingCircle={null}
+                    newPostContent={newPostContent} onPostContentChange={setNewPostContent}
+                    onCreatePost={handleCreatePost} onLikePost={handleLike}
+                    onEditPost={handleEditPost} onCommentPost={handleCommentPost}
+                    onRefreshNeeded={fetchPosts}
+                />
+              )
           )}
           {activeTab === 'challenges' && renderChallenges()}
           {activeTab === 'circles' && !viewingCircle && renderCirclesList()}

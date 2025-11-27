@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 // FIX: Use lowercase filenames for Linux compatibility
 const User = require('./models/user');
@@ -33,10 +32,15 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
+// --- FAVICON FIX ---
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 if (DATABASE_URL) {
     mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 5000 })
       .then(() => { console.log('✅ MongoDB Connected!'); dbStatus = 'connected'; })
       .catch(err => { console.error('❌ MongoDB Error:', err.message); dbStatus = 'error'; });
+} else {
+    console.warn("⚠️ No DATABASE_URL provided. App will run in limited mode.");
 }
 
 // --- AUTH MIDDLEWARE ---
@@ -65,23 +69,128 @@ app.get('/api/health', (req, res) => res.json({ server: 'running', dbConnection:
 
 // Auth Endpoints
 app.post('/api/auth/register', async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'Database not connected' });
     try {
         const { email, password } = req.body;
         if (await User.findOne({ email })) return res.status(400).json({ error: 'Email exists' });
         const hashedPassword = await bcrypt.hash(password, 10);
         await new User({ email, password: hashedPassword }).save();
         res.status(201).json({ message: 'Registered' });
-    } catch (e) { res.status(500).json({ error: 'Error' }); }
+    } catch (e) { 
+        console.error("Register error:", e);
+        res.status(500).json({ error: 'Error registering user' }); 
+    }
 });
 
 app.post('/api/auth/login', async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'Database not connected' });
     try {
         const user = await User.findOne({ email: req.body.email });
-        if (!user || !(await bcrypt.compare(req.body.password, user.password))) return res.status(401).json({ error: 'Invalid' });
+        if (!user || !(await bcrypt.compare(req.body.password, user.password))) return res.status(401).json({ error: 'Invalid credentials' });
         const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
-        res.json({ token, user: { email: user.email } });
-    } catch (e) { res.status(500).json({ error: 'Error' }); }
+        res.json({ token, user: { email: user.email, name: user.profile?.name || 'User' } });
+    } catch (e) { 
+        console.error("Login error:", e);
+        res.status(500).json({ error: 'Error logging in' }); 
+    }
 });
+
+// --- PROFILE ROUTES ---
+app.get('/api/user/profile', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.json({ name: 'Guest', city: '', skills: [] });
+    res.json(req.user.profile || {});
+});
+
+app.put('/api/user/profile', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
+    try {
+        const { name, city, bio, skills, interests } = req.body;
+        
+        if (!req.user.profile) req.user.profile = {};
+        
+        if (name !== undefined) req.user.profile.name = name;
+        if (city !== undefined) req.user.profile.city = city;
+        if (bio !== undefined) req.user.profile.bio = bio;
+        if (skills) req.user.profile.skills = skills;
+        if (interests) req.user.profile.interests = interests;
+
+        await req.user.save();
+        res.json(req.user.profile);
+    } catch (e) { 
+        console.error("Profile update error:", e);
+        res.status(500).json({ error: 'Failed to update profile' }); 
+    }
+});
+
+// --- PREFERENCES ROUTES (REMINDERS) ---
+app.get('/api/user/preferences', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.json({});
+    res.json(req.user.preferences || {});
+});
+
+app.put('/api/user/preferences', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
+    try {
+        const { dailyGoal, studyTime, reminderDays, notifications } = req.body;
+        
+        req.user.preferences = {
+            dailyGoal: dailyGoal || 15,
+            studyTime: studyTime || '18:00',
+            reminderDays: reminderDays || [],
+            notifications: notifications || { practice: true, streaks: true, community: false }
+        };
+
+        await req.user.save();
+        res.json(req.user.preferences);
+    } catch (e) { 
+        console.error("Preferences update error:", e);
+        res.status(500).json({ error: 'Failed to update preferences' }); 
+    }
+});
+
+
+// --- CAREER HUB ROUTES (PROSPECTS) ---
+app.get('/api/career/prospects', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.json({ prospects: [] });
+    res.json({ prospects: req.user.prospects || [] });
+});
+
+app.post('/api/career/prospects', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
+    try {
+        const { prospect } = req.body;
+        // Simple dup check
+        const exists = req.user.prospects.some(p => p.name === prospect.name);
+        if (!exists) {
+            req.user.prospects.push(prospect);
+            await req.user.save();
+        }
+        res.json(req.user.prospects);
+    } catch (e) { res.status(500).json({ error: 'Failed to add prospect' }); }
+});
+
+app.put('/api/career/prospects/:id', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
+    try {
+        const { status } = req.body;
+        const prospect = req.user.prospects.find(p => p.id === req.params.id);
+        if (prospect) {
+            prospect.status = status;
+            await req.user.save();
+        }
+        res.json(req.user.prospects);
+    } catch (e) { res.status(500).json({ error: 'Failed to update prospect' }); }
+});
+
+app.delete('/api/career/prospects/:id', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
+    try {
+        req.user.prospects = req.user.prospects.filter(p => p.id !== req.params.id);
+        await req.user.save();
+        res.json(req.user.prospects);
+    } catch (e) { res.status(500).json({ error: 'Failed to delete prospect' }); }
+});
+
 
 // Progress
 app.get('/api/user/progress', ensureAuthenticated, async (req, res) => {
@@ -106,9 +215,6 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
         const user = req.user;
         if (!user.progress) user.progress = {};
         
-        // Safer Sync: Ensure points never decrease if frontend sends 0 by mistake
-        // However, if points legitimately increase, take the max or add (logic depends on frontend, here we assume frontend calculates total)
-        // To be safe: If backend has points and frontend sends 0, keep backend. If frontend > backend, take frontend.
         const currentPoints = user.progress.points || 0;
         const incomingPoints = points || 0;
         if (incomingPoints > currentPoints) {
@@ -136,7 +242,6 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
         
         if (assignmentScores) {
             if (!user.progress.assignmentScores) user.progress.assignmentScores = new Map();
-            // Merge logic: Don't overwrite existing scores with nothing, but allow updates
             Object.keys(assignmentScores).forEach(courseId => {
                 user.progress.assignmentScores.set(courseId, assignmentScores[courseId]);
             });
@@ -149,6 +254,11 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
 
 // Community
 app.get('/api/community/posts', async (req, res) => {
+    // DEFENSIVE: If DB is not ready, return empty array instead of crashing
+    if (dbStatus !== 'connected') {
+        console.warn("DB disconnected, returning empty feed.");
+        return res.json([]);
+    }
     try {
         const currentUser = getUserFromToken(req);
         const { circleId } = req.query;
@@ -156,22 +266,41 @@ app.get('/api/community/posts', async (req, res) => {
         if (circleId && circleId !== 'undefined' && circleId !== 'null') query = { circleId };
 
         const posts = await Post.find(query).sort({ createdAt: -1 }).limit(50).lean();
-        const formatted = posts.map(post => ({
-            ...post,
-            likes: post.likes ? post.likes.length : 0,
-            isLiked: currentUser && post.likes ? post.likes.some(id => id.toString() === currentUser.id) : false,
-            isMine: currentUser && post.authorId && post.authorId.toString() === currentUser.id,
-            commentCount: post.comments ? post.comments.length : 0
-        }));
+        
+        // Robust mapping to prevent 500 errors if data is dirty
+        const formatted = posts.map(post => {
+            try {
+                return {
+                    ...post,
+                    _id: post._id.toString(),
+                    likes: Array.isArray(post.likes) ? post.likes.length : 0,
+                    isLiked: currentUser && Array.isArray(post.likes) 
+                        ? post.likes.some(id => id && id.toString() === currentUser.id) 
+                        : false,
+                    isMine: currentUser && post.authorId 
+                        ? post.authorId.toString() === currentUser.id 
+                        : false,
+                    commentCount: post.comments ? post.comments.length : 0
+                };
+            } catch (mapError) {
+                console.warn("Skipping malformed post:", post._id);
+                return null;
+            }
+        }).filter(p => p !== null);
+
         res.json(formatted);
-    } catch (err) { res.status(500).json({ error: 'Fetch failed' }); }
+    } catch (err) { 
+        console.error("Post fetch error:", err);
+        res.status(500).json({ error: 'Fetch failed' }); 
+    }
 });
 
 app.post('/api/community/posts', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
         const { content, circleId, isGuruji } = req.body;
         
-        let authorName = req.user.email.split('@')[0];
+        let authorName = req.user.profile?.name || req.user.email.split('@')[0];
         let authorRole = 'Student';
         
         // Allow forcing "Guruji" persona if requested (could secure this more in prod)
@@ -191,10 +320,14 @@ app.post('/api/community/posts', ensureAuthenticated, async (req, res) => {
         });
         await newPost.save();
         res.status(201).json(newPost);
-    } catch (err) { res.status(500).json({ error: 'Post failed' }); }
+    } catch (err) { 
+        console.error("Post create error:", err);
+        res.status(500).json({ error: 'Post failed' }); 
+    }
 });
 
 app.put('/api/community/posts/:id', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Not found' });
@@ -207,13 +340,14 @@ app.put('/api/community/posts/:id', ensureAuthenticated, async (req, res) => {
 });
 
 app.post('/api/community/posts/:id/comments', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Not found' });
         
         post.comments.push({ 
             userId: req.user._id, 
-            authorName: req.user.email.split('@')[0], 
+            authorName: req.user.profile?.name || req.user.email.split('@')[0], 
             content: req.body.content 
         });
         await post.save();
@@ -222,6 +356,7 @@ app.post('/api/community/posts/:id/comments', ensureAuthenticated, async (req, r
 });
 
 app.post('/api/community/posts/:id/like', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Not found' });
@@ -242,6 +377,7 @@ app.get('/api/community/user-circles', ensureAuthenticated, (req, res) => {
 });
 
 app.post('/api/community/circles/:id/join', ensureAuthenticated, async (req, res) => {
+    if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
         const user = await User.findById(req.user._id);
         const circleId = req.params.id;

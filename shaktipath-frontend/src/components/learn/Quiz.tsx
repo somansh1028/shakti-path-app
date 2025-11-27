@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import type { Quiz as QuizType } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
 import { useUserProgress } from '../../contexts/UserProgressContext';
@@ -16,6 +17,11 @@ const Quiz: React.FC<QuizProps> = ({ quiz, lessonId }) => {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const isCompleted = isQuizCompleted(quiz.id);
+
+  useEffect(() => {
+    setSelectedOptionId(null);
+    setFeedback(null);
+  }, [quiz.id]);
 
   const handleCheckAnswer = () => {
     if (!selectedOptionId) return;
@@ -36,13 +42,17 @@ const Quiz: React.FC<QuizProps> = ({ quiz, lessonId }) => {
     return null;
   }
 
+  // Helper to prioritize direct text
+  const getQuestionText = () => quiz.question || (quiz.questionKey ? t(quiz.questionKey) : '');
+  const getOptionText = (opt: any) => opt.text || (opt.textKey ? t(opt.textKey) : '');
+
   const feedbackClasses = isCompleted || feedback === 'correct'
     ? 'text-green-600 dark:text-green-400'
     : 'text-red-600 dark:text-red-400';
 
   return (
     <div className="bg-primary-100/50 dark:bg-neutral-800/50 p-6 rounded-2xl shadow-inner">
-      <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-4">{t(quiz.questionKey)}</h3>
+      <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-4">{getQuestionText()}</h3>
       <div className="space-y-3">
         {quiz.options.map(option => (
           <button
@@ -59,7 +69,7 @@ const Quiz: React.FC<QuizProps> = ({ quiz, lessonId }) => {
                 : 'bg-white dark:bg-neutral-700 border-transparent hover:border-primary-300'
             } ${isCompleted ? 'cursor-not-allowed opacity-70' : ''}`}
           >
-            {t(option.textKey)}
+            {getOptionText(option)}
           </button>
         ))}
       </div>

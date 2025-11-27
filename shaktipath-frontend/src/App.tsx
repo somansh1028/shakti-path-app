@@ -6,6 +6,7 @@ import { SparkleIcon } from './components/icons/SparkleIcon';
 import LanguageSelectionPage from './components/LanguageSelectionPage';
 import { I18nProvider, useI18n } from './contexts/I18nContext';
 import { UserProgressProvider, useUserProgress } from './contexts/UserProgressContext';
+import { CareerProvider } from './contexts/CareerContext';
 import BottomNavBar from './components/navigation/BottomNavBar';
 import LearnPage from './components/learn/LearnPage';
 import CommunityPage from './components/community/CommunityPage';
@@ -32,10 +33,13 @@ const App: React.FC = () => {
   return (
     <I18nProvider>
       <UserProgressProvider>
-        <ToastProvider>
-          <AppContainer />
-          <Toast />
-        </ToastProvider>
+        {/* CareerProvider wraps the main app logic to expose context to all career tools */}
+        <CareerProvider>
+          <ToastProvider>
+            <AppContainer />
+            <Toast />
+          </ToastProvider>
+        </CareerProvider>
       </UserProgressProvider>
     </I18nProvider>
   );
@@ -128,6 +132,40 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
     checkSystemHealth();
   }, [checkSystemHealth]);
 
+  const handleLogout = useCallback(async () => {
+    if (user?.isDemo) {
+      setUser(null);
+      setAppStatus(null); // Reset status to trigger health check next time
+      checkSystemHealth();
+      return;
+    }
+    const token = localStorage.getItem('authToken');
+    try {
+      if (token) {
+        await fetch(`${API_BASE_URL}/api/auth/logout`, { 
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to call server logout:', error);
+    } finally {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userEmail');
+      setUser(null);
+    }
+  }, [user, checkSystemHealth]);
+
+  // Global Event Listener for 401 Unauthorized
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      console.log("Session expired or unauthorized. Logging out.");
+      handleLogout();
+    };
+    window.addEventListener('auth-unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth-unauthorized', handleUnauthorized);
+  }, [handleLogout]);
+
   const handleLoginAttempt = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     setAuthError(null);
@@ -203,28 +241,6 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
       setAuthError('Could not connect to the server.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    if (user?.isDemo) {
-      setUser(null);
-      setAppStatus(null); // Reset status to trigger health check next time
-      checkSystemHealth();
-      return;
-    }
-    const token = localStorage.getItem('authToken');
-    try {
-      await fetch(`${API_BASE_URL}/api/auth/logout`, { 
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-    } catch (error) {
-      console.error('Failed to call server logout:', error);
-    } finally {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userEmail');
-      setUser(null);
     }
   };
   

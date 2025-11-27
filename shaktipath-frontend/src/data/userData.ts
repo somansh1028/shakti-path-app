@@ -1,33 +1,15 @@
-import type { Prospect } from '../types';
 
-export interface UserProgress {
-  points: number;
-  lessonsDone: number;
-  pathsMastered: number;
-}
+import type { UserData } from '../types';
 
-export interface Badge {
-  id: string;
-  nameKey: string;
-  icon: string;
-}
-
-interface UserData {
-  profile: {
-    name: string;
-    city: string;
-  };
-  progress: UserProgress;
-  completedCourses: string[]; // Array of course IDs
-  badges: Badge[];
-  prospects: Prospect[];
-}
-
-// Mock data based on the screenshot for a new user
+// Mock data for initial state or offline mode
 export const userData: UserData = {
   profile: {
     name: "Aisha",
     city: "Singapore",
+    bio: "Aspiring digital marketer",
+    skills: ["Canva", "Communication"],
+    interests: ["Design", "Social Media"],
+    avatar: ""
   },
   progress: {
     points: 0,

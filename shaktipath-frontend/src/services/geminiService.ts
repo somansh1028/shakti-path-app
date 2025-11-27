@@ -23,6 +23,7 @@ export const sendMessageToGeminiStream = async (
 
     if (!response.ok) {
         if (response.status === 401) {
+            window.dispatchEvent(new Event('auth-unauthorized'));
             throw new Error("UNAUTHORIZED");
         }
         let errorMsg = `HTTP error! status: ${response.status}`;
@@ -96,6 +97,7 @@ export const generateGeminiResponse = async (
 
     if (!response.ok) {
       if (response.status === 401) {
+        window.dispatchEvent(new Event('auth-unauthorized'));
         throw new Error("UNAUTHORIZED");
       }
 

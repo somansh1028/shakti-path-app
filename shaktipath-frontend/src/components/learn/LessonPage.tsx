@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import type { Course, Lesson } from '../../types';
+import type { Course, Lesson, LessonContent } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
 import { useUserProgress } from '../../contexts/UserProgressContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -24,7 +23,7 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
   // Local state for checklists
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
-  // Reset checklist state when lesson changes to avoid growing state indefinitely
+  // Reset checklist state when lesson changes
   useEffect(() => {
     setCheckedItems({});
   }, [lesson.id]);
@@ -42,6 +41,16 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
       onNavigate('next');
   };
 
+  // Helper to get content string (prioritize direct text, fallback to translation key)
+  const getContent = (item: LessonContent) => {
+      if (item.text) return item.text;
+      if (item.contentKey) return t(item.contentKey);
+      return '';
+  };
+  
+  // Helper for Title/Description
+  const getText = (text?: string, key?: string) => text || (key ? t(key) : '');
+
   return (
     <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full">
       <header className="relative flex flex-col items-center mb-8 pt-4">
@@ -54,33 +63,36 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
             <div className="bg-primary-100 dark:bg-primary-900/40 px-3 py-1 rounded-full">
                 <span className="text-xs font-bold text-primary-700 dark:text-primary-300 uppercase tracking-wider">{t('lesson')} {currentIndex + 1} / {course.lessons.length}</span>
             </div>
-            <div className="w-10"></div> {/* Spacer for alignment */}
+            <div className="w-10"></div>
         </div>
         
         <div className="text-center w-full px-4">
-            <h1 className="text-2xl font-display font-bold text-neutral-800 dark:text-white leading-tight mb-2">{t(lesson.titleKey)}</h1>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{t(course.titleKey)}</p>
+            <h1 className="text-2xl font-display font-bold text-neutral-800 dark:text-white leading-tight mb-2">{getText(lesson.title, lesson.titleKey)}</h1>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{getText(course.title, course.titleKey)}</p>
         </div>
       </header>
 
       <div className="space-y-6 max-w-lg mx-auto">
-            {lesson.content?.map((item, index) => {
+            {lesson.content?.map((item: LessonContent, index: number) => {
+                const contentText = getContent(item);
+
                 if (item.type === 'heading') {
                     return (
                         <div key={index} className="pt-4 pb-2">
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center">
                                <span className="w-2 h-8 bg-accent-400 rounded-full mr-3 shadow-sm"></span>
-                               {t(item.contentKey)}
+                               {contentText}
                             </h3>
                         </div>
                     );
                 }
+                
                 if (item.type === 'video') {
                     return (
                         <div key={index} className="rounded-3xl overflow-hidden shadow-soft border-2 border-neutral-100 dark:border-neutral-700 bg-black aspect-video relative group">
                             <iframe
                                 className="w-full h-full"
-                                src={`https://www.youtube.com/embed/${t(item.contentKey)}`}
+                                src={`https://www.youtube.com/embed/${contentText}`}
                                 title="Video Lesson"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -89,9 +101,9 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
+
                 if (item.type === 'list') {
-                    const text = t(item.contentKey);
-                    const items = text.split('|').map(s => s.trim()).filter(s => s);
+                    const items = contentText.split('|').map(s => s.trim()).filter(s => s);
                     return (
                         <div key={index} className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-soft">
                             <ul className="space-y-4">
@@ -107,9 +119,9 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
+
                 if (item.type === 'checklist') {
-                    const text = t(item.contentKey);
-                    const items = text.split('|').map(s => s.trim()).filter(s => s);
+                    const items = contentText.split('|').map(s => s.trim()).filter(s => s);
                     return (
                         <div key={index} className="bg-primary-50 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800/50 shadow-soft">
                             <p className="text-xs font-bold text-primary-600 dark:text-primary-300 mb-4 uppercase tracking-wider flex items-center">
@@ -139,10 +151,11 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
-                // Paragraph
+
+                // Paragraph (Default)
                 return (
                     <div key={index} className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-soft">
-                        <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-lg">{t(item.contentKey)}</p>
+                        <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-lg">{contentText}</p>
                     </div>
                 );
             })}

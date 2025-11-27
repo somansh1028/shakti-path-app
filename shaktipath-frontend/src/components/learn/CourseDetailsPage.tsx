@@ -15,6 +15,8 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
   const { t } = useI18n();
   const { isLessonCompleted, isCourseCompleted, assignmentScores } = useUserProgress();
   
+  const getText = (text?: string, key?: string) => text || (key ? t(key) : '');
+
   const completedLessonsCount = course.lessons.filter(lesson => isLessonCompleted(lesson.id)).length;
   const totalLessons = course.lessons.length;
   const progressPercentage = totalLessons > 0 ? (completedLessonsCount / totalLessons) * 100 : 0;
@@ -30,12 +32,12 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-xl font-bold text-neutral-900 dark:text-white text-center flex-1">{t(course.titleKey)}</h1>
+        <h1 className="text-xl font-bold text-neutral-900 dark:text-white text-center flex-1">{getText(course.title, course.titleKey)}</h1>
       </header>
 
       <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm mb-8">
-        <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">{t(course.titleKey)}</h2>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{t(course.descriptionKey)}</p>
+        <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">{getText(course.title, course.titleKey)}</h2>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{getText(course.description, course.descriptionKey)}</p>
         
         <div className="mt-4">
           <div className="flex justify-between items-center mb-1">
@@ -80,7 +82,7 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
                 }
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-neutral-900 dark:text-white">{t(lesson.titleKey)}</h3>
+              <h3 className="font-medium text-neutral-900 dark:text-white">{getText(lesson.title, lesson.titleKey)}</h3>
               <p className="text-sm text-neutral-500 dark:text-neutral-400">{lesson.duration} min</p>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,15 +96,15 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
         <div className="mt-8 mb-10">
             <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">{t('final_assignment')}</h2>
             <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm">
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{t(course.assignment.titleKey)}</h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">{t(course.assignment.descriptionKey)}</p>
+                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{getText(course.assignment.title, course.assignment.titleKey)}</h3>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">{getText(course.assignment.description, course.assignment.descriptionKey)}</p>
                 <div className="mt-6">
                     <h4 className="font-semibold text-neutral-800 dark:text-neutral-200 mb-3">{t('review_criteria')}</h4>
                     <ul className="space-y-3 mb-6">
-                        {course.assignment.reviewCriteria.map(criterion => (
-                            <li key={criterion.nameKey}>
-                                <p className="font-medium text-neutral-700 dark:text-neutral-300">{t(criterion.nameKey)}</p>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400">{t(criterion.descriptionKey)}</p>
+                        {course.assignment.reviewCriteria.map((criterion, i) => (
+                            <li key={i}>
+                                <p className="font-medium text-neutral-700 dark:text-neutral-300">{getText(criterion.name, criterion.nameKey)}</p>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">{getText(criterion.description, criterion.descriptionKey)}</p>
                             </li>
                         ))}
                     </ul>
