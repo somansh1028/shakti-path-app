@@ -2,9 +2,17 @@
 import type { LearningPath, Course, Assignment, Badge } from '../types';
 import { smartphoneLessons as en_sm, computerLessons as en_comp, englishLessons as en_eng, freelanceLessons as en_free, moneyLessons as en_mon } from './content/en/foundational';
 import { smartphoneLessons as hi_sm, computerLessons as hi_comp, englishLessons as hi_eng, freelanceLessons as hi_free, moneyLessons as hi_mon } from './content/hi/foundational';
-import { canvaLessons, whatsappLessons, reelsLessons, gbpLessons } from './content/en/digitalMarketing';
-import { dataEntryLessons, researchLessons, adminLessons } from './content/en/virtualAssistant';
-import { aiBasicsLessons, chatPromptingLessons, aiToolsLessons } from './content/en/aiSkills';
+import { smartphoneLessons as mr_sm, computerLessons as mr_comp, englishLessons as mr_eng, freelanceLessons as mr_free, moneyLessons as mr_mon } from './content/mr/foundational';
+
+import { canvaLessons as en_canva, whatsappLessons as en_wa, reelsLessons as en_reels, gbpLessons as en_gbp } from './content/en/digitalMarketing';
+import { canvaLessons as mr_canva, whatsappLessons as mr_wa, reelsLessons as mr_reels, gbpLessons as mr_gbp } from './content/mr/digitalMarketing';
+
+import { dataEntryLessons as en_data, researchLessons as en_res, adminLessons as en_admin } from './content/en/virtualAssistant';
+import { dataEntryLessons as mr_data, researchLessons as mr_res, adminLessons as mr_admin } from './content/mr/virtualAssistant';
+
+import { aiBasicsLessons as en_aib, chatPromptingLessons as en_chat, aiToolsLessons as en_tools } from './content/en/aiSkills';
+import { aiBasicsLessons as mr_aib, chatPromptingLessons as mr_chat, aiToolsLessons as mr_tools } from './content/mr/aiSkills';
+
 
 // --- Helpers for Metadata ---
 const createAssignment = (key: string, format: string = '3 Screenshots'): Assignment => ({
@@ -25,18 +33,34 @@ const createBadge = (id: string, key: string, icon: string): Badge => ({
 });
 
 // --- CONTENT SELECTOR ---
-// Currently only Foundational has Hindi translations for demo.
-// Others fallback to English constants.
 const getFoundationalContent = (lang: string) => {
-    if (lang === 'hi') {
-        return { sm: hi_sm, comp: hi_comp, eng: hi_eng, free: hi_free, mon: hi_mon };
-    }
+    if (lang === 'hi') return { sm: hi_sm, comp: hi_comp, eng: hi_eng, free: hi_free, mon: hi_mon };
+    if (lang === 'mr') return { sm: mr_sm, comp: mr_comp, eng: mr_eng, free: mr_free, mon: mr_mon };
     return { sm: en_sm, comp: en_comp, eng: en_eng, free: en_free, mon: en_mon };
+}
+
+const getDigitalMarketingContent = (lang: string) => {
+    if (lang === 'mr') return { canva: mr_canva, wa: mr_wa, reels: mr_reels, gbp: mr_gbp };
+    // Fallback to English for Hindi for now (or add Hindi files later)
+    return { canva: en_canva, wa: en_wa, reels: en_reels, gbp: en_gbp };
+}
+
+const getVAContent = (lang: string) => {
+    if (lang === 'mr') return { data: mr_data, res: mr_res, admin: mr_admin };
+    return { data: en_data, res: en_res, admin: en_admin };
+}
+
+const getAIContent = (lang: string) => {
+    if (lang === 'mr') return { aib: mr_aib, chat: mr_chat, tools: mr_tools };
+    return { aib: en_aib, chat: en_chat, tools: en_tools };
 }
 
 // --- DYNAMIC COURSE GENERATOR ---
 export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
     const foundationalContent = getFoundationalContent(lang);
+    const dmContent = getDigitalMarketingContent(lang);
+    const vaContent = getVAContent(lang);
+    const aiContent = getAIContent(lang);
 
     // Foundational
     const course_smartphone: Course = { id: 'c_found_1', titleKey: 'course_smartphone_title', descriptionKey: 'course_smartphone_desc', icon: '📱', lessons: foundationalContent.sm, assignment: createAssignment('foundational'), badge: createBadge('found', 'foundational', '🎓') };
@@ -45,62 +69,59 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
     const course_freelance: Course = { id: 'c_found_4', titleKey: 'course_freelance_title', descriptionKey: 'course_freelance_desc', icon: '🌍', lessons: foundationalContent.free, assignment: createAssignment('foundational'), badge: createBadge('free', 'foundational', '🌍') };
     const course_money: Course = { id: 'c_found_5', titleKey: 'course_money_title', descriptionKey: 'course_money_desc', icon: '💰', lessons: foundationalContent.mon, assignment: createAssignment('foundational'), badge: createBadge('mon', 'foundational', '💰') };
 
-    // Digital Marketing (English only for now, easily extendable)
+    // Digital Marketing
     const canvaAssignmentObj: Assignment = {
-        title: "Create 3 Social Media Posts",
-        description: "Complete the final project by designing three social media posts for a fictional 'Seema's Salon'. Upload your designs as PNG or JPG files for AI review.",
-        submissionFormat: "3 PNG/JPG Files",
+        titleKey: 'assignment_canva_title',
+        descriptionKey: 'assignment_canva_desc',
+        submissionFormat: lang === 'mr' ? "3 फाइल्स" : "3 Files",
         reviewCriteria: [
-            { name: "Brand Consistency", description: "Do the posts use a consistent color scheme, font, and logo placement?", maxScore: 30 },
-            { name: "Visual Appeal", description: "Are the posts visually balanced, easy to read, and attractive?", maxScore: 40 },
-            { name: "Message Clarity", description: "Is the offer or message in each post clear and easy to understand?", maxScore: 30 }
+            { nameKey: 'assignment_criteria_1_name', descriptionKey: 'assignment_criteria_1_desc', maxScore: 30 },
+            { nameKey: 'assignment_criteria_2_name', descriptionKey: 'assignment_criteria_2_desc', maxScore: 40 },
+            { nameKey: 'assignment_criteria_3_name', descriptionKey: 'assignment_criteria_3_desc', maxScore: 30 }
         ]
     };
-    const canvaBadgeObj: Badge = { id: 'badge-canva-1', name: 'Social Design Starter', icon: '🎨' };
+    const canvaBadgeObj: Badge = { id: 'badge-canva-1', nameKey: 'badge_canva_name', icon: '🎨' };
     
-    // Note: Using direct text for titles/descriptions for English content modules to match the new file structure
-    const course_canva: Course = { id: 'c1', title: 'Canva for Small Business', description: 'Design social media posts that bring customers.', icon: '🎨', lessons: canvaLessons, assignment: canvaAssignmentObj, badge: canvaBadgeObj };
-    const course_whatsapp: Course = { id: 'c2', title: 'WhatsApp Business for Shops', description: 'Setup a professional presence to manage orders.', icon: '💬', lessons: whatsappLessons, badge: {id: 'b2', name: 'Digital Shopkeeper', icon: '💬'} };
-    const course_reels: Course = { id: 'c3', title: 'Reels/Shorts Editing with CapCut', description: 'Create engaging short videos for social media.', icon: '🎬', lessons: reelsLessons, badge: {id: 'b3', name: 'Reel Director', icon: '🎬'} };
-    const course_gbp: Course = { id: 'c4', title: 'Google Business Profile Setup', description: 'Get your customers found on Google Maps & Search.', icon: '🗺️', lessons: gbpLessons, badge: {id: 'b4', name: 'Local Map Star', icon: '🗺️'} };
+    const course_canva: Course = { id: 'c1', titleKey: 'course_canva_title', descriptionKey: 'course_canva_desc', icon: '🎨', lessons: dmContent.canva, assignment: canvaAssignmentObj, badge: canvaBadgeObj };
+    const course_whatsapp: Course = { id: 'c2', titleKey: 'course_whatsapp_title', descriptionKey: 'course_whatsapp_desc', icon: '💬', lessons: dmContent.wa, badge: {id: 'b2', nameKey: 'badge_whatsapp_name', icon: '💬'} };
+    const course_reels: Course = { id: 'c3', titleKey: 'course_reels_title', descriptionKey: 'course_reels_desc', icon: '🎬', lessons: dmContent.reels, badge: {id: 'b3', nameKey: 'badge_cc_name', icon: '🎬'} };
+    const course_gbp: Course = { id: 'c4', titleKey: 'course_google_profile_title', descriptionKey: 'course_google_profile_desc', icon: '🗺️', lessons: dmContent.gbp, badge: {id: 'b4', nameKey: 'badge_gbp_name', icon: '🗺️'} };
 
     // Virtual Assistant
     const vaAssignment: Assignment = {
-        title: "Virtual Assistant Task",
-        description: "Perform a simulated VA task. Upload screenshots of: 1. A clean spreadsheet, 2. A research summary doc, 3. A polite customer reply draft.",
+        titleKey: 'assignment_va_title',
+        descriptionKey: 'assignment_va_desc',
         submissionFormat: "3 Screenshots",
         reviewCriteria: [
-            { name: "Data Accuracy", description: "Is the spreadsheet data clean?", maxScore: 40 },
-            { name: "Research Skill", description: "Is the summary accurate?", maxScore: 30 },
-            { name: "Communication", description: "Is the tone polite?", maxScore: 30 }
+            { nameKey: 'assignment_va_crit1_name', descriptionKey: 'assignment_va_crit1_desc', maxScore: 40 },
+            { nameKey: 'assignment_va_crit2_name', descriptionKey: 'assignment_va_crit2_desc', maxScore: 30 },
+            { nameKey: 'assignment_va_crit3_name', descriptionKey: 'assignment_va_crit3_desc', maxScore: 30 }
         ]
     };
-    const vaBadge: Badge = { id: 'badge-va-1', name: 'VA Pro', icon: '💼' };
+    const vaBadge: Badge = { id: 'badge-va-1', nameKey: 'badge_va_name', icon: '💼' };
 
-    const course_data: Course = { id: 'c_va_1', title: 'Data Entry & Spreadsheets', description: 'Google Sheets basics and data cleaning.', icon: '📊', lessons: dataEntryLessons, assignment: vaAssignment, badge: vaBadge };
-    const course_research: Course = { id: 'c_va_2', title: 'Online Research', description: 'Finding info and simple reporting.', icon: '🔍', lessons: researchLessons, assignment: vaAssignment, badge: vaBadge };
-    const course_admin: Course = { id: 'c_va_3', title: 'Admin Support', description: 'Email, calendar, and scheduling.', icon: '📅', lessons: adminLessons, assignment: vaAssignment, badge: vaBadge };
+    const course_data: Course = { id: 'c_va_1', titleKey: 'course_data_entry_title', descriptionKey: 'course_data_entry_desc', icon: '📊', lessons: vaContent.data, assignment: vaAssignment, badge: vaBadge };
+    const course_research: Course = { id: 'c_va_2', titleKey: 'course_research_title', descriptionKey: 'course_research_desc', icon: '🔍', lessons: vaContent.res, assignment: vaAssignment, badge: vaBadge };
+    const course_admin: Course = { id: 'c_va_3', titleKey: 'course_admin_title', descriptionKey: 'course_admin_desc', icon: '📅', lessons: vaContent.admin, assignment: vaAssignment, badge: vaBadge };
 
     // AI Skills
     const aiAssignment: Assignment = {
-        title: "AI Assisted Project",
-        description: "Use AI to solve a problem. Upload screenshots of: 1. Your prompt to the AI, 2. The useful output from AI, 3. How you applied it.",
+        titleKey: 'assignment_ai_title',
+        descriptionKey: 'assignment_ai_desc',
         submissionFormat: "3 Screenshots",
         reviewCriteria: [
-            { name: "Prompt Quality", description: "Was the prompt clear?", maxScore: 40 },
-            { name: "AI Utility", description: "Did the AI provide value?", maxScore: 30 },
-            { name: "Application", description: "Did you use the result effectively?", maxScore: 30 }
+            { nameKey: 'assignment_ai_crit1_name', descriptionKey: 'assignment_ai_crit1_desc', maxScore: 40 },
+            { nameKey: 'assignment_ai_crit2_name', descriptionKey: 'assignment_ai_crit2_desc', maxScore: 30 },
+            { nameKey: 'assignment_ai_crit3_name', descriptionKey: 'assignment_ai_crit3_desc', maxScore: 30 }
         ]
     };
-    const aiBadge: Badge = { id: 'badge-ai-1', name: 'AI Explorer', icon: '🤖' };
+    const aiBadge: Badge = { id: 'badge-ai-1', nameKey: 'badge_ai_name', icon: '🤖' };
 
-    const course_ai_basics: Course = { id: 'c_ai_1', title: 'AI in Simple Terms', description: 'What is AI and what it isn\'t.', icon: '🧠', lessons: aiBasicsLessons, assignment: aiAssignment, badge: aiBadge };
-    const course_prompting: Course = { id: 'c_ai_2', title: 'Using AI Chatbots', description: 'Asking good questions (prompting).', icon: '💬', lessons: chatPromptingLessons, assignment: aiAssignment, badge: aiBadge };
-    const course_ai_tools: Course = { id: 'c_ai_3', title: 'AI in Daily Tools', description: 'AI in Canva, Docs, and more.', icon: '🛠️', lessons: aiToolsLessons, assignment: aiAssignment, badge: aiBadge };
+    const course_ai_basics: Course = { id: 'c_ai_1', titleKey: 'course_ai_basics_title', descriptionKey: 'course_ai_basics_desc', icon: '🧠', lessons: aiContent.aib, assignment: aiAssignment, badge: aiBadge };
+    const course_prompting: Course = { id: 'c_ai_2', titleKey: 'course_chatbots_title', descriptionKey: 'course_chatbots_desc', icon: '💬', lessons: aiContent.chat, assignment: aiAssignment, badge: aiBadge };
+    const course_ai_tools: Course = { id: 'c_ai_3', titleKey: 'course_ai_tools_title', descriptionKey: 'course_ai_tools_desc', icon: '🛠️', lessons: aiContent.tools, assignment: aiAssignment, badge: aiBadge };
 
     // Return Paths
-    // Note: We use titleKey for top-level paths to keep them translatable via en.json/hi.json, 
-    // but the courses inside use the direct titles defined above for English.
     return [
         { 
             id: 'lp_found', 
@@ -140,5 +161,4 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
     ];
 };
 
-// Fallback for older imports if any (deprecated)
 export const learningPaths = getLearningPaths('en');

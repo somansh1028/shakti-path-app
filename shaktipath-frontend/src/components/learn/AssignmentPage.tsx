@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import type { Course, AIReviewResult } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
 import { generateGeminiResponse } from '../../services/geminiService';
@@ -78,6 +78,13 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Helper to handle optional text/keys safely
+  const getText = (text: string | undefined, key: string | undefined): string => {
+    if (text) return text;
+    if (key) return t(key);
+    return '';
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     const selectedFiles = Array.from(event.target.files || []) as File[];
@@ -128,11 +135,18 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
           return;
       }
 
-      const reviewCriteriaText = course.assignment!.reviewCriteria
-        .map(c => `- ${t(c.nameKey)} (${c.maxScore} points): ${t(c.descriptionKey)}`)
+      // Safe check for assignment existence
+      if (!course.assignment) {
+          setError("Assignment data missing");
+          setIsSubmitting(false);
+          return;
+      }
+
+      const reviewCriteriaText = course.assignment.reviewCriteria
+        .map(c => `- ${getText(c.name, c.nameKey)} (${c.maxScore} points): ${getText(c.description, c.descriptionKey)}`)
         .join('\n');
 
-      const prompt = `You are an expert design instructor reviewing a student's final project for the '${t(course.titleKey)}' course. The assignment was to create 3 social media posts.
+      const prompt = `You are an expert design instructor reviewing a student's final project for the '${getText(course.title, course.titleKey)}' course. The assignment was to create 3 social media posts.
       Please evaluate the three attached images based on the following criteria:
       ${reviewCriteriaText}
 
@@ -182,6 +196,9 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
       }
   };
 
+  const titleText = course.assignment ? getText(course.assignment.title, course.assignment.titleKey) : '';
+  const descText = course.assignment ? getText(course.assignment.description, course.assignment.descriptionKey) : '';
+
   return (
     <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full relative">
       {/* Loading Overlay */}
@@ -208,8 +225,8 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
       </header>
 
       <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm">
-        <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">{t(course.assignment!.titleKey)}</h2>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2 mb-6">{t(course.assignment!.descriptionKey)}</p>
+        <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">{titleText}</h2>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2 mb-6">{descText}</p>
 
         <div className={`bg-neutral-100 dark:bg-neutral-700/50 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 ${isSubmitting ? 'opacity-50' : ''}`}>
            <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 mb-2">{t('assignment_upload_title')}</h3>

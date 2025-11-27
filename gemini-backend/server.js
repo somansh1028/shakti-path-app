@@ -27,7 +27,18 @@ let dbStatus = 'disconnected';
 let ai = null;
 if (API_KEY) ai = new GoogleGenAI({ apiKey: API_KEY });
 
-app.use(cors({ origin: true, credentials: true }));
+// --- CORS CONFIGURATION (CRITICAL FIX) ---
+// This allows your Vercel frontend to communicate with this Render backend.
+app.use(cors({
+  origin: true, // Automatically reflect the request origin (allows all origins)
+  credentials: true, // Allow cookies/auth headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Explicitly handle Preflight (OPTIONS) requests for all routes
+app.options('*', cors());
+
 // INCREASED LIMIT TO 100MB to handle multiple high-res image uploads safely
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));

@@ -19,6 +19,13 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  // Safe helper to get text
+  const getText = (text: string | undefined, key: string | undefined): string => {
+    if (text) return text;
+    if (key) return t(key);
+    return '';
+  };
+
   const passingScore = 70;
   const isPassed = result.overallScore >= passingScore;
 
@@ -36,8 +43,15 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
 
   // Memoize the score breakdown to avoid re-calculating on every render
   const scoreBreakdown = useMemo(() => {
-    return course.assignment!.reviewCriteria.map(criterion => {
-        const resultCriterion = result.criteriaScores.find(cs => cs.criterionName === t(criterion.nameKey));
+    if (!course.assignment) return [];
+    
+    return course.assignment.reviewCriteria.map(criterion => {
+        const criterionName = getText(criterion.name, criterion.nameKey);
+        // Find matching score, being resilient to potential minor translation mismatches from AI
+        const resultCriterion = result.criteriaScores.find(cs => 
+            cs.criterionName === criterionName || 
+            cs.criterionName.includes(criterionName.substring(0, 10)) // Fallback partial match
+        );
         return {
             ...criterion,
             score: resultCriterion ? resultCriterion.score : 0,
@@ -98,7 +112,8 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
       
       ctx.fillStyle = '#7C3AED';
       ctx.font = 'bold 50px Arial';
-      ctx.fillText(t(course.titleKey), width / 2, 560);
+      const courseTitle = getText(course.title, course.titleKey);
+      ctx.fillText(courseTitle, width / 2, 560);
 
       // Date
       const dateStr = new Date().toLocaleDateString();
@@ -188,10 +203,10 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
       <div className="mt-6 bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm">
         <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">{t('review_breakdown')}</h3>
         <ul className="space-y-4">
-            {scoreBreakdown.map(criterion => (
-                <li key={criterion.nameKey}>
+            {scoreBreakdown.map((criterion, i) => (
+                <li key={i}>
                     <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{t(criterion.nameKey)}</span>
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{getText(criterion.name, criterion.nameKey)}</span>
                         <span className="text-sm font-bold text-neutral-800 dark:text-neutral-200">{criterion.score} / {criterion.maxScore}</span>
                     </div>
                     <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">

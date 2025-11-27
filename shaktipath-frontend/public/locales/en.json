@@ -1,4 +1,3 @@
-
 {
   "shaktipath": "Shaktipath",
   "lp_hero_title": "Join the Movement Empowering Digital Careers.",
@@ -173,11 +172,6 @@
   "course_google_profile_desc": "Get your customers found on Google Maps & Search.",
 
   "l0_title": "Watch: How Canva Works",
-  "l0_intro": "Before we start designing, watch this short video to see what you can do with Canva on your phone.",
-  "l0_video_id": "yWJp7gQqCQ8",
-  "l0_key_takeaways": "Key Takeaways",
-  "l0_takeaways_list": "Canva has thousands of free templates | You can change text and colors in seconds | It works perfectly on your phone",
-
   "l1_title": "Welcome to Canva on Your Phone",
   "l2_title": "3 Simple Rules of Beautiful Design",
   "l3_title": "Templates That Do the Hard Work",
@@ -282,6 +276,16 @@
   "post_content_3": "Can anyone help me with the WhatsApp Business setup? I'm stuck on the catalog part.",
   "post_like": "Like",
   "post_comment": "Comment",
+
+  "community_guruji_active": "Guruji Active",
+  "community_ask_placeholder": "Ask a question or share something...",
+  "community_ask_button_loading": "Thinking...",
+  "community_ask_button": "Ask Guruji",
+  "community_post_button": "Post",
+  "community_post_button_loading": "Posting...",
+
+  "assignment_analyzing": "Analyzing your designs...",
+  "assignment_processing": "Processing...",
 
   "career_title": "Career Hub",
   "career_subtitle": "AI tools to help you find and win work.",
