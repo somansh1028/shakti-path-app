@@ -1,21 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LearningPathsList from './LearningPathsList';
 import PathDetailsPage from './PathDetailsPage';
 import CourseDetailsPage from './CourseDetailsPage';
 import LessonPage from './LessonPage';
 import AssignmentPage from './AssignmentPage';
 import AssignmentReviewPage from './AssignmentReviewPage';
-import { learningPaths } from '../../data/learningData';
+import { getLearningPaths } from '../../data/learningData';
 import type { LearningPath, Course, Lesson, AIReviewResult } from '../../types';
+import { useI18n } from '../../contexts/I18nContext';
+import { SparkleIcon } from '../icons/SparkleIcon';
 
-type LearnView = 'pathsList' | 'pathDetails' | 'courseDetails' | 'lesson' | 'assignment' | 'assignmentReview';
+type LearnView = 'pathsList' | 'pathDetails' | 'courseDetails' | 'lesson' | 'assignment' | 'assignmentLoading' | 'assignmentReview';
 
 const LearnPage: React.FC = () => {
+  const { language } = useI18n(); // Get current language
   const [view, setView] = useState<LearnView>('pathsList');
+  // Initialize with data immediately to prevent empty flash
+  const [paths, setPaths] = useState<LearningPath[]>(() => getLearningPaths(language));
+  
   const [selectedPath, setSelectedPath] = useState<LearningPath | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [reviewResult, setReviewResult] = useState<AIReviewResult | null>(null);
+
+  // Refresh content and sync selected items when language changes
+  useEffect(() => {
+      const newPaths = getLearningPaths(language);
+      setPaths(newPaths);
+
+      // Sync currently selected items to the new language version
+      // This ensures that if you are on "WhatsApp Course" in English and switch to Marathi,
+      // the view immediately updates to "व्हॉट्सॲप कोर्स" without kicking you back to the list.
+      
+      setSelectedPath(prevPath => {
+          if (!prevPath) return null;
+          return newPaths.find(p => p.id === prevPath.id) || null;
+      });
+
+      setSelectedCourse(prevCourse => {
+          if (!prevCourse) return null;
+          // Find the course in the new structure
+          for (const path of newPaths) {
+              const course = path.courses.find(c => c.id === prevCourse.id);
+              if (course) return course;
+          }
+          return null;
+      });
+
+      setSelectedLesson(prevLesson => {
+          if (!prevLesson) return null;
+           for (const path of newPaths) {
+              for (const course of path.courses) {
+                  const lesson = course.lessons.find(l => l.id === prevLesson.id);
+                  if (lesson) return lesson;
+              }
+          }
+          return null;
+      });
+
+  }, [language]);
 
   const handleSelectPath = (path: LearningPath) => {
     setSelectedPath(path);
@@ -42,7 +85,7 @@ const LearnPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (view === 'assignmentReview' || view === 'assignment') {
+    if (view === 'assignmentReview' || view === 'assignment' || view === 'assignmentLoading') {
         setView('courseDetails');
         setReviewResult(null);
     } else if (view === 'lesson') {
@@ -78,12 +121,19 @@ const LearnPage: React.FC = () => {
     case 'lesson':
       return <LessonPage course={selectedCourse!} lesson={selectedLesson!} onBack={handleBack} onNavigate={handleNavigateLesson} />;
     case 'assignment':
-        return <AssignmentPage course={selectedCourse!} onBack={handleBack} onReviewReceived={handleAssignmentSubmitted}/>;
+        return <AssignmentPage course={selectedCourse!} onBack={handleBack} onSubmitting={() => setView('assignmentLoading')} onReviewReceived={handleAssignmentSubmitted}/>;
+    case 'assignmentLoading':
+        return (
+             <div className="flex flex-col items-center justify-center min-h-full p-4">
+                <SparkleIcon className="w-12 h-12 text-primary-500 animate-spin" />
+                <p className="mt-4 text-lg text-neutral-700 dark:text-neutral-300">{language === 'hi' ? 'मूल्यांकन हो रहा है...' : language === 'mr' ? 'तपासणी होत आहे...' : 'Evaluating...'}</p>
+             </div>
+        );
     case 'assignmentReview':
         return <AssignmentReviewPage course={selectedCourse!} result={reviewResult!} onBack={handleBack} />;
     case 'pathsList':
     default:
-      return <LearningPathsList paths={learningPaths} onSelectPath={handleSelectPath} />;
+      return <LearningPathsList paths={paths} onSelectPath={handleSelectPath} />;
   }
 };
 
