@@ -1,6 +1,6 @@
 
-const CACHE_NAME = 'shaktipath-v1';
-const DYNAMIC_CACHE = 'shaktipath-dynamic-v1';
+const CACHE_NAME = 'shaktipath-v2'; // Bumped version to force update
+const DYNAMIC_CACHE = 'shaktipath-dynamic-v2';
 
 // Files to precache
 const PRECACHE_URLS = [
@@ -10,6 +10,7 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Force new SW to take over immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -17,7 +18,6 @@ self.addEventListener('install', (event) => {
             console.warn('Precache failed for some files:', err);
         });
       })
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -26,7 +26,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => Promise.all(
       keys.map((key) => {
         if (key !== CACHE_NAME && key !== DYNAMIC_CACHE) {
-          return caches.delete(key);
+          return caches.delete(key); // Delete old v1 cache
         }
       })
     )).then(() => self.clients.claim())
@@ -37,43 +37,39 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Skip API requests, non-GET requests, and chrome-extension schemes
-  // This prevents the "Uncaught (in promise) TypeError: Failed to fetch" for API calls when offline
   if (url.pathname.startsWith('/api') || event.request.method !== 'GET' || url.protocol === 'chrome-extension:') {
     return;
   }
 
+  // Network First, Fallback to Cache strategy for HTML/JS/CSS during dev
+  // This ensures you see updates immediately
+  if (url.origin === self.location.origin) {
+      event.respondWith(
+        fetch(event.request)
+          .then((networkResponse) => {
+            const responseToCache = networkResponse.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+            return networkResponse;
+          })
+          .catch(() => {
+            return caches.match(event.request);
+          })
+      );
+      return;
+  }
+
+  // Stale-while-revalidate for others
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      // Return cached response if found
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      // Otherwise fetch from network
-      return fetch(event.request)
-        .then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Cache valid responses
-          const responseToCache = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-
-          return response;
-        })
-        .catch((err) => {
-          console.log('Fetch failed:', err);
-          // Return offline fallback if navigating
-          if (event.request.mode === 'navigate') {
-             return new Response('<h1>Offline</h1><p>Please check your internet connection.</p>', {
-                headers: { 'Content-Type': 'text/html' }
-             });
-          }
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        caches.open(DYNAMIC_CACHE).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
         });
+        return networkResponse;
+      });
+      return cachedResponse || fetchPromise;
     })
   );
 });

@@ -237,7 +237,7 @@ app.delete('/api/career/prospects/:id', ensureAuthenticated, async (req, res) =>
 
 // Progress
 app.get('/api/user/progress', ensureAuthenticated, async (req, res) => {
-    if (dbStatus !== 'connected') return res.json({ points: 0, completedLessons: [], completedQuizzes: [], completedCourses: [], badges: [], assignmentScores: {}, treeState: {} });
+    if (dbStatus !== 'connected') return res.json({ points: 0, completedLessons: [], completedQuizzes: [], completedCourses: [], badges: [], assignmentScores: {} });
     try {
         const p = req.user.progress || {};
         res.json({
@@ -246,8 +246,7 @@ app.get('/api/user/progress', ensureAuthenticated, async (req, res) => {
             completedQuizzes: p.completedQuizzes || [],
             completedCourses: p.completedCourses || [],
             badges: p.badges || [],
-            assignmentScores: p.assignmentScores || {},
-            treeState: p.treeState || { stage: 1, lastWateredDate: null, streak: 0 }
+            assignmentScores: p.assignmentScores || {}
         });
     } catch (e) { 
         console.error("Progress Fetch Error:", e);
@@ -258,7 +257,7 @@ app.get('/api/user/progress', ensureAuthenticated, async (req, res) => {
 app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
     if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
-        const { points, completedLessons, completedQuizzes, completedCourses, badges, assignmentScores, treeState } = req.body;
+        const { points, completedLessons, completedQuizzes, completedCourses, badges, assignmentScores } = req.body;
         const user = req.user;
         if (!user.progress) user.progress = {};
         
@@ -292,10 +291,6 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
             Object.keys(assignmentScores).forEach(courseId => {
                 user.progress.assignmentScores.set(courseId, assignmentScores[courseId]);
             });
-        }
-
-        if (treeState) {
-            user.progress.treeState = treeState;
         }
 
         await user.save();

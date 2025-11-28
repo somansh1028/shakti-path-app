@@ -34,7 +34,7 @@ const initialState: UserProgressState = {
     assignmentScores: {},
     earnedBadges: [],
     points: 0,
-    isInitialized: false
+    isInitialized: false,
 };
 
 export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -52,7 +52,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
                 completedQuizzes: Array.from(newProgress.completedQuizIds),
                 completedCourses: Array.from(newProgress.completedCourseIds),
                 assignmentScores: newProgress.assignmentScores,
-                badges: newProgress.earnedBadges
+                badges: newProgress.earnedBadges,
             };
 
             const res = await fetch(`${API_BASE_URL}/api/user/progress/sync`, {
@@ -87,6 +87,7 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
 
             if (res.ok) {
                 const data = await res.json();
+                
                 setProgress({
                     points: data.points || 0,
                     completedLessonIds: new Set(data.completedLessons || []),
@@ -116,7 +117,13 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             if (current.completedLessonIds.has(lessonId)) return current; // No dupe points
             
             const newSet = new Set(current.completedLessonIds).add(lessonId);
-            const newProgress = { ...current, completedLessonIds: newSet, points: current.points + 10 };
+            const newPoints = current.points + 10;
+            
+            const newProgress = { 
+                ...current, 
+                completedLessonIds: newSet, 
+                points: newPoints
+            };
             syncProgressToBackend(newProgress);
             return newProgress;
         });
@@ -127,7 +134,13 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
             if (current.completedQuizIds.has(quizId)) return current;
 
             const newSet = new Set(current.completedQuizIds).add(quizId);
-            const newProgress = { ...current, completedQuizIds: newSet, points: current.points + 20 };
+            const newPoints = current.points + 20;
+            
+            const newProgress = { 
+                ...current, 
+                completedQuizIds: newSet, 
+                points: newPoints
+            };
             syncProgressToBackend(newProgress);
             return newProgress;
         });
@@ -137,11 +150,13 @@ export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ childr
         setProgress(current => {
             if (current.completedCourseIds.has(courseId)) return current;
             
+            const newPoints = current.points + 100;
+
             const newProgress = {
                 ...current,
                 completedCourseIds: new Set(current.completedCourseIds).add(courseId),
                 earnedBadges: current.earnedBadges.some(b => b.id === badge.id) ? current.earnedBadges : [...current.earnedBadges, badge],
-                points: current.points + 100
+                points: newPoints
             };
             syncProgressToBackend(newProgress);
             return newProgress;
