@@ -22,7 +22,7 @@ interface UserProgressContextType extends UserProgressState {
     isQuizCompleted: (quizId: string) => boolean;
     isCourseCompleted: (courseId: string) => boolean;
     resetProgress: () => void;
-    refreshProgress: () => Promise<void>; // New function exposed
+    refreshProgress: () => Promise<void>;
 }
 
 const UserProgressContext = createContext<UserProgressContextType | undefined>(undefined);
@@ -37,7 +37,6 @@ const initialState: UserProgressState = {
     isInitialized: false
 };
 
-// Export as named export to satisfy named imports in other files
 export const UserProgressProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [progress, setProgress] = useState<UserProgressState>(initialState);
 
@@ -191,5 +190,4 @@ export const useUserProgress = (): UserProgressContextType => {
     return context;
 };
 
-// Also keep default export for compatibility
 export default UserProgressProvider;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Course, Lesson } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
@@ -15,6 +14,7 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
   const { t } = useI18n();
   const { isLessonCompleted, isCourseCompleted, assignmentScores } = useUserProgress();
   
+  // Helper: Prefer direct text from data object (for Marathi/Hindi content), fallback to translation key (English)
   const getText = (text?: string, key?: string) => text || (key ? t(key) : '');
 
   const completedLessonsCount = course.lessons.filter(lesson => isLessonCompleted(lesson.id)).length;

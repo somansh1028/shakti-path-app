@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { LearningPath, Course } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';

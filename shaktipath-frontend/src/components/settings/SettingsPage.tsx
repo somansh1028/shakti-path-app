@@ -90,9 +90,9 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
             if (res.ok) {
                 setProfile(tempProfile);
                 setIsEditing(false);
-                showToast("Profile updated successfully!");
+                showToast(t('profile_toast_success'));
             } else {
-                showToast("Failed to update profile.");
+                showToast(t('profile_toast_fail'));
             }
         } catch (e) {
             showToast("Connection error.");
@@ -101,18 +101,18 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
         }
     };
 
-    const addTag = (type: 'skills' | 'interests', value: string) => {
+    const addTag = (field: 'skills' | 'interests', value: string) => {
         if (!value.trim()) return;
         setTempProfile(prev => ({
             ...prev,
-            [type]: [...prev[type], value.trim()]
+            [field]: [...(prev[field] as string[]), value.trim()]
         }));
     };
 
-    const removeTag = (type: 'skills' | 'interests', index: number) => {
+    const removeTag = (field: 'skills' | 'interests', index: number) => {
         setTempProfile(prev => ({
             ...prev,
-            [type]: prev[type].filter((_, i) => i !== index)
+            [field]: (prev[field] as string[]).filter((_, i) => i !== index)
         }));
     };
 
@@ -148,7 +148,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                     }}
                     className="absolute right-0 text-sm font-bold text-primary-600 dark:text-primary-400"
                 >
-                    {isEditing ? 'Cancel' : 'Edit'}
+                    {isEditing ? t('profile_cancel') : t('profile_edit')}
                 </button>
             </header>
             
@@ -162,7 +162,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                         className="text-2xl font-bold text-center text-neutral-900 dark:text-white bg-transparent border-b border-neutral-300 dark:border-neutral-600 focus:border-primary-500 outline-none w-full"
                         value={tempProfile.name}
                         onChange={(e) => setTempProfile({...tempProfile, name: e.target.value})}
-                        placeholder="Your Name"
+                        placeholder={t('profile_name_placeholder')}
                     />
                 ) : (
                     <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">{profile.name || 'Learner'}</h2>
@@ -175,11 +175,11 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                         className="mt-3 px-3 py-1 text-xs font-medium text-center bg-neutral-100 dark:bg-neutral-700 rounded-full border-none focus:ring-1 focus:ring-primary-500 w-40"
                         value={tempProfile.city}
                         onChange={(e) => setTempProfile({...tempProfile, city: e.target.value})}
-                        placeholder="Your City"
+                        placeholder={t('profile_city_placeholder')}
                     />
                 ) : (
                     <div className="mt-2 px-3 py-1 bg-neutral-100 dark:bg-neutral-700 rounded-full text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                        {profile.city || 'City not set'}
+                        {profile.city || t('profile_city_not_set')}
                     </div>
                 )}
             </div>
@@ -187,25 +187,25 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
             <div className="space-y-6">
                 {/* Bio Section */}
                 <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-5">
-                    <h3 className="text-sm font-bold text-neutral-400 uppercase mb-3">About Me</h3>
+                    <h3 className="text-sm font-bold text-neutral-400 uppercase mb-3">{t('profile_section_about')}</h3>
                     {isEditing ? (
                         <textarea 
                             className="w-full p-3 rounded-xl bg-neutral-50 dark:bg-neutral-700 border-none text-sm focus:ring-1 focus:ring-primary-500"
                             rows={3}
                             value={tempProfile.bio}
                             onChange={(e) => setTempProfile({...tempProfile, bio: e.target.value})}
-                            placeholder="Write a short bio for your job pitch..."
+                            placeholder={t('profile_bio_placeholder')}
                         />
                     ) : (
                         <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                            {profile.bio || 'No bio yet. Add one to help generate better pitches!'}
+                            {profile.bio || t('profile_bio_empty')}
                         </p>
                     )}
                 </div>
 
                 {/* Skills Section */}
                 <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-5">
-                    <h3 className="text-sm font-bold text-neutral-400 uppercase mb-3">My Skills</h3>
+                    <h3 className="text-sm font-bold text-neutral-400 uppercase mb-3">{t('profile_section_skills')}</h3>
                     <div className="flex flex-wrap gap-2 mb-3">
                         {(isEditing ? tempProfile.skills : profile.skills).map((skill, i) => (
                             <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
@@ -220,7 +220,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                         <div className="flex gap-2">
                             <input 
                                 className="flex-1 px-3 py-2 text-sm border rounded-lg dark:bg-neutral-700 dark:border-neutral-600"
-                                placeholder="Add skill (e.g. Canva)"
+                                placeholder={t('profile_skill_placeholder')}
                                 value={skillInput}
                                 onChange={(e) => setSkillInput(e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(e, 'skills', skillInput, setSkillInput)}
@@ -237,7 +237,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
 
                 {/* Interests Section */}
                 <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-5">
-                    <h3 className="text-sm font-bold text-neutral-400 uppercase mb-3">Interests (Ikigai)</h3>
+                    <h3 className="text-sm font-bold text-neutral-400 uppercase mb-3">{t('profile_section_interests')}</h3>
                     <div className="flex flex-wrap gap-2 mb-3">
                         {(isEditing ? tempProfile.interests : profile.interests).map((interest, i) => (
                             <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
@@ -252,7 +252,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                         <div className="flex gap-2">
                             <input 
                                 className="flex-1 px-3 py-2 text-sm border rounded-lg dark:bg-neutral-700 dark:border-neutral-600"
-                                placeholder="Add interest (e.g. Teaching)"
+                                placeholder={t('profile_interest_placeholder')}
                                 value={interestInput}
                                 onChange={(e) => setInterestInput(e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(e, 'interests', interestInput, setInterestInput)}
@@ -274,7 +274,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                         onClick={handleSave}
                         className="w-full py-3 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-600/30 hover:bg-primary-700 transition-transform hover:scale-[1.02]"
                     >
-                        Save Changes
+                        {t('profile_save_button')}
                     </button>
                 </div>
             )}
@@ -284,7 +284,7 @@ const ProfileView: React.FC<{ onBack: () => void; onLogout: () => void }> = ({ o
                     onClick={onLogout}
                     className="w-full py-3 text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                 >
-                    Log Out
+                    {t('profile_logout')}
                 </button>
             </div>
         </div>
@@ -417,7 +417,7 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 }
 
                 if (res.ok) {
-                    showToast(`Schedule synced to cloud! Reminder set for ${studyTime}.`);
+                    showToast(t('reminders_toast_success', { time: studyTime }));
                 } else {
                     showToast("Failed to save settings.");
                 }
@@ -472,7 +472,7 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
             {/* 1. Daily Goal Section */}
             <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-5 mb-5">
-                <h2 className="text-sm font-bold text-neutral-400 uppercase mb-4 tracking-wider">Daily Goal</h2>
+                <h2 className="text-sm font-bold text-neutral-400 uppercase mb-4 tracking-wider">{t('reminders_daily_goal')}</h2>
                 <div className="grid grid-cols-3 gap-3">
                     {[5, 15, 30].map((min) => (
                         <button
@@ -486,7 +486,7 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         >
                             <span className="text-lg font-bold">{min} min</span>
                             <span className="text-[10px] font-medium uppercase opacity-70">
-                                {min === 5 ? 'Casual' : min === 15 ? 'Regular' : 'Serious'}
+                                {min === 5 ? t('reminders_casual') : min === 15 ? t('reminders_regular') : t('reminders_serious')}
                             </span>
                         </button>
                     ))}
@@ -495,10 +495,10 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
             {/* 2. Schedule Section */}
             <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-5 mb-5">
-                <h2 className="text-sm font-bold text-neutral-400 uppercase mb-4 tracking-wider">Your Schedule</h2>
+                <h2 className="text-sm font-bold text-neutral-400 uppercase mb-4 tracking-wider">{t('reminders_schedule_title')}</h2>
                 
                 <div className="flex items-center justify-between mb-6 bg-neutral-50 dark:bg-neutral-700/50 p-3 rounded-xl">
-                    <span className="font-semibold text-neutral-700 dark:text-neutral-200 ml-2">Time of Day</span>
+                    <span className="font-semibold text-neutral-700 dark:text-neutral-200 ml-2">{t('reminders_time_label')}</span>
                     <input 
                         type="time" 
                         value={studyTime}
@@ -530,16 +530,16 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             {/* 3. Notification Preferences */}
             <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-2 mb-8">
                 {[
-                    { id: 'practice', label: 'Practice Reminders', sub: 'Get nudged at your set time', icon: '⏰' },
-                    { id: 'streaks', label: 'Streak Protection', sub: 'Alerts if you\'re about to lose a streak', icon: '🔥' },
-                    { id: 'community', label: 'Community Activity', sub: 'When someone replies to you', icon: '💬' }
+                    { id: 'practice', label: 'reminders_practice_label', sub: 'reminders_practice_sub', icon: '⏰' },
+                    { id: 'streaks', label: 'reminders_streaks_label', sub: 'reminders_streaks_sub', icon: '🔥' },
+                    { id: 'community', label: 'reminders_community_label', sub: 'reminders_community_sub', icon: '💬' }
                 ].map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-4 border-b border-neutral-100 dark:border-neutral-700 last:border-0">
                         <div className="flex items-center">
                             <span className="text-xl mr-3">{item.icon}</span>
                             <div>
-                                <p className="font-semibold text-neutral-900 dark:text-white text-sm">{item.label}</p>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400">{item.sub}</p>
+                                <p className="font-semibold text-neutral-900 dark:text-white text-sm">{t(item.label)}</p>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">{t(item.sub)}</p>
                             </div>
                         </div>
                         <button 
@@ -558,7 +558,7 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     disabled={isSaving}
                     className="w-full py-3.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold rounded-xl shadow-lg hover:scale-[1.01] transition-transform disabled:opacity-70"
                 >
-                    {isSaving ? 'Saving...' : (permissionStatus === 'granted' ? 'Save Preferences' : 'Enable Notifications & Save')}
+                    {isSaving ? t('updating_button') : (permissionStatus === 'granted' ? t('reminders_save_button') : t('reminders_enable_save_button'))}
                 </button>
                 
                 {permissionStatus === 'granted' && (
@@ -566,7 +566,7 @@ const RemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         onClick={handleTestNotification}
                         className="w-full py-3 border-2 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 font-bold rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
                     >
-                        Test Notification (Buzz Me!)
+                        {t('reminders_test_button')}
                     </button>
                 )}
             </div>
@@ -580,7 +580,7 @@ const TeacherConnectView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { showToast } = useToast();
 
     const handleRequest = () => {
-        showToast("Request sent! A mentor will contact you soon.");
+        showToast(t('teacher_toast_sent'));
         onBack();
     }
 
@@ -596,28 +596,28 @@ const TeacherConnectView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </header>
 
             <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-6 text-center">
-                 <div className="w-20 h-20 bg-accent-100 dark:bg-accent-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                     <TeacherConnectIcon className="w-10 h-10 text-accent-600 dark:text-accent-400" />
+                 <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                     <TeacherConnectIcon className="w-10 h-10 text-rose-600 dark:text-rose-400" />
                  </div>
-                 <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Find a Mentor</h2>
+                 <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">{t('teacher_find_mentor')}</h2>
                  <p className="text-neutral-600 dark:text-neutral-300 mb-6 text-sm">
-                    Get 1-on-1 guidance from experienced professionals in your field.
+                    {t('teacher_subtitle')}
                  </p>
                  
                  <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-xl mb-6 text-left">
-                    <h3 className="font-semibold text-sm mb-2 dark:text-white">How it works:</h3>
+                    <h3 className="font-semibold text-sm mb-2 dark:text-white">{t('teacher_how_it_works')}</h3>
                     <ul className="list-disc list-inside text-xs text-neutral-600 dark:text-neutral-300 space-y-1">
-                        <li>Request a session based on your course</li>
-                        <li>Get matched with a volunteer mentor</li>
-                        <li>Chat or call via WhatsApp</li>
+                        <li>{t('teacher_step_1')}</li>
+                        <li>{t('teacher_step_2')}</li>
+                        <li>{t('teacher_step_3')}</li>
                     </ul>
                  </div>
 
                  <button 
                     onClick={handleRequest}
-                    className="w-full py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors"
+                    className="w-full py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition-colors"
                  >
-                    Request Mentor Connection
+                    {t('teacher_request_button')}
                  </button>
             </div>
         </div>
@@ -637,8 +637,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onGoToLanguageSelection, on
         e.preventDefault();
         setInstallPrompt(e);
     };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    // Fix: cast the event name to 'any' to avoid TypeScript errors with custom PWA event
+    window.addEventListener('beforeinstallprompt' as any, handler);
+    return () => window.removeEventListener('beforeinstallprompt' as any, handler);
   }, []);
 
   const handleInstallClick = async () => {
@@ -650,9 +651,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onGoToLanguageSelection, on
   };
 
   const handleShareClick = async () => {
-      if (navigator.share) {
+      // Fix: cast navigator to any to avoid TypeScript errors with Web Share API if types are missing
+      if ((navigator as any).share) {
           try {
-              await navigator.share({
+              await (navigator as any).share({
                   title: 'Shaktipath',
                   text: 'Check out Shaktipath! Empowering careers through localized learning.',
                   url: window.location.href,
@@ -666,12 +668,54 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onGoToLanguageSelection, on
       }
   };
 
+  // Define distinct styles for each settings item to make them pop with pastel colors and colorful icons
+  const getSettingsItemStyle = (id: string) => {
+    switch(id) {
+      case 'profile': return { 
+        iconBg: 'bg-violet-100 dark:bg-violet-900/30', 
+        iconColor: 'text-violet-600 dark:text-violet-400',
+        hoverBg: 'hover:bg-violet-50/50 dark:hover:bg-violet-900/10',
+        hoverBorder: 'hover:border-violet-200 dark:hover:border-violet-800'
+      };
+      case 'language': return { 
+        iconBg: 'bg-cyan-100 dark:bg-cyan-900/30', 
+        iconColor: 'text-cyan-600 dark:text-cyan-400',
+        hoverBg: 'hover:bg-cyan-50/50 dark:hover:bg-cyan-900/10',
+        hoverBorder: 'hover:border-cyan-200 dark:hover:border-cyan-800'
+      };
+      case 'reminders': return { 
+        iconBg: 'bg-amber-100 dark:bg-amber-900/30', 
+        iconColor: 'text-amber-600 dark:text-amber-400',
+        hoverBg: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/10',
+        hoverBorder: 'hover:border-amber-200 dark:hover:border-amber-800'
+      };
+      case 'teacher': return { 
+        iconBg: 'bg-rose-100 dark:bg-rose-900/30', 
+        iconColor: 'text-rose-600 dark:text-rose-400',
+        hoverBg: 'hover:bg-rose-50/50 dark:hover:bg-rose-900/10',
+        hoverBorder: 'hover:border-rose-200 dark:hover:border-rose-800'
+      };
+      case 'share': return { 
+        iconBg: 'bg-emerald-100 dark:bg-emerald-900/30', 
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+        hoverBg: 'hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10',
+        hoverBorder: 'hover:border-emerald-200 dark:hover:border-emerald-800'
+      };
+      default: return { 
+        iconBg: 'bg-neutral-100 dark:bg-neutral-700', 
+        iconColor: 'text-neutral-600 dark:text-neutral-300',
+        hoverBg: 'hover:bg-neutral-50 dark:hover:bg-neutral-800',
+        hoverBorder: 'hover:border-neutral-200 dark:hover:border-neutral-700'
+      };
+    }
+  };
+
   const settingsItems = [
     { id: 'profile', labelKey: 'settings_profile', icon: UserCircleIcon, action: () => setView('profile') },
     { id: 'language', labelKey: 'settings_language', icon: LanguageIcon, action: onGoToLanguageSelection },
     { id: 'reminders', labelKey: 'settings_reminders', icon: BellIcon, action: () => setView('reminders') },
     { id: 'teacher', labelKey: 'settings_teacher_connect', icon: TeacherConnectIcon, action: () => setView('teacher') },
-    { id: 'share', labelKey: 'Share App', icon: ShareIcon, action: handleShareClick },
+    { id: 'share', labelKey: 'settings_share_app', icon: ShareIcon, action: handleShareClick },
   ];
 
   if (view === 'profile') return <ProfileView onBack={() => setView('main')} onLogout={onLogout} />;
@@ -679,8 +723,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onGoToLanguageSelection, on
   if (view === 'teacher') return <TeacherConnectView onBack={() => setView('main')} />;
 
   return (
-    <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full">
-      <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">{t('settings_title')}</h1>
+    <div className="p-4 md:p-6 bg-gray-50 dark:bg-gray-900/50 min-h-full">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">{t('settings_title')}</h1>
 
       {installPrompt && (
           <div className="mb-6 bg-gradient-to-r from-primary-600 to-accent-500 rounded-2xl p-5 shadow-lg text-white">
@@ -700,23 +744,31 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onGoToLanguageSelection, on
       )}
 
       <div className="space-y-3">
-        {settingsItems.map(item => (
-          <button
-            key={item.id}
-            onClick={item.action}
-            className="w-full flex items-center space-x-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 text-left hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
-          >
-            <div className="p-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg">
-                <item.icon className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
-            </div>
-            <div className="flex-1">
-              <span className="font-semibold text-neutral-800 dark:text-neutral-200">{item.labelKey === 'Share App' ? 'Share App' : t(item.labelKey)}</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-neutral-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        ))}
+        {settingsItems.map(item => {
+          const style = getSettingsItemStyle(item.id);
+          return (
+            <button
+              key={item.id}
+              onClick={item.action}
+              className={`
+                w-full flex items-center space-x-4 rounded-2xl shadow-sm p-4 text-left 
+                bg-white dark:bg-neutral-800 border border-transparent
+                transition-all duration-200 hover:shadow-md
+                ${style.hoverBg} ${style.hoverBorder}
+              `}
+            >
+              <div className={`p-3 rounded-xl transition-colors ${style.iconBg}`}>
+                  <item.icon className={`h-6 w-6 ${style.iconColor}`} />
+              </div>
+              <div className="flex-1">
+                <span className="font-bold text-neutral-800 dark:text-neutral-200">{t(item.labelKey)}</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-neutral-300 dark:text-neutral-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          );
+        })}
       </div>
       
       <div className="mt-8 text-center">

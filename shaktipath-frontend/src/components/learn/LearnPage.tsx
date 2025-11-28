@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import LearningPathsList from './LearningPathsList';
 import PathDetailsPage from './PathDetailsPage';
@@ -121,7 +122,7 @@ const LearnPage: React.FC = () => {
     case 'lesson':
       return <LessonPage course={selectedCourse!} lesson={selectedLesson!} onBack={handleBack} onNavigate={handleNavigateLesson} />;
     case 'assignment':
-        return <AssignmentPage course={selectedCourse!} onBack={handleBack} onSubmitting={() => setView('assignmentLoading')} onReviewReceived={handleAssignmentSubmitted}/>;
+        return <AssignmentPage course={selectedCourse!} onBack={handleBack} onReviewReceived={handleAssignmentSubmitted}/>;
     case 'assignmentLoading':
         return (
              <div className="flex flex-col items-center justify-center min-h-full p-4">

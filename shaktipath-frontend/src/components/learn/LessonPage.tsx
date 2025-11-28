@@ -41,15 +41,19 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
       onNavigate('next');
   };
 
-  // Helper to get content string (prioritize direct text, fallback to translation key)
-  const getContent = (item: LessonContent) => {
+  // Helper to get content string: Prefer direct text from data files (mr/hi), fallback to translation key (en/ui)
+  const getContent = (item: LessonContent): string => {
       if (item.text) return item.text;
       if (item.contentKey) return t(item.contentKey);
       return '';
   };
   
-  // Helper for Title/Description
-  const getText = (text?: string, key?: string) => text || (key ? t(key) : '');
+  // Helper for titles: Prefer direct title from data files
+  const getTitle = (item: { title?: string; titleKey?: string }) => {
+      if (item.title) return item.title;
+      if (item.titleKey) return t(item.titleKey);
+      return '';
+  };
 
   return (
     <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full">
@@ -67,13 +71,13 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
         </div>
         
         <div className="text-center w-full px-4">
-            <h1 className="text-2xl font-display font-bold text-neutral-800 dark:text-white leading-tight mb-2">{getText(lesson.title, lesson.titleKey)}</h1>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{getText(course.title, course.titleKey)}</p>
+            <h1 className="text-2xl font-display font-bold text-neutral-800 dark:text-white leading-tight mb-2">{getTitle(lesson)}</h1>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{getTitle(course)}</p>
         </div>
       </header>
 
       <div className="space-y-6 max-w-lg mx-auto">
-            {lesson.content?.map((item: LessonContent, index: number) => {
+            {lesson.content?.map((item, index) => {
                 const contentText = getContent(item);
 
                 if (item.type === 'heading') {
@@ -86,7 +90,6 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
-                
                 if (item.type === 'video') {
                     return (
                         <div key={index} className="rounded-3xl overflow-hidden shadow-soft border-2 border-neutral-100 dark:border-neutral-700 bg-black aspect-video relative group">
@@ -101,7 +104,6 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
-
                 if (item.type === 'list') {
                     const items = contentText.split('|').map(s => s.trim()).filter(s => s);
                     return (
@@ -119,7 +121,6 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
-
                 if (item.type === 'checklist') {
                     const items = contentText.split('|').map(s => s.trim()).filter(s => s);
                     return (
@@ -151,8 +152,7 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                         </div>
                     );
                 }
-
-                // Paragraph (Default)
+                // Paragraph
                 return (
                     <div key={index} className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-soft">
                         <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed text-lg">{contentText}</p>

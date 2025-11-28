@@ -216,10 +216,10 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
             <DidiIcon className="w-8 h-8 text-white animate-pulse-slow" />
         </div>
         <div>
-            <h2 className="font-display font-bold text-xl text-neutral-900 dark:text-white leading-none">ShaktiPath Guide</h2>
+            <h2 className="font-display font-bold text-xl text-neutral-900 dark:text-white leading-none">{t('plan_chat_title')}</h2>
             <p className="text-sm font-medium text-orange-600 dark:text-orange-400 flex items-center mt-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
-                Your Didi
+                {t('plan_chat_subtitle')}
             </p>
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import type { Quiz as QuizType } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
@@ -42,7 +41,7 @@ const Quiz: React.FC<QuizProps> = ({ quiz, lessonId }) => {
     return null;
   }
 
-  // Helper to prioritize direct text
+  // Helper to prioritize direct text (from content files)
   const getQuestionText = () => quiz.question || (quiz.questionKey ? t(quiz.questionKey) : '');
   const getOptionText = (opt: any) => opt.text || (opt.textKey ? t(opt.textKey) : '');
 
