@@ -1,3 +1,4 @@
+
 const CACHE_NAME = 'shaktipath-v1';
 const DYNAMIC_CACHE = 'shaktipath-dynamic-v1';
 
@@ -8,16 +9,18 @@ const PRECACHE_URLS = [
   '/manifest.json'
 ];
 
-// Install Event: Cache critical assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then((cache) => {
+        return cache.addAll(PRECACHE_URLS).catch(err => {
+            console.warn('Precache failed for some files:', err);
+        });
+      })
       .then(() => self.skipWaiting())
   );
 });
 
-// Activate Event: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(
@@ -30,45 +33,47 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Network First strategy for most content to ensure freshness during dev,
-// but Stale-While-Revalidate for CDNs (libraries).
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. API Calls: Network Only (never cache API calls in SW)
-  if (url.pathname.startsWith('/api')) {
+  // Skip API requests, non-GET requests, and chrome-extension schemes
+  // This prevents the "Uncaught (in promise) TypeError: Failed to fetch" for API calls when offline
+  if (url.pathname.startsWith('/api') || event.request.method !== 'GET' || url.protocol === 'chrome-extension:') {
     return;
   }
 
-  // 2. External Assets (CDNs like React, Tailwind, Fonts): Stale-While-Revalidate
-  // This makes the app load fast by using cache, but updates in background.
-  if (url.hostname !== self.location.hostname) {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        const fetchPromise = fetch(event.request).then((networkResponse) => {
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-          });
-          return networkResponse;
-        });
-        return cachedResponse || fetchPromise;
-      })
-    );
-    return;
-  }
-
-  // 3. Internal App Assets: Network First, falling back to cache
-  // This ensures you see your code changes immediately during development.
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        return caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(event.request, response.clone());
+    caches.match(event.request).then((cachedResponse) => {
+      // Return cached response if found
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // Otherwise fetch from network
+      return fetch(event.request)
+        .then((response) => {
+          // Check if valid response
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+
+          // Cache valid responses
+          const responseToCache = response.clone();
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
           return response;
+        })
+        .catch((err) => {
+          console.log('Fetch failed:', err);
+          // Return offline fallback if navigating
+          if (event.request.mode === 'navigate') {
+             return new Response('<h1>Offline</h1><p>Please check your internet connection.</p>', {
+                headers: { 'Content-Type': 'text/html' }
+             });
+          }
         });
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+    })
   );
 });

@@ -5,7 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#7C3AED" />
-    <!-- Added standard mobile-web-app-capable tag to fix deprecation warning -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -17,88 +16,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Raleway:wght@600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: '#F5F3FF',
-                100: '#EDE9FE',
-                200: '#DDD6FE',
-                300: '#C4B5FD',
-                400: '#A78BFA',
-                500: '#8B5CF6',
-                600: '#7C3AED', 
-                700: '#6D28D9',
-                800: '#5B21B6',
-                900: '#4C1D95',
-              },
-              accent: {
-                50: '#FFF7ED',
-                100: '#FFEDD5',
-                200: '#FED7AA',
-                300: '#FDBA74',
-                400: '#FB923C', 
-                500: '#F97316',
-                600: '#EA580C',
-                700: '#C2410C',
-                800: '#9A3412',
-                900: '#7C2D12',
-              },
-              neutral: {
-                50: '#FDF7FF', 
-                100: '#F3F0F8', 
-                200: '#E2E8F0',
-                300: '#CBD5E1',
-                400: '#94A3B8',
-                500: '#64748B',
-                600: '#475569',
-                700: '#334155',
-                800: '#1F2933', 
-                900: '#0F172A',
-              }
-            },
-            fontFamily: {
-              sans: ['Poppins', 'sans-serif'],
-              display: ['Raleway', 'sans-serif'],
-            },
-            boxShadow: {
-                'soft': '0 8px 30px rgba(124, 58, 237, 0.08)',
-                'card': '0 10px 25px -5px rgba(124, 58, 237, 0.1)',
-                'glow': '0 0 15px rgba(251, 146, 60, 0.3)',
-            },
-            borderRadius: {
-                '3xl': '1.5rem',
-                '4xl': '2rem',
-            }
-          }
-        }
-      }
-    </script>
-    <style type="text/tailwindcss">
-        body {
-            @apply font-sans bg-neutral-50 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 overscroll-none;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            @apply font-display;
-        }
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        /* Hide scrollbar for IE, Edge and Firefox */
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4"
+  }
+}
+</script>
 </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="src/index.tsx"></script>
+    <script type="module" src="/src/index.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

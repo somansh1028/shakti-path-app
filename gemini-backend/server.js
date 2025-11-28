@@ -27,11 +27,15 @@ let dbStatus = 'disconnected';
 let ai = null;
 if (API_KEY) ai = new GoogleGenAI({ apiKey: API_KEY });
 
-// --- CORS CONFIGURATION (CRITICAL FIX) ---
-// This allows your Vercel frontend to communicate with this Render backend.
+// --- CORS CONFIGURATION (ROBUST) ---
 app.use(cors({
-  origin: true, // Automatically reflect the request origin (allows all origins)
-  credentials: true, // Allow cookies/auth headers
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    // Allow any origin (Reflection)
+    return callback(null, true);
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -46,10 +50,29 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // --- FAVICON FIX ---
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
+// --- DATABASE CONNECTION ---
 if (DATABASE_URL) {
-    mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 5000 })
-      .then(() => { console.log('✅ MongoDB Connected!'); dbStatus = 'connected'; })
-      .catch(err => { console.error('❌ MongoDB Error:', err.message); dbStatus = 'error'; });
+    const connectDB = async () => {
+        try {
+            await mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 5000 });
+            console.log('✅ MongoDB Connected!');
+            dbStatus = 'connected';
+        } catch (err) {
+            console.error('❌ MongoDB Connection Error:', err.message);
+            dbStatus = 'error';
+        }
+    };
+    connectDB();
+    
+    // Monitor DB connection events
+    mongoose.connection.on('error', err => {
+        console.error('MongoDB Runtime Error:', err);
+        dbStatus = 'error';
+    });
+    mongoose.connection.on('disconnected', () => {
+        console.warn('MongoDB Disconnected');
+        dbStatus = 'disconnected';
+    });
 } else {
     console.warn("⚠️ No DATABASE_URL provided. App will run in limited mode.");
 }
@@ -63,15 +86,24 @@ const getUserFromToken = (req) => {
 };
 
 const ensureAuthenticated = async (req, res, next) => {
-  const decoded = getUserFromToken(req);
-  if (!decoded) return res.status(401).json({ error: 'Unauthorized' });
-  if (dbStatus !== 'connected') { req.user = { _id: decoded.id, email: decoded.email }; return next(); }
   try {
+      const decoded = getUserFromToken(req);
+      if (!decoded) return res.status(401).json({ error: 'Unauthorized' });
+      
+      if (dbStatus !== 'connected') { 
+          req.user = { _id: decoded.id, email: decoded.email }; 
+          return next(); 
+      }
+      
       const user = await User.findById(decoded.id).select('-password');
       if (!user) return res.status(403).json({ error: 'User not found' });
+      
       req.user = user;
       next();
-  } catch (err) { return res.status(500).json({ error: 'Auth DB Error' }); }
+  } catch (err) {
+      console.error("Auth Middleware Error:", err);
+      return res.status(500).json({ error: 'Auth Processing Error' });
+  }
 };
 
 // --- ROUTES ---
@@ -205,7 +237,7 @@ app.delete('/api/career/prospects/:id', ensureAuthenticated, async (req, res) =>
 
 // Progress
 app.get('/api/user/progress', ensureAuthenticated, async (req, res) => {
-    if (dbStatus !== 'connected') return res.json({ points: 0, completedLessons: [], completedQuizzes: [], completedCourses: [], badges: [], assignmentScores: {} });
+    if (dbStatus !== 'connected') return res.json({ points: 0, completedLessons: [], completedQuizzes: [], completedCourses: [], badges: [], assignmentScores: {}, treeState: {} });
     try {
         const p = req.user.progress || {};
         res.json({
@@ -214,15 +246,19 @@ app.get('/api/user/progress', ensureAuthenticated, async (req, res) => {
             completedQuizzes: p.completedQuizzes || [],
             completedCourses: p.completedCourses || [],
             badges: p.badges || [],
-            assignmentScores: p.assignmentScores || {}
+            assignmentScores: p.assignmentScores || {},
+            treeState: p.treeState || { stage: 1, lastWateredDate: null, streak: 0 }
         });
-    } catch (e) { res.status(500).json({ error: 'Fetch progress failed' }); }
+    } catch (e) { 
+        console.error("Progress Fetch Error:", e);
+        res.status(500).json({ error: 'Fetch progress failed' }); 
+    }
 });
 
 app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
     if (dbStatus !== 'connected') return res.status(503).json({ error: 'No DB' });
     try {
-        const { points, completedLessons, completedQuizzes, completedCourses, badges, assignmentScores } = req.body;
+        const { points, completedLessons, completedQuizzes, completedCourses, badges, assignmentScores, treeState } = req.body;
         const user = req.user;
         if (!user.progress) user.progress = {};
         
@@ -256,6 +292,10 @@ app.post('/api/user/progress/sync', ensureAuthenticated, async (req, res) => {
             Object.keys(assignmentScores).forEach(courseId => {
                 user.progress.assignmentScores.set(courseId, assignmentScores[courseId]);
             });
+        }
+
+        if (treeState) {
+            user.progress.treeState = treeState;
         }
 
         await user.save();
@@ -484,6 +524,15 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
         }
 
         res.status(500).json({ error, details }); 
+    }
+});
+
+// --- GLOBAL ERROR HANDLER ---
+// This prevents server crashes from unhandled errors in routes
+app.use((err, req, res, next) => {
+    console.error("Unhandled Server Error:", err.stack);
+    if (!res.headersSent) {
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
