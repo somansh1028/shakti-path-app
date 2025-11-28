@@ -30,7 +30,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<FormMode>('login');
-  const [devToken, setDevToken] = useState('');
   
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -68,12 +67,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setFormError(null);
     setEmail('');
     setPassword('');
-  };
-
-  const handleDevToolSubmit = () => {
-    if (devToken.trim()) {
-      onGoToResetPage(devToken.trim());
-    }
   };
 
   const getTitle = () => {
@@ -138,14 +131,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
                     {mode === 'register' ? t('already_have_account') : t('dont_have_account')}
                     {mode === 'forgotPassword' && t('back_to_signin')}
                 </button>
-            </div>
-
-            <div className="mt-12 pt-6 border-t border-neutral-100 dark:border-neutral-700">
-                <p className="text-center text-xs font-mono text-neutral-400 mb-2">{t('dev_tool_title')}</p>
-                <div className="flex items-center space-x-2">
-                    <input type="text" placeholder={t('dev_tool_placeholder')} value={devToken} onChange={(e) => setDevToken(e.target.value)} className="flex-1 px-3 py-2 border border-neutral-200 dark:border-neutral-600 rounded-lg text-xs dark:bg-neutral-700 dark:text-white focus:outline-none focus:ring-1 focus:ring-neutral-400" />
-                    <button onClick={handleDevToolSubmit} className="px-3 py-2 text-xs font-medium text-white bg-neutral-500 rounded-lg hover:bg-neutral-600">Go</button>
-                </div>
             </div>
         </div>
       </div>
