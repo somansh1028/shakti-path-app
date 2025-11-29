@@ -7,7 +7,6 @@ import { PricingAssistIcon } from '../components/icons/PricingAssistIcon';
 import { CallSimIcon } from '../components/icons/CallSimIcon';
 import { ProspectsIcon } from '../components/icons/ProspectsIcon';
 import { GigLaunchpadIcon } from '../components/icons/GigLaunchpadIcon';
-import { ScholarshipsIcon } from '../components/icons/ScholarshipsIcon';
 import { AICoachIcon } from '../components/icons/AICoachIcon';
 
 
@@ -70,13 +69,6 @@ export const careerHubTools: CareerHubTool[] = [
     titleKey: 'career_tool_call_simulator_title',
     descriptionKey: 'career_tool_call_simulator_desc',
     icon: CallSimIcon,
-    category: 'build'
-  },
-  {
-    id: 'scholarships',
-    titleKey: 'career_tool_scholarships_title',
-    descriptionKey: 'career_tool_scholarships_desc',
-    icon: ScholarshipsIcon,
     category: 'build'
   },
   {
