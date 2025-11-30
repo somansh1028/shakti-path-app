@@ -151,7 +151,7 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
       {/* Floating Action Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-4 z-40 p-0 rounded-full shadow-2xl transition-transform hover:scale-110 active:scale-95 group"
+        className="fixed bottom-24 right-4 z-[90] p-0 rounded-full shadow-2xl transition-transform hover:scale-110 active:scale-95 group"
         aria-label="Ask Guruji"
       >
         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center border-4 border-white dark:border-neutral-800">
@@ -172,7 +172,8 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
 
       {/* Chat Sheet / Window */}
       {isOpen && (
-          <div className="fixed bottom-0 right-0 w-full md:w-96 md:right-4 md:bottom-24 h-[60vh] md:h-[500px] bg-white dark:bg-neutral-900 rounded-t-3xl md:rounded-3xl shadow-2xl z-50 flex flex-col border border-neutral-200 dark:border-neutral-700 animate-fade-in-up">
+          // Increased z-index to z-[100] to ensure it sits ABOVE the bottom nav bar (which is usually z-50)
+          <div className="fixed bottom-0 right-0 w-full md:w-96 md:right-4 md:bottom-24 h-[60vh] md:h-[500px] bg-white dark:bg-neutral-900 rounded-t-3xl md:rounded-3xl shadow-2xl z-[100] flex flex-col border border-neutral-200 dark:border-neutral-700 animate-fade-in-up">
               {/* Header */}
               <div className="bg-gradient-to-r from-orange-100 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/10 p-4 rounded-t-3xl flex justify-between items-center border-b border-orange-200 dark:border-orange-800">
                   <div className="flex items-center space-x-3">
@@ -246,7 +247,8 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
               </div>
 
               {/* Input Area */}
-              <div className="p-3 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 rounded-b-3xl">
+              {/* Added calculated padding-bottom to account for iPhone Safe Area + spacing */}
+              <div className="p-3 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 rounded-b-none md:rounded-b-3xl pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
                   <div className="flex space-x-2 items-center">
                       <button 
                         onClick={toggleVoiceMode}
