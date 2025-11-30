@@ -1,5 +1,6 @@
 
 // This service calls the local backend, which then calls the Gemini API.
+import { GoogleGenAI, LiveServerMessage, Modality, Blob } from '@google/genai';
 import type { Part } from '@google/genai';
 import { API_BASE_URL, getHeaders } from '../config';
 
@@ -85,7 +86,7 @@ export const sendMessageToGeminiStream = async (
   }
 };
 
-// --- NEW FUNCTION FOR LESSON CHAT ---
+// --- NEW FUNCTION FOR LESSON CHAT (TEXT) ---
 export const streamGurujiChat = async (
     history: Array<{role: 'user' | 'model', text: string}>,
     message: string,
@@ -220,4 +221,248 @@ export const generateGeminiResponse = async (
     }
     throw new Error('An unknown error occurred while communicating with the server.');
   }
+};
+
+// --- GEMINI LIVE API (VOICE) IMPLEMENTATION ---
+
+// Ensure process is defined to avoid TS errors in browser
+declare const process: any;
+
+// Helper functions for audio processing
+function createBlob(data: Float32Array): Blob {
+  const l = data.length;
+  const int16 = new Int16Array(l);
+  for (let i = 0; i < l; i++) {
+    int16[i] = data[i] * 32768;
+  }
+  return {
+    data: encode(new Uint8Array(int16.buffer)),
+    mimeType: 'audio/pcm;rate=16000',
+  };
+}
+
+function encode(bytes: Uint8Array) {
+  let binary = '';
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function decode(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
+
+export const startGurujiLiveSession = async (
+    lessonContext: string,
+    onStatusChange: (status: 'connected' | 'disconnected' | 'listening' | 'speaking' | 'error') => void,
+    onError: (error: Error) => void
+): Promise<() => void> => {
+    
+    // Attempt to get API key from various sources
+    let apiKey = '';
+    
+    // 1. Try Vite env vars (Standard for this project)
+    try {
+        apiKey = (import.meta as any).env.VITE_API_KEY || (import.meta as any).env.VITE_GEMINI_API_KEY;
+    } catch (e) {}
+
+    // 2. Try standard process.env (fallback/bundler)
+    if (!apiKey) {
+        try {
+            if (typeof process !== 'undefined' && process.env) {
+                apiKey = process.env.API_KEY || process.env.REACT_APP_API_KEY;
+            }
+        } catch (e) {}
+    }
+
+    // 3. Fallback: Fetch from backend if authenticated
+    if (!apiKey) {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/config/voice-key`, {
+                    headers: getHeaders(token)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    apiKey = data.key;
+                }
+            } catch (e) {
+                console.warn("Failed to fetch config key from backend", e);
+            }
+        }
+    }
+    
+    if (!apiKey) {
+        // Critical Error: Cannot proceed without key
+        const error = new Error("Voice API Key not found. Please add VITE_API_KEY to your .env file or check server configuration.");
+        console.error(error.message);
+        onError(error);
+        return () => {};
+    }
+
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+    
+    let nextStartTime = 0;
+    const inputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 16000});
+    const outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
+    const outputNode = outputAudioContext.createGain();
+    const sources = new Set<AudioBufferSourceNode>();
+    
+    let stream: MediaStream | null = null;
+    let scriptProcessor: ScriptProcessorNode | null = null;
+    let inputSource: MediaStreamAudioSourceNode | null = null;
+    let isConnected = false; // Flag to prevent sending data after close
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        onStatusChange('connected');
+    } catch (e) {
+        onError(new Error("Microphone permission denied"));
+        return () => {};
+    }
+
+    const sessionPromise = ai.live.connect({
+        model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+        callbacks: {
+            onopen: () => {
+                isConnected = true;
+                onStatusChange('listening');
+                // Setup Input Stream (Mic -> Gemini)
+                inputSource = inputAudioContext.createMediaStreamSource(stream!);
+                scriptProcessor = inputAudioContext.createScriptProcessor(4096, 1, 1);
+                
+                scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
+                    if (!isConnected) return; // Prevent sending if closed
+                    
+                    const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+                    const pcmBlob = createBlob(inputData);
+                    sessionPromise.then((session) => {
+                        if (isConnected) {
+                            session.sendRealtimeInput({ media: pcmBlob });
+                        }
+                    }).catch(err => {
+                        // Suppress errors during closing phase
+                        if (isConnected) console.warn("Send failed", err);
+                    });
+                };
+                
+                inputSource.connect(scriptProcessor);
+                scriptProcessor.connect(inputAudioContext.destination);
+            },
+            onmessage: async (message: LiveServerMessage) => {
+                if (!isConnected) return;
+
+                const base64EncodedAudioString = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+                
+                if (base64EncodedAudioString) {
+                    onStatusChange('speaking');
+                    nextStartTime = Math.max(nextStartTime, outputAudioContext.currentTime);
+                    
+                    try {
+                        const audioBuffer = await decodeAudioData(
+                            decode(base64EncodedAudioString),
+                            outputAudioContext,
+                            24000,
+                            1,
+                        );
+                        
+                        const source = outputAudioContext.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(outputNode);
+                        outputNode.connect(outputAudioContext.destination);
+                        
+                        source.addEventListener('ended', () => {
+                            sources.delete(source);
+                            if (sources.size === 0 && isConnected) {
+                                onStatusChange('listening');
+                            }
+                        });
+
+                        source.start(nextStartTime);
+                        nextStartTime = nextStartTime + audioBuffer.duration;
+                        sources.add(source);
+                    } catch (e) {
+                        console.error("Audio decoding error", e);
+                    }
+                }
+
+                // Handle Interruptions
+                const interrupted = message.serverContent?.interrupted;
+                if (interrupted) {
+                    for (const source of sources.values()) {
+                        source.stop();
+                        sources.delete(source);
+                    }
+                    nextStartTime = 0;
+                    if (isConnected) onStatusChange('listening');
+                }
+            },
+            onerror: (e: any) => {
+                console.error("Live API Error", e);
+                isConnected = false;
+                onStatusChange('error');
+                onError(new Error("Connection error with Guruji"));
+            },
+            onclose: (e: CloseEvent) => {
+                console.log("Live Session Closed", e);
+                isConnected = false;
+                onStatusChange('disconnected');
+            },
+        },
+        config: {
+            responseModalities: [Modality.AUDIO],
+            speechConfig: {
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Charon' } }, // Using Charon for a wise, calm voice
+            },
+            systemInstruction: `You are Guruji, a friendly, patient, and wise tutor for rural Indian students. 
+            Speak simply and encourage the student.
+            Context of the lesson they are reading: 
+            ${lessonContext.substring(0, 2000)}`, // Limit context length to be safe
+        },
+    });
+
+    // Return a disconnect function to clean up everything
+    return () => {
+        isConnected = false; // Stop audio processing loop
+        sessionPromise.then(session => session.close()).catch(() => {});
+        
+        if (inputSource) inputSource.disconnect();
+        if (scriptProcessor) scriptProcessor.disconnect();
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        
+        outputNode.disconnect();
+        inputAudioContext.close();
+        outputAudioContext.close();
+        
+        sources.forEach(s => s.stop());
+        sources.clear();
+    };
 };

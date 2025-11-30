@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GurujiIcon } from '../icons/GurujiIcon';
 import { useI18n } from '../../contexts/I18nContext';
-import { streamGurujiChat } from '../../services/geminiService';
+import { streamGurujiChat, startGurujiLiveSession } from '../../services/geminiService';
 import { SparkleIcon } from '../icons/SparkleIcon';
 
 interface LessonChatWidgetProps {
@@ -24,6 +24,11 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Voice State
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState<'disconnected' | 'connecting' | 'listening' | 'speaking' | 'error'>('disconnected');
+  const disconnectVoiceRef = useRef<(() => void) | null>(null);
+
   // Initialize with a greeting when opened for the first time
   const hasInitialized = useRef(false);
 
@@ -38,7 +43,16 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
 
   useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, voiceStatus]);
+
+  // Clean up voice session on unmount
+  useEffect(() => {
+      return () => {
+          if (disconnectVoiceRef.current) {
+              disconnectVoiceRef.current();
+          }
+      };
+  }, []);
 
   const handleSend = async () => {
       if (!input.trim()) return;
@@ -61,7 +75,7 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
       setMessages(prev => [...prev, { role: 'model', text: "" }]);
 
       await streamGurujiChat(
-          messages, // Send history (excludes current user message/placeholder logic handles that locally for UI, but for API history we rely on state pre-update)
+          messages, 
           userMsg.text,
           lessonContent,
           language,
@@ -70,7 +84,6 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
               currentResponse += chunk;
               setMessages(prev => {
                   const newHistory = [...prev];
-                  // Update the last message (model placeholder)
                   if (newHistory.length > 0) {
                       newHistory[newHistory.length - 1] = { role: 'model', text: currentResponse };
                   }
@@ -86,10 +99,8 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
                     : "Sorry, I lost connection. Please check your internet or try again.";
                   
                   if (newHistory.length > 0 && newHistory[newHistory.length - 1].role === 'model' && newHistory[newHistory.length - 1].text === "") {
-                      // If placeholder is empty, replace it with error
                       newHistory[newHistory.length - 1] = { role: 'model', text: errorMsg, isError: true };
                   } else {
-                      // Append error
                       newHistory.push({ role: 'model', text: errorMsg, isError: true });
                   }
                   return newHistory;
@@ -99,6 +110,40 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
       );
       
       setIsLoading(false);
+  };
+
+  const toggleVoiceMode = async () => {
+      // 1. Stop if active
+      if (isVoiceActive) {
+          if (disconnectVoiceRef.current) {
+              disconnectVoiceRef.current();
+              disconnectVoiceRef.current = null;
+          }
+          setIsVoiceActive(false);
+          setVoiceStatus('disconnected');
+          return;
+      }
+
+      // 2. Start
+      setVoiceStatus('connecting');
+      setIsVoiceActive(true);
+      
+      try {
+          const disconnect = await startGurujiLiveSession(
+              lessonContent,
+              (status: any) => setVoiceStatus(status),
+              (error) => {
+                  console.error("Voice Error", error);
+                  setVoiceStatus('error');
+                  setIsVoiceActive(false);
+              }
+          );
+          disconnectVoiceRef.current = disconnect;
+      } catch (e) {
+          console.error("Failed to start voice", e);
+          setVoiceStatus('error');
+          setIsVoiceActive(false);
+      }
   };
 
   return (
@@ -146,46 +191,95 @@ const LessonChatWidget: React.FC<LessonChatWidgetProps> = ({ lessonTitle, lesson
                   </button>
               </div>
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-neutral-50 dark:bg-neutral-900/50">
-                  {messages.map((m, i) => (
-                      <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${
-                              m.role === 'user' 
-                              ? 'bg-primary-600 text-white rounded-tr-none' 
-                              : m.isError 
-                                ? 'bg-red-50 text-red-600 border border-red-200 rounded-tl-none'
-                                : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 rounded-tl-none shadow-sm'
+              {/* Messages / Voice Status Area */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-neutral-50 dark:bg-neutral-900/50 relative">
+                  
+                  {isVoiceActive ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/95 dark:bg-neutral-900/95 z-10 backdrop-blur-sm">
+                          <div className={`w-32 h-32 rounded-full flex items-center justify-center mb-6 transition-all duration-500 ${
+                              voiceStatus === 'listening' ? 'bg-orange-100 dark:bg-orange-900/40 animate-pulse' : 
+                              voiceStatus === 'speaking' ? 'bg-green-100 dark:bg-green-900/40 scale-110' : 
+                              'bg-neutral-100 dark:bg-neutral-800'
                           }`}>
-                              {m.text}
+                              <GurujiIcon className={`w-20 h-20 transition-colors ${
+                                  voiceStatus === 'listening' ? 'text-orange-500' :
+                                  voiceStatus === 'speaking' ? 'text-green-500' :
+                                  'text-neutral-400'
+                              }`} />
                           </div>
+                          <p className="text-lg font-bold text-neutral-800 dark:text-white mb-1">
+                              {voiceStatus === 'connecting' && "Connecting..."}
+                              {voiceStatus === 'listening' && "I am listening..."}
+                              {voiceStatus === 'speaking' && "Guruji is speaking..."}
+                              {voiceStatus === 'error' && "Connection Error"}
+                          </p>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                              Tap the mic button to stop
+                          </p>
                       </div>
-                  ))}
-                  {isLoading && messages[messages.length-1]?.role === 'user' && (
-                      <div className="flex justify-start">
-                          <div className="bg-white dark:bg-neutral-800 p-3 rounded-2xl rounded-tl-none border border-neutral-200 dark:border-neutral-700 shadow-sm flex items-center space-x-2">
-                              <SparkleIcon className="w-4 h-4 text-orange-500 animate-spin" />
-                              <span className="text-xs text-neutral-400">Thinking...</span>
-                          </div>
-                      </div>
+                  ) : (
+                      <>
+                        {messages.map((m, i) => (
+                            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${
+                                    m.role === 'user' 
+                                    ? 'bg-primary-600 text-white rounded-tr-none' 
+                                    : m.isError 
+                                        ? 'bg-red-50 text-red-600 border border-red-200 rounded-tl-none'
+                                        : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700 rounded-tl-none shadow-sm'
+                                }`}>
+                                    {m.text}
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && messages[messages.length-1]?.role === 'user' && (
+                            <div className="flex justify-start">
+                                <div className="bg-white dark:bg-neutral-800 p-3 rounded-2xl rounded-tl-none border border-neutral-200 dark:border-neutral-700 shadow-sm flex items-center space-x-2">
+                                    <SparkleIcon className="w-4 h-4 text-orange-500 animate-spin" />
+                                    <span className="text-xs text-neutral-400">Thinking...</span>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                      </>
                   )}
-                  <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
+              {/* Input Area */}
               <div className="p-3 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 rounded-b-3xl">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 items-center">
+                      <button 
+                        onClick={toggleVoiceMode}
+                        className={`p-3 rounded-full transition-all duration-300 ${
+                            isVoiceActive 
+                            ? 'bg-red-500 text-white shadow-lg animate-pulse' 
+                            : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200'
+                        }`}
+                        title="Voice Mode"
+                      >
+                          {isVoiceActive ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                          ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                              </svg>
+                          )}
+                      </button>
+
                       <input 
-                        className="flex-1 bg-neutral-100 dark:bg-neutral-700 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-400 dark:text-white"
-                        placeholder={t('lesson_chat_placeholder')}
+                        className="flex-1 bg-neutral-100 dark:bg-neutral-700 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-orange-400 dark:text-white disabled:opacity-50"
+                        placeholder={isVoiceActive ? "Voice mode active..." : t('lesson_chat_placeholder')}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                        disabled={isLoading}
+                        disabled={isLoading || isVoiceActive}
                       />
+                      
                       <button 
                         onClick={handleSend}
-                        disabled={!input.trim() || isLoading}
+                        disabled={!input.trim() || isLoading || isVoiceActive}
                         className="bg-orange-500 text-white p-3 rounded-xl hover:bg-orange-600 disabled:opacity-50 transition-colors shadow-lg shadow-orange-500/30"
                       >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">

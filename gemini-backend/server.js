@@ -110,6 +110,13 @@ const ensureAuthenticated = async (req, res, next) => {
 app.get('/', (req, res) => res.send('✅ Backend Running'));
 app.get('/api/health', (req, res) => res.json({ server: 'running', dbConnection: dbStatus }));
 
+// --- CONFIG ROUTE (Safe proxy for frontend voice) ---
+// This allows the frontend to fetch the API key securely for the Live Client
+app.get('/api/config/voice-key', ensureAuthenticated, (req, res) => {
+    if (!API_KEY) return res.status(503).json({ error: 'Server API Key not configured' });
+    res.json({ key: API_KEY });
+});
+
 // Auth Endpoints
 app.post('/api/auth/register', async (req, res) => {
     if (dbStatus !== 'connected') return res.status(503).json({ error: 'Database not connected' });
