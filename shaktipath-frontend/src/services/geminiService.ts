@@ -8,6 +8,7 @@ const MAX_RETRIES = 3;
 // Helper function to introduce a delay
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Generic stream function (used for basic chat if needed)
 export const sendMessageToGeminiStream = async (
   message: string,
   token: string,
@@ -63,10 +64,12 @@ export const sendMessageToGeminiStream = async (
                         onChunk(parsed.text);
                     }
                      if (parsed.error) {
+                        // Throwing here to break the loop and hit the catch block below
                         throw new Error(parsed.error);
                     }
                 } catch (e) {
-                    console.error("Error parsing stream data:", jsonStr, e);
+                    // Propagate the error to the caller
+                    throw e; 
                 }
             }
         }
@@ -81,6 +84,69 @@ export const sendMessageToGeminiStream = async (
     }
   }
 };
+
+// --- NEW FUNCTION FOR LESSON CHAT ---
+export const streamGurujiChat = async (
+    history: Array<{role: 'user' | 'model', text: string}>,
+    message: string,
+    context: string,
+    userLanguage: string,
+    token: string,
+    onChunk: (chunk: string) => void,
+    onError: (error: Error) => void
+  ): Promise<void> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/learn/chat`, {
+        method: 'POST',
+        headers: getHeaders(token),
+        body: JSON.stringify({ history, message, context, userLanguage }),
+      });
+  
+      if (!response.ok) {
+          if (response.status === 401) {
+              window.dispatchEvent(new Event('auth-unauthorized'));
+              throw new Error("UNAUTHORIZED");
+          }
+          let errorMsg = `HTTP error! status: ${response.status}`;
+          try {
+              const errorData = await response.json();
+              errorMsg = errorData.error || errorMsg;
+          } catch(e) { /* ignore */ }
+          throw new Error(errorMsg);
+      }
+      
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('Failed to get reader');
+      
+      const decoder = new TextDecoder();
+  
+      while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunkText = decoder.decode(value, { stream: true });
+          const lines = chunkText.split('\n\n').filter(line => line.trim() !== '');
+          for (const line of lines) {
+              if (line.startsWith('data:')) {
+                  const jsonStr = line.substring(5).trim();
+                  try {
+                      const parsed = JSON.parse(jsonStr);
+                      if (parsed.text) onChunk(parsed.text);
+                      if (parsed.error) throw new Error(parsed.error);
+                  } catch (e) {
+                      // Important: Rethrow so the outer catch block handles it and calls onError
+                      throw e;
+                  }
+              }
+          }
+      }
+  
+    } catch (error) {
+      console.error("Guruji Chat Error:", error);
+      if (error instanceof Error) onError(error);
+      else onError(new Error('Unknown error connecting to Guruji.'));
+    }
+  };
 
 export const generateGeminiResponse = async (
   contents: Part[], 

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Course, Lesson, LessonContent } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
 import { useUserProgress } from '../../contexts/UserProgressContext';
 import { useToast } from '../../contexts/ToastContext';
 import Quiz from './Quiz';
+import LessonChatWidget from './LessonChatWidget';
 
 interface LessonPageProps {
   course: Course;
@@ -41,22 +43,31 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
       onNavigate('next');
   };
 
-  // Helper to get content string: Prefer direct text from data files (mr/hi), fallback to translation key (en/ui)
-  const getContent = (item: LessonContent): string => {
+  // Helper to get content string: Prefer direct text from data files, fallback to translation key
+  // Wrapped in useCallback to prevent re-creation on every render, which upsets useMemo
+  const getContent = useCallback((item: LessonContent) => {
       if (item.text) return item.text;
       if (item.contentKey) return t(item.contentKey);
       return '';
-  };
+  }, [t]);
   
-  // Helper for titles: Prefer direct title from data files
-  const getTitle = (item: { title?: string; titleKey?: string }) => {
-      if (item.title) return item.title;
-      if (item.titleKey) return t(item.titleKey);
-      return '';
-  };
+  // Helper for titles
+  const getText = useCallback((text?: string, key?: string) => {
+      return text || (key ? t(key) : '');
+  }, [t]);
+
+  // Extract full lesson text for the AI Context
+  // Now dependencies [lesson, getContent, getText] are stable
+  const lessonFullText = useMemo(() => {
+      let fullText = `${getText(lesson.title, lesson.titleKey)}\n\n`;
+      lesson.content?.forEach(item => {
+          fullText += `${getContent(item)}\n`;
+      });
+      return fullText;
+  }, [lesson, getContent, getText]);
 
   return (
-    <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full">
+    <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full pb-32">
       <header className="relative flex flex-col items-center mb-8 pt-4">
         <div className="w-full flex items-center justify-between mb-4">
              <button onClick={onBack} className="p-3 rounded-full bg-white dark:bg-neutral-800 shadow-soft hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all text-primary-600 dark:text-primary-400" aria-label="Go back">
@@ -71,8 +82,8 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
         </div>
         
         <div className="text-center w-full px-4">
-            <h1 className="text-2xl font-display font-bold text-neutral-800 dark:text-white leading-tight mb-2">{getTitle(lesson)}</h1>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{getTitle(course)}</p>
+            <h1 className="text-2xl font-display font-bold text-neutral-800 dark:text-white leading-tight mb-2">{getText(lesson.title, lesson.titleKey)}</h1>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{getText(course.title, course.titleKey)}</p>
         </div>
       </header>
 
@@ -167,7 +178,7 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
           </div>
       )}
 
-      <div className="flex justify-between mt-12 pb-24 max-w-lg mx-auto">
+      <div className="flex justify-between mt-12 pb-8 max-w-lg mx-auto">
         <button 
             onClick={() => onNavigate('prev')} 
             disabled={isFirstLesson} 
@@ -184,6 +195,12 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
         </button>
       </div>
+
+      {/* Guruji Lesson Chat Widget */}
+      <LessonChatWidget 
+        lessonTitle={getText(lesson.title, lesson.titleKey)} 
+        lessonContent={lessonFullText} 
+      />
     </div>
   );
 };

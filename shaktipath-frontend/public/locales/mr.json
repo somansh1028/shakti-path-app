@@ -5,6 +5,10 @@
   "hindi": "हिन्दी",
   "marathi": "मराठी",
 
+  "lesson_chat_title": "गुरुजी सहायक",
+  "lesson_chat_placeholder": "शंका विचारा...",
+  "lesson_chat_welcome": "नमस्ते! मी या धड्यात तुम्हाला मदत करण्यासाठी येथे आहे. तुम्हाला काय समजले नाही?",
+
   "create_account_title": "खाते तयार करा",
   "reset_password_title": "पासवर्ड रीसेट करा",
   "welcome_back_title": "पुन्हा स्वागत आहे",

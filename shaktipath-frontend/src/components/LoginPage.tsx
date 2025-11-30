@@ -149,7 +149,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
              {/* Stats Grid */}
              <div className="grid grid-cols-2 gap-4 mb-10">
                  <div className="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm">
-                     <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">15k+</p>
+                     <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">20+</p>
                      <p className="text-sm text-neutral-600 dark:text-neutral-400">{t('lp_stat_users')}</p>
                  </div>
                  <div className="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm">
@@ -157,7 +157,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                      <p className="text-sm text-neutral-600 dark:text-neutral-400">{t('lp_stat_rating')}</p>
                  </div>
                  <div className="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm">
-                     <p className="text-3xl font-bold text-green-600 dark:text-green-400">200+</p>
+                     <p className="text-3xl font-bold text-green-600 dark:text-green-400">50+</p>
                      <p className="text-sm text-neutral-600 dark:text-neutral-400">{t('lp_stat_courses')}</p>
                  </div>
                  <div className="bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm">
@@ -175,7 +175,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                          <div className="flex items-center">
                              <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-xs font-bold text-primary-700 mr-2">R</div>
                              <span className="text-xs font-bold text-neutral-900 dark:text-white">Riya S.</span>
-                             <span className="text-xs text-neutral-400 ml-2">• Student</span>
+                             <span className="text-xs text-neutral-400 ml-2">• High School Student</span>
                          </div>
                      </div>
                      <div className="bg-white dark:bg-neutral-800 p-4 rounded-xl shadow-sm border-l-4 border-accent-500">
@@ -183,7 +183,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                          <div className="flex items-center">
                              <div className="w-6 h-6 bg-accent-100 rounded-full flex items-center justify-center text-xs font-bold text-accent-700 mr-2">A</div>
                              <span className="text-xs font-bold text-neutral-900 dark:text-white">Anita K.</span>
-                             <span className="text-xs text-neutral-400 ml-2">• Entrepreneur</span>
+                             <span className="text-xs text-neutral-400 ml-2">• College Student</span>
                          </div>
                      </div>
                  </div>
@@ -191,7 +191,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
          </div>
 
          <div className="text-xs text-neutral-400 mt-8 relative z-10">
-             © 2024 Shaktipath Learning. Empowering Rural India.
+             © 2025 Shaktipath Learning. Empowering Indian Girls.
          </div>
       </div>
     </div>

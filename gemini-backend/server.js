@@ -472,7 +472,82 @@ app.post('/api/community/ask-guruji', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// --- AI ROUTE ---
+// --- LESSON CHAT AI ROUTE (CONTEXT AWARE GURUJI) ---
+app.post('/api/learn/chat', ensureAuthenticated, async (req, res) => {
+    if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
+    
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    try {
+        const { history, message, context, userLanguage } = req.body;
+        
+        const systemInstruction = `You are Guruji, a friendly, patient, and wise tutor for rural Indian students.
+        Context: The student is currently reading a lesson.
+        Lesson Content: "${context.substring(0, 10000)}" 
+        User Language: ${userLanguage}
+        
+        Instructions:
+        1. Answer the student's question based strictly on the lesson content provided above if possible.
+        2. If the answer is not in the lesson, use your general knowledge but mention that it is extra info.
+        3. Keep answers short, encouraging, and easy to understand.
+        4. Use emojis.
+        5. Speak in the requested User Language (${userLanguage}).
+        6. Do not lecture; guide them.`;
+
+        // FILTER OUT EMPTY MESSAGES to prevent 400 Bad Request from Gemini
+        const chatHistory = history
+            .filter(msg => msg.text && msg.text.trim() !== '')
+            .map(msg => ({
+                role: msg.role === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }]
+            }));
+
+        // Add the new message
+        if (message && message.trim() !== '') {
+            chatHistory.push({
+                role: 'user',
+                parts: [{ text: message }]
+            });
+        } else {
+             // If message is empty for some reason, ignore and rely on history or just fail gently
+             res.write(`data: ${JSON.stringify({ error: "Empty message." })}\n\n`);
+             res.end();
+             return;
+        }
+
+        const result = await ai.models.generateContentStream({
+            model: 'gemini-2.5-flash',
+            contents: chatHistory,
+            config: {
+                systemInstruction: systemInstruction
+            }
+        });
+
+        // Use the response as an async iterable directly
+        for await (const chunk of result) {
+            const chunkText = chunk.text; // Access text property directly
+            if (chunkText) {
+                // Send data in SSE format
+                res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+            }
+        }
+        
+        res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+        res.end();
+
+    } catch (e) {
+        console.error("Lesson Chat Failed:", e);
+        // Clean error message for user
+        const safeError = e.message?.includes('429') ? "Guruji is busy. Please wait." : "Guruji is having trouble connecting.";
+        res.write(`data: ${JSON.stringify({ error: safeError })}\n\n`);
+        res.end();
+    }
+});
+
+// --- AI ROUTE (Structured) ---
 app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res) => {
     if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
     try {
