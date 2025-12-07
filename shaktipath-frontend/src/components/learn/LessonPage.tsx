@@ -102,16 +102,33 @@ const LessonPage: React.FC<LessonPageProps> = ({ course, lesson, onBack, onNavig
                     );
                 }
                 if (item.type === 'video') {
+                    const isPlaylist = contentText.startsWith('PL');
+                    const videoSrc = isPlaylist 
+                        ? `https://www.youtube.com/embed?listType=playlist&list=${contentText}`
+                        : `https://www.youtube.com/embed/${contentText}`;
+
                     return (
-                        <div key={index} className="rounded-3xl overflow-hidden shadow-soft border-2 border-neutral-100 dark:border-neutral-700 bg-black aspect-video relative group">
-                            <iframe
-                                className="w-full h-full"
-                                src={`https://www.youtube.com/embed/${contentText}`}
-                                title="Video Lesson"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            ></iframe>
+                        <div key={index} className="space-y-2">
+                            <div className="rounded-3xl overflow-hidden shadow-soft border-2 border-neutral-100 dark:border-neutral-700 bg-black aspect-video relative group">
+                                <iframe
+                                    className="w-full h-full"
+                                    src={videoSrc}
+                                    title="Video Lesson"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
+                            {isPlaylist && (
+                                <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-sm border border-blue-100 dark:border-blue-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                    </svg>
+                                    <span>
+                                        <strong>Playlist:</strong> Tap the icon (☰) in the video player to see more lessons.
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     );
                 }

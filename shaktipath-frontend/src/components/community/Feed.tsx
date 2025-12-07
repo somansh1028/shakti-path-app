@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useI18n } from '../../contexts/I18nContext';
 import type { CommunityCircle } from '../../types';
@@ -6,7 +8,7 @@ import { SparkleIcon } from '../icons/SparkleIcon';
 import { API_BASE_URL, getHeaders } from '../../config';
 import { useToast } from '../../contexts/ToastContext';
 
-// ... (Interfaces remain same)
+// Matches Backend Logic
 interface APICommunityPost {
     _id: string;
     authorName: string;
@@ -35,6 +37,7 @@ interface FeedProps {
     onLikePost: (postId: string) => void;
     onEditPost: (postId: string, newContent: string) => Promise<void>;
     onCommentPost: (postId: string, content: string) => Promise<void>;
+    // New prop to allow Feed to trigger refresh after Guruji auto-post
     onRefreshNeeded?: () => void; 
 }
 
@@ -54,7 +57,7 @@ const Feed: React.FC<FeedProps> = ({
     const { t } = useI18n();
     const { showToast } = useToast();
 
-    // ... (State and Effects remain same)
+    // Local State for Edit/Comment Modes
     const [editingPostId, setEditingPostId] = useState<string | null>(null);
     const [editContent, setEditContent] = useState('');
     const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
@@ -64,20 +67,30 @@ const Feed: React.FC<FeedProps> = ({
     const [isGurujiThinking, setIsGurujiThinking] = useState(false);
     const silenceCheckDoneRef = useRef(false);
 
-    // ... (Guruji Logic remains same)
+    // --- OPTIMIZATION: DISABLE AUTO-GURUJI ---
+    // The "Silence Breaker" feature is disabled to prevent background API calls (Option 3).
+    // To re-enable, set ENABLE_AUTO_GURUJI to true.
+    const ENABLE_AUTO_GURUJI = false; 
+
+    // --- GURUJI PROACTIVE LOGIC (Silence Breaker) ---
     useEffect(() => {
         const checkSilence = async () => {
-            if (!viewingCircle || isLoading || silenceCheckDoneRef.current) return;
+            // Only run if we are viewing a specific circle, have loaded posts, and haven't checked yet
+            if (!viewingCircle || isLoading || silenceCheckDoneRef.current || !ENABLE_AUTO_GURUJI) return;
             
+            // Mark checked so we don't loop
             silenceCheckDoneRef.current = true;
 
             const hasRecentPost = posts.length > 0 && (new Date().getTime() - new Date(posts[0].createdAt).getTime() < 48 * 60 * 60 * 1000);
             
+            // If no posts at all, or last post is > 48 hours old
             if (posts.length === 0 || !hasRecentPost) {
+                console.log("Circle is silent. Waking up Guruji...");
                 const token = localStorage.getItem('authToken');
                 if (!token) return;
 
                 try {
+                    // 1. Get Starter from AI
                     const res = await fetch(`${API_BASE_URL}/api/community/ask-guruji`, {
                         method: 'POST',
                         headers: getHeaders(token),
@@ -93,16 +106,18 @@ const Feed: React.FC<FeedProps> = ({
                     if (!res.ok) return;
                     const data = await res.json();
                     
+                    // 2. Auto-Post it
                     await fetch(`${API_BASE_URL}/api/community/posts`, {
                         method: 'POST',
                         headers: getHeaders(token),
                         body: JSON.stringify({
                             content: data.response,
                             circleId: viewingCircle.id,
-                            isGuruji: true
+                            isGuruji: true // Backend flag to set special author info
                         })
                     });
 
+                    // 3. Refresh Feed
                     if (onRefreshNeeded) onRefreshNeeded();
 
                 } catch (e) {
@@ -110,14 +125,21 @@ const Feed: React.FC<FeedProps> = ({
                 }
             }
         };
-        const timer = setTimeout(checkSilence, 1000);
-        return () => clearTimeout(timer);
-    }, [viewingCircle, posts, isLoading, t, onRefreshNeeded]);
 
+        if (ENABLE_AUTO_GURUJI) {
+            // Small delay to ensure posts are settled
+            const timer = setTimeout(checkSilence, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [viewingCircle, posts, isLoading, t, onRefreshNeeded, ENABLE_AUTO_GURUJI]);
+
+    // Reset the check ref when switching circles
     useEffect(() => {
         silenceCheckDoneRef.current = false;
     }, [viewingCircle]);
 
+
+    // --- GURUJI REACTIVE LOGIC (Ask Button) ---
     const handleAskGuruji = async () => {
         if (!newPostContent.trim()) {
             showToast("Please type a question first.");
@@ -148,6 +170,7 @@ const Feed: React.FC<FeedProps> = ({
 
             if (res.ok) {
                 const data = await res.json();
+                // Append Guruji's answer to the user's input
                 const newText = `${newPostContent}\n\n🙏 **Guruji says:** ${data.response}`;
                 onPostContentChange(newText);
             } else {
@@ -161,26 +184,45 @@ const Feed: React.FC<FeedProps> = ({
         }
     };
 
-    // ... (Other handlers remain same)
-    const startEdit = (post: APICommunityPost) => { setEditingPostId(post._id); setEditContent(post.content); };
-    const cancelEdit = () => { setEditingPostId(null); setEditContent(''); };
-    const saveEdit = async (postId: string) => { await onEditPost(postId, editContent); setEditingPostId(null); };
+
+    const startEdit = (post: APICommunityPost) => {
+        setEditingPostId(post._id);
+        setEditContent(post.content);
+    };
+
+    const cancelEdit = () => {
+        setEditingPostId(null);
+        setEditContent('');
+    };
+
+    const saveEdit = async (postId: string) => {
+        await onEditPost(postId, editContent);
+        setEditingPostId(null);
+    };
+
     const toggleCommentSection = (postId: string) => {
-        if (commentingPostId !== postId) { setCommentingPostId(postId); }
+        if (commentingPostId !== postId) {
+            setCommentingPostId(postId);
+        }
         setExpandedComments(prev => {
             const next = new Set(prev);
-            if (next.has(postId)) next.delete(postId); else next.add(postId);
+            if (next.has(postId)) next.delete(postId);
+            else next.add(postId);
             return next;
         });
     };
+
     const submitComment = async (postId: string) => {
         await onCommentPost(postId, commentContent);
         setCommentContent('');
-        if (!expandedComments.has(postId)) { setExpandedComments(prev => new Set(prev).add(postId)); }
+        if (!expandedComments.has(postId)) {
+            setExpandedComments(prev => new Set(prev).add(postId));
+        }
     };
 
     return (
         <div className="space-y-5">
+            {/* Create Post Box - ONLY SHOW IF VIEWING A CIRCLE */}
             {viewingCircle && (
                 <div className="bg-white dark:bg-neutral-800 rounded-3xl p-4 shadow-soft border border-neutral-100 dark:border-neutral-700 animate-fade-in">
                     <div className="flex justify-between items-center mb-2">
@@ -188,12 +230,12 @@ const Feed: React.FC<FeedProps> = ({
                             Post to {t(viewingCircle.nameKey)}
                         </p>
                         <span className="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold flex items-center">
-                            <SparkleIcon className="w-3 h-3 mr-1" /> {t('community_guruji_active')}
+                            <SparkleIcon className="w-3 h-3 mr-1" /> Guruji Active
                         </span>
                     </div>
                     <textarea
                         className="w-full bg-neutral-50 dark:bg-neutral-700 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-500 dark:text-white resize-none transition-all"
-                        placeholder={t('community_ask_placeholder')}
+                        placeholder="Ask a question or share something..."
                         rows={3}
                         value={newPostContent}
                         onChange={(e) => onPostContentChange(e.target.value)}
@@ -208,12 +250,12 @@ const Feed: React.FC<FeedProps> = ({
                             {isGurujiThinking ? (
                                 <>
                                     <SparkleIcon className="w-4 h-4 animate-spin" />
-                                    <span>{t('community_ask_button_loading')}</span>
+                                    <span>Thinking...</span>
                                 </>
                             ) : (
                                 <>
                                     <SparkleIcon className="w-4 h-4" />
-                                    <span>{t('community_ask_button')}</span>
+                                    <span>Ask Guruji</span>
                                 </>
                             )}
                         </button>
@@ -223,12 +265,12 @@ const Feed: React.FC<FeedProps> = ({
                             disabled={isPosting || !newPostContent.trim()}
                             className="bg-primary-600 text-white text-xs font-bold py-2 px-6 rounded-full hover:bg-primary-700 disabled:bg-neutral-300 transition-all shadow-md hover:shadow-lg"
                         >
-                            {isPosting ? t('community_post_button_loading') : t('community_post_button')}
+                            {isPosting ? 'Posting...' : 'Post'}
                         </button>
                     </div>
                 </div>
             )}
-            {/* ... (Post List rendering logic remains largely same, ensuring any direct text is replaced with translations if found) */}
+
             {/* Posts List */}
             {isLoading ? (
                 <div className="flex justify-center py-10">

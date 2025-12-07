@@ -1,5 +1,9 @@
 
-import type { LearningPath, Course, Assignment, Badge } from '../types';
+
+
+
+
+import type { LearningPath, Course, Assignment, Badge, CourseMetadata } from '../types';
 import { smartphoneLessons as en_sm, computerLessons as en_comp, englishLessons as en_eng, freelanceLessons as en_free, moneyLessons as en_mon } from './content/en/foundational';
 import { smartphoneLessons as hi_sm, computerLessons as hi_comp, englishLessons as hi_eng, freelanceLessons as hi_free, moneyLessons as hi_mon } from './content/hi/foundational';
 import { smartphoneLessons as mr_sm, computerLessons as mr_comp, englishLessons as mr_eng, freelanceLessons as mr_free, moneyLessons as mr_mon } from './content/mr/foundational';
@@ -62,10 +66,100 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
     const vaContent = getVAContent(lang);
     const aiContent = getAIContent(lang);
 
+    // Smartphone Course Metadata
+    const smMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_sm_audience_title', textKey: 'course_sm_audience_text' },
+        outcomes: {
+            titleKey: 'course_sm_outcomes_title',
+            itemsKeys: [
+                'course_sm_outcome_1', 'course_sm_outcome_2', 'course_sm_outcome_3',
+                'course_sm_outcome_4', 'course_sm_outcome_5', 'course_sm_outcome_6',
+                'course_sm_outcome_7'
+            ]
+        },
+        format: {
+            titleKey: 'course_sm_format_title',
+            subtitleKey: 'course_sm_format_subtitle',
+            itemsKeys: [
+                'course_sm_format_1', 'course_sm_format_2', 'course_sm_format_3',
+                'course_sm_format_4', 'course_sm_format_5'
+            ]
+        }
+    };
+
+    // Computer Course Metadata
+    const compMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_comp_audience_title', textKey: 'course_comp_audience_text' },
+        outcomes: {
+            titleKey: 'course_comp_outcomes_title',
+            itemsKeys: [
+                'course_comp_outcome_1', 'course_comp_outcome_2', 'course_comp_outcome_3',
+                'course_comp_outcome_4', 'course_comp_outcome_5', 'course_comp_outcome_6',
+                'course_comp_outcome_7'
+            ]
+        },
+        format: {
+            titleKey: 'course_comp_format_title',
+            subtitleKey: 'course_comp_format_subtitle',
+            itemsKeys: [
+                'course_comp_format_1', 'course_comp_format_2', 'course_comp_format_3',
+                'course_comp_format_4', 'course_comp_format_5'
+            ]
+        }
+    };
+
+    // English Course Metadata
+    const engMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_english_audience_title', textKey: 'course_english_audience_text' },
+        outcomes: {
+            titleKey: 'course_english_outcomes_title',
+            itemsKeys: [
+                'course_english_outcome_1', 'course_english_outcome_2', 'course_english_outcome_3',
+                'course_english_outcome_4', 'course_english_outcome_5', 'course_english_outcome_6',
+                'course_english_outcome_7'
+            ]
+        },
+        format: {
+            titleKey: 'course_english_format_title',
+            subtitleKey: 'course_english_format_subtitle',
+            itemsKeys: [
+                'course_english_format_1', 'course_english_format_2', 'course_english_format_3',
+                'course_english_format_4', 'course_english_format_5'
+            ]
+        }
+    };
+
     // Foundational
-    const course_smartphone: Course = { id: 'c_found_1', titleKey: 'course_smartphone_title', descriptionKey: 'course_smartphone_desc', icon: '📱', lessons: foundationalContent.sm, assignment: createAssignment('foundational'), badge: createBadge('found', 'foundational', '🎓') };
-    const course_computer: Course = { id: 'c_found_2', titleKey: 'course_computer_title', descriptionKey: 'course_computer_desc', icon: '💻', lessons: foundationalContent.comp, assignment: createAssignment('foundational'), badge: createBadge('found', 'foundational', '💻') };
-    const course_english: Course = { id: 'c_found_3', titleKey: 'course_english_title', descriptionKey: 'course_english_desc', icon: '🗣️', lessons: foundationalContent.eng, assignment: createAssignment('foundational'), badge: createBadge('eng', 'foundational', '🗣️') };
+    const course_smartphone: Course = { 
+        id: 'c_found_1', 
+        titleKey: 'course_smartphone_title', 
+        descriptionKey: 'course_smartphone_desc', 
+        icon: '📱', 
+        lessons: foundationalContent.sm, 
+        assignment: createAssignment('foundational'), 
+        badge: createBadge('found', 'foundational', '🎓'),
+        metadata: smMetadata
+    };
+    const course_computer: Course = { 
+        id: 'c_found_2', 
+        titleKey: 'course_computer_title', 
+        descriptionKey: 'course_computer_desc', 
+        icon: '💻', 
+        lessons: foundationalContent.comp, 
+        assignment: createAssignment('computer'), 
+        badge: createBadge('found', 'foundational', '💻'),
+        metadata: compMetadata
+    };
+    const course_english: Course = { 
+        id: 'c_found_3', 
+        titleKey: 'course_english_title', 
+        descriptionKey: 'course_english_desc', 
+        icon: '🗣️', 
+        lessons: foundationalContent.eng, 
+        assignment: createAssignment('english'), 
+        badge: createBadge('eng', 'foundational', '🗣️'),
+        metadata: engMetadata
+    };
     const course_freelance: Course = { id: 'c_found_4', titleKey: 'course_freelance_title', descriptionKey: 'course_freelance_desc', icon: '🌍', lessons: foundationalContent.free, assignment: createAssignment('foundational'), badge: createBadge('free', 'foundational', '🌍') };
     const course_money: Course = { id: 'c_found_5', titleKey: 'course_money_title', descriptionKey: 'course_money_desc', icon: '💰', lessons: foundationalContent.mon, assignment: createAssignment('foundational'), badge: createBadge('mon', 'foundational', '💰') };
 
@@ -138,7 +232,7 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
             courses: [course_canva, course_whatsapp, course_reels, course_gbp] 
         },
         {
-            id: 'lp_va',
+            id: 'lp_va', 
             titleKey: 'path_va_title',
             descriptionKey: 'path_va_desc',
             icon: '💼',

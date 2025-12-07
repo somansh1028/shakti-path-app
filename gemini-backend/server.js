@@ -1,4 +1,5 @@
 
+
 console.log("--- Starting Gemini Backend Server (JWT Mode) ---");
 
 const express = require('express');
@@ -445,6 +446,9 @@ app.post('/api/community/circles/:id/join', ensureAuthenticated, async (req, res
 });
 
 // --- COMMUNITY AI ROUTE (GURUJI) ---
+// Simple in-memory cache to prevent 429 errors from multiple users
+const starterCache = {}; // { circleName: { text: "...", timestamp: 12345 } }
+
 app.post('/api/community/ask-guruji', ensureAuthenticated, async (req, res) => {
     if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
     try {
@@ -452,6 +456,15 @@ app.post('/api/community/ask-guruji', ensureAuthenticated, async (req, res) => {
         // mode: 'answer' or 'starter'
         // context: { circleName: string, circleDesc: string }
         
+        if (mode === 'starter') {
+            const cacheKey = context.circleName;
+            const now = Date.now();
+            // 1 Hour Cache for starter questions
+            if (starterCache[cacheKey] && (now - starterCache[cacheKey].timestamp < 3600000)) { 
+                 return res.json({ response: starterCache[cacheKey].text });
+            }
+        }
+
         let prompt = "";
         if (mode === 'starter') {
             prompt = `You are "Guruji", a wise, friendly, and encouraging Indian community mentor. 
@@ -468,11 +481,17 @@ app.post('/api/community/ask-guruji', ensureAuthenticated, async (req, res) => {
         }
 
         const result = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-flash-lite-latest',
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
         });
         
-        res.json({ response: result.text });
+        const responseText = result.text;
+
+        if (mode === 'starter') {
+            starterCache[context.circleName] = { text: responseText, timestamp: Date.now() };
+        }
+        
+        res.json({ response: responseText });
     } catch (e) {
         console.error("Guruji AI Failed:", e);
         res.status(500).json({ error: 'Guruji is meditating (Error generating response).' });
@@ -526,7 +545,7 @@ app.post('/api/learn/chat', ensureAuthenticated, async (req, res) => {
         }
 
         const result = await ai.models.generateContentStream({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-flash-lite-latest',
             contents: chatHistory,
             config: {
                 systemInstruction: systemInstruction
@@ -567,9 +586,9 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
             config.responseSchema = responseSchema;
         }
 
-        // Use gemini-2.5-flash for broader support (including multimodal)
+        // Use gemini-flash-lite-latest for broader support (including multimodal) and better quota
         const result = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-flash-lite-latest',
             contents: contents,
             config: config
         });

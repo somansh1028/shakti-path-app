@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { getCareerGuidePrompt } from '../../data/prompts';
 import { generateGeminiResponse } from '../../services/geminiService';
@@ -85,43 +84,22 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, error]);
 
+  // OPTIMIZATION: Use static greeting instead of API call to save quota
   useEffect(() => {
-    const initChat = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            setError("UNAUTHORIZED");
-            return;
-        }
+    // Check local storage or context if chat was already started to persist state
+    // For now, we just reset on mount to ensure a clean slate, but avoid the API call.
+    
+    let greetingText = "Namaste! Ready to start finding your path?";
+    if (language === 'hi') {
+        greetingText = "नमस्ते! मैं आपकी शक्तिपथ करियर गाइड हूं। मैं 2 मिनट में आपके लिए सही रास्ता खोजने में मदद कर सकती हूं।\n\nक्या आप शुरू करने के लिए तैयार हैं?";
+    } else if (language === 'mr') {
+        greetingText = "नमस्ते! मी तुमची शक्तिपथ करिअर मार्गदर्शक आहे. मी फक्त २ मिनिटांत तुमच्यासाठी योग्य मार्ग शोधण्यात मदत करू शकते.\n\nतुम्ही तयार आहात का?";
+    } else {
+        greetingText = "Namaste! I am your ShaktiPath Career Guide. I can help you find the right path for you in just 2 minutes.\n\nAre you ready to start?";
+    }
 
-        const response = await generateGeminiResponse([
-            { text: systemPrompt },
-            { text: "Please start the conversation now." }
-        ], token);
-
-        setMessages([{ role: 'model', text: response }]);
-      } catch (e) {
-        console.error("Failed to start chat", e);
-        if (e instanceof Error) {
-            if (e.message.includes("UNAUTHORIZED")) {
-                setError("UNAUTHORIZED");
-            } else if (e.message.includes("API Key") || e.message.includes("403")) {
-                setError(e.message);
-            } else {
-                setMessages([{ role: 'model', text: "Namaste! I'm having a little trouble connecting. Please try refreshing the page." }]);
-            }
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Initialize chat when component mounts or language changes
-    setMessages([]); // Clear previous messages
-    initChat();
-  }, [systemPrompt]);
+    setMessages([{ role: 'model', text: greetingText }]);
+  }, [language]);
 
   const handleSendMessage = async (textOverride?: string) => {
     const textToSend = textOverride || input;
@@ -154,10 +132,9 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
         // Clean the text for display
         let cleanText = responseText.replace(/```(?:json)?[\s\S]*?(?:```|$)/i, '').trim();
         
-        // Fallback cleaning: If regex missed it but we have the specific keys, chop it off manually
+        // Fallback cleaning
         const keyIndex = cleanText.indexOf('"primary_path"');
         if (keyIndex !== -1) {
-            // Find the opening brace before this key
             const openBrace = cleanText.lastIndexOf('{', keyIndex);
             if (openBrace !== -1) {
                 cleanText = cleanText.substring(0, openBrace).trim();
@@ -170,7 +147,6 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
 
         if (recommendation) {
             setIsChatComplete(true);
-            // Short delay to let the user read the final message before switching screens
             setTimeout(() => {
                 onRecommendationComplete(recommendation);
             }, 2000);
@@ -183,6 +159,8 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
                 setError("UNAUTHORIZED");
             } else if (e.message.includes("API Key") || e.message.includes("403")) {
                 setError(e.message);
+            } else if (e.message.includes("quota") || e.message.includes("429")) {
+                setMessages(prev => [...prev, { role: 'model', text: "I'm receiving too many messages right now. Please wait a minute and try again." }]);
             } else {
                 setMessages(prev => [...prev, { role: 'model', text: "Sorry, I didn't catch that. Could you say it again?" }]);
             }
@@ -314,10 +292,10 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
             </div>
         )}
 
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef}></div>
       </div>
 
-      {/* Input Area - Only shown if chat is active and not waiting for option click (optional) */}
+      {/* Input Area */}
       {!isChatComplete && error !== "UNAUTHORIZED" && !error?.includes("API Key") && (
           <div className="p-4 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 z-10">
             <div className="flex space-x-3 items-end">

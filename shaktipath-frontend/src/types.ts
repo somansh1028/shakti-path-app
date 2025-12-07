@@ -96,6 +96,22 @@ export interface Lesson {
   quiz?: Quiz;
 }
 
+export interface CourseMetadata {
+    audience?: {
+        titleKey: string;
+        textKey: string;
+    };
+    outcomes?: {
+        titleKey: string;
+        itemsKeys: string[];
+    };
+    format?: {
+        titleKey: string;
+        subtitleKey?: string;
+        itemsKeys: string[];
+    };
+}
+
 export interface Course {
   id: string;
   titleKey?: string;
@@ -106,6 +122,7 @@ export interface Course {
   lessons: Lesson[];
   assignment?: Assignment;
   badge: Badge;
+  metadata?: CourseMetadata;
 }
 
 export interface LearningPath {

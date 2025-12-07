@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import type { Course, Lesson } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
@@ -14,7 +16,6 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
   const { t } = useI18n();
   const { isLessonCompleted, isCourseCompleted, assignmentScores } = useUserProgress();
   
-  // Helper: Prefer direct text from data object (for Marathi/Hindi content), fallback to translation key (English)
   const getText = (text?: string, key?: string) => text || (key ? t(key) : '');
 
   const completedLessonsCount = course.lessons.filter(lesson => isLessonCompleted(lesson.id)).length;
@@ -65,6 +66,52 @@ const CourseDetailsPage: React.FC<CourseDetailsPageProps> = ({ course, onBack, o
             </button>
         </div>
       </div>
+
+      {course.metadata && (
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm mb-8 animate-fade-in border border-neutral-100 dark:border-neutral-700">
+            {/* Audience */}
+            {course.metadata.audience && (
+                <div className="mb-6">
+                    <h3 className="font-bold text-neutral-900 dark:text-white mb-2 text-lg">{t(course.metadata.audience.titleKey)}</h3>
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300 bg-primary-50 dark:bg-primary-900/20 p-3 rounded-xl border border-primary-100 dark:border-primary-800/30">
+                        {t(course.metadata.audience.textKey)}
+                    </p>
+                </div>
+            )}
+
+            {/* Outcomes */}
+            {course.metadata.outcomes && (
+                <div className="mb-6">
+                    <h3 className="font-bold text-neutral-900 dark:text-white mb-3 text-lg">{t(course.metadata.outcomes.titleKey)}</h3>
+                    <ul className="space-y-2.5">
+                        {course.metadata.outcomes.itemsKeys.map(key => (
+                            <li key={key} className="flex items-start text-sm text-neutral-700 dark:text-neutral-300">
+                                <span className="mr-2 text-primary-500 mt-0.5">•</span>
+                                {t(key)}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* Format */}
+            {course.metadata.format && (
+                <div>
+                    <h3 className="font-bold text-neutral-900 dark:text-white mb-2 text-lg">{t(course.metadata.format.titleKey)}</h3>
+                    {course.metadata.format.subtitleKey && (
+                        <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 mb-3 italic">
+                            {t(course.metadata.format.subtitleKey)}
+                        </p>
+                    )}
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl">
+                        {course.metadata.format.itemsKeys.map(key => (
+                            <li key={key} className="pl-1">{t(key)}</li>
+                        ))}
+                    </ol>
+                </div>
+            )}
+        </div>
+      )}
       
       <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">{t('lessons')}</h2>
       <div className="space-y-3">
