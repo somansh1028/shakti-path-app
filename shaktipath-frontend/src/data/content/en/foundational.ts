@@ -579,54 +579,324 @@ export const englishLessons: Lesson[] = [
 
 export const freelanceLessons: Lesson[] = [
     {
-        id: 'free_l1', 
-        title: 'What is Online Work?', 
+        id: 'free_l1',
+
+        title: 'What is Freelancing?',
+
+        duration: 12,
+
+        content: [
+
+            { type: 'paragraph', text: "Freelancing means you do small projects for clients and get paid per task, not monthly salary. You are not an employee. You are a service provider." },
+            { type: 'video', text: "fqR9IIKWXZo" },
+            { type: 'heading', text: "Think of it like this:" },
+            { type: 'paragraph', text: "A nearby tailor stitches clothes for different people. A freelancer does digital work for different people." },
+            { type: 'heading', text: "Freelancing is good for you because:" },
+            { type: 'list', text: "You can start with a phone. | You can work from home. | You can learn slowly. | You can earn even while studying." },
+            { type: 'heading', text: "Examples of simple freelancing work (phone-friendly)" },
+            { type: 'list', text: "Making posters for local shops using Canva | Writing short WhatsApp/Instagram captions | Basic data entry | Marathi ↔ English translation of small texts | Voice-over in Marathi for short videos | Helping a small business manage WhatsApp inquiries" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "What freelancing means | How freelancing is different from a job | What beginners can do with a smartphone" },
+            { type: 'heading', text: "Try it now: Interactive Checklist" },
+            { type: 'checklist', text: "Say this line loudly: 'I can take small projects and earn.' | Think of 2 local businesses near you that might need help (shop, tuition class, salon, dairy, tailor). | Open your Notes app and write their names." },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Write 3 services you might enjoy doing (e.g., Typing, Poster Making)." }
+
+        ],
+
+        quiz: {
+
+            id: 'q_free_1',
+
+            question: "Freelancing means:",
+
+            options: [{ id: 'a', text: "One company monthly salary" }, { id: 'b', text: "Doing tasks for different clients" }],
+
+            correctOptionId: 'b'
+
+        }
+
+    },
+
+    {
+
+        id: 'free_l2',
+        title: 'Choose a Skill',
         duration: 15,
         content: [
-            { type: 'paragraph', text: "Freelancing is a shift from 'selling your time' to 'selling a service'. Unlike an employee who gets paid to show up, a freelancer gets paid to deliver a result (a logo, a translation). It offers freedom but requires self-discipline." },
+            { type: 'paragraph', text: "To start freelancing, you don’t need big English or coding. You need one small skill you can practice daily. For Maharashtra rural girls, the best beginner skills are those that Need only a phone, Are useful for local businesses, and Can be done in Marathi + simple English." },
+            { type: 'video', text: "D8JcZM0l45U" },
+            { type: 'heading', text: "Top beginner skills with strong local demand" },
+            { type: 'list', text: "1. Canva Poster & Reel Thumbnail Maker (Shops, coaching classes) | 2. WhatsApp Business Helper (Replying to customers) | 3. Basic Social Media Assistant (Posting photos) | 4. Data Entry / Form Filling (Simple typing) | 5. Marathi Voice-over / Script Reading | 6. Marathi ↔ English Translation (Small)" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "How to pick one skill | Which skills have real demand near you | How to avoid choosing an overly difficult skill first" },
+            { type: 'heading', text: "Try it now: Interactive Checklist" },
+            { type: 'list', text: "1. Canva Poster Maker (for shops/classes) | 2. WhatsApp Business Helper | 3. Basic Data Entry | 4. Marathi Voice-over | 5. Marathi to English Translation (Small)" },
+            { type: 'heading', text: "Action Plan" },
+            { type: 'checklist', text: "Choose ONE skill from the list | Tell yourself: 'I will practice this for 15 minutes daily' | Write your chosen skill in Notes" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Pick your #1 main skill and #2 backup skill." }
+
+        ],
+
+        quiz: {
+
+            id: 'q_free_2',
+            question: "Best first skill for phone-only beginners?",
+            options: [{ id: 'a', text: "Advanced coding" }, { id: 'b', text: "Canva + social media" }],
+            correctOptionId: 'b'
+
+        }
+
+    },
+
+    {
+
+        id: 'free_l3',
+        title: 'Your Freelancing Toolkit',
+        duration: 15,
+
+        content: [
+
+            { type: 'paragraph', text: "Before you find clients, you need a clean digital setup. This makes you look trustworthy. Organize your phone for work." },
+            { type: 'video', text: "3Y4cFuvVI80" },
+            { type: 'video', text: "hT0foxwjNSE" },
+            { type: 'heading', text: "Must-have Apps" },
+            { type: 'list', text: "Gmail (Professional email) | Google Drive (Store work) | Google Docs (Simple portfolio) | WhatsApp (Client chat) | Canva (Design)" },
+            { type: 'heading', text: "Folder Rule" },
+            { type: 'paragraph', text: "Create a main folder 'Freelancing' in Google Drive. Inside it, add: Portfolio, Client Work, Certificates." },
             { type: 'heading', text: "Try it now" },
-            { type: 'checklist', text: "Imagine working from home | You are your own boss | You must find clients" }
+            { type: 'checklist', text: "Open Google Drive | Create folder 'Freelancing' | Add subfolders" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create a simple email signature in Gmail: Name, Skill, City." }
+
+        ],
+
+        quiz: {
+            id: 'q_free_3',
+            question: "Why is Google Drive important?",
+            options: [{ id: 'a', text: "For playing games" }, { id: 'b', text: "To store and share work neatly" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'free_l4',
+        title: 'Find Work Safely',
+        duration: 15,
+        content: [
+            { type: 'paragraph', text: "You can find work locally or on platforms. Start local for speed. Platforms like Fiverr.com or UpWork.com are good for safe 'Work from Home' Freelancing." },
+            { type: 'video', text: "drifssJkmZ0" },
+            { type: 'heading', text: "Start Local" },
+            { type: 'paragraph', text: "Approach Tuition teachers, Medical shops, or Beauty parlours. Offer a simple package (e.g., '10 posters for ₹500')." },
+            { type: 'heading', text: "Online: Fiverr" },
+            { type: 'paragraph', text: "Great for beginners in India. Search for 'Work from Home' Freelancing'. It is free to apply." },
+            { type: 'heading', text: "Safety Rule" },
+            { type: 'paragraph', text: "If anyone asks for a registration fee or training fee to give you a job, it is a scam. Avoid." },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Draft a WhatsApp message for a local shop offering your service." }
+
+        ],
+
+        quiz: {
+            id: 'q_free_4',
+            question: "Is it true you must pay to apply on Fiverr.com or Upwork.com?",
+            options: [{ id: 'a', text: "True" }, { id: 'b', text: "False" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'free_l5',
+        title: 'Deliver, Talk, Pay',
+        duration: 15,
+        content: [
+            { type: 'paragraph', text: "Many beginners lose clients not because of skill, but because of poor communication. You only need simple, polite English sentences." },
+            { type: 'video', text: "-5XpOmLYRkE" },
+            { type: 'heading', text: "Simple Sentences" },
+            { type: 'list', text: "'Thank you for the opportunity.' | 'I will share the first draft by tomorrow.' | 'Please share the details.' | 'Here is the final file. Thank you!'" },
+            { type: 'heading', text: "Payment Basics" },
+            { type: 'paragraph', text: "For local clients, use UPI. Share your QR code politely. Always confirm deadlines before starting." },
+            { type: 'heading', text: "Try it now" },
+            { type: 'checklist', text: "Write a 2-line message to a client | Decide your first starter price (e.g., ₹200)" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create your service rule: 'I will deliver in ___ days with ___ revisions.'" }
         ],
         quiz: {
-            id: 'q_free_1', 
-            question: "In freelancing, who is the boss?",
-            options: [{ id: 'a', text: "You" }, { id: 'b', text: "The government" }],
-            correctOptionId: 'a'
+            id: 'q_free_5',
+            question: "Best way to build trust with clients?",
+            options: [{ id: 'a', text: "Late replies" }, { id: 'b', text: "Clear timelines + polite communication" }],
+            correctOptionId: 'b'
         }
     }
 ];
 
 export const moneyLessons: Lesson[] = [
     {
-        id: 'mon_l1', 
-        title: 'Coins & Notes', 
-        duration: 10,
+        id: 'mon_l1',
+        title: 'Money Mindset for Freelancers',
+        duration: 12,
         content: [
-            { type: 'paragraph', text: "Financial literacy starts with recognizing value. Indian currency has distinct features to prevent counterfeiting. Security threads, watermarks, and latent images on high-value notes are designed for verification." },
-            { type: 'heading', text: "Try it now" },
-            { type: 'checklist', text: "Look at a 500 note | Check the security thread | Check the watermark" }
+            { type: 'paragraph', text: "Freelancing is not only skill, it is also money discipline. When you earn small amounts regularly, your confidence grows. But if money is not managed, even good income can disappear. This lesson helps you think like a smart earner: track money, plan small goals, and stay safe with digital payments." },
+            { type: 'video', text: "Kh_fUDcTeNU" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "What 'income' means for freelancers | Why tracking money is power | A simple rule to start saving" },
+            { type: 'heading', text: "Interactive Checklist" },
+            { type: 'checklist', text: "Think of 1 skill you can sell (typing, design, teaching) | Imagine you earn ₹500 this week | Write 2 things you will use it for: Need (गरज) vs Save (बचत)" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Open Notes on your phone and write: 'My first weekly earning goal is ₹____ and I will save ₹____.'" }
         ],
         quiz: {
-            id: 'q_mon_1', 
-            question: "500 Rupee note color?",
-            options: [{ id: 'a', text: "Stone Grey" }, { id: 'b', text: "Pink" }],
-            correctOptionId: 'a'
+            id: 'q_mon_1',
+            question: "Why should a freelancer track income and expenses?",
+            options: [{ id: 'a', text: "To show off" }, { id: 'b', text: "To plan and save" }, { id: 'c', text: "Because apps say so" }],
+            correctOptionId: 'b'
         }
     },
     {
-        id: 'mon_l2', 
-        title: 'Counting', 
+        id: 'mon_l2',
+        title: 'Income, Expenses, Needs vs Wants',
         duration: 15,
         content: [
-            { type: 'paragraph', text: "Budgeting is the art of prioritizing. A 'Need' is essential for survival (Food, Medicine). A 'Want' is a desire (Cinema). Financial health comes from spending on Needs first and saving for Wants later." },
-            { type: 'heading', text: "Try it now" },
-            { type: 'checklist', text: "Need: Food, Rent | Want: Cinema, New toy | Prioritize Needs" }
+            { type: 'paragraph', text: "Income is the money you earn. Expenses are the money you spend. To grow, you must know the difference between needs and wants. This simple habit helps you avoid stress and build savings." },
+            { type: 'video', text: "iWsQY6Ha4OE" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "Income vs Expense | Needs vs Wants | How small leaks reduce savings" },
+            { type: 'heading', text: "Try it now: Interactive Checklist" },
+            { type: 'checklist', text: "Write today's small expenses (even ₹10-₹20 items) | Mark each item: Need (गरज) or Want (इच्छा)" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "For 3 days, note every expense in your phone Notes. At the end of day 3, total them." }
         ],
         quiz: {
-            id: 'q_mon_2', 
-            question: "Medicine is a...",
-            options: [{ id: 'a', text: "Need" }, { id: 'b', text: "Want" }],
-            correctOptionId: 'a'
+            id: 'q_mon_2',
+            question: "Which is a 'Need'?",
+            options: [{ id: 'a', text: "Fancy earphones" }, { id: 'b', text: "Medicines" }, { id: 'c', text: "Extra shopping" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'mon_l3',
+        title: 'Simple Budgeting (Weekly + Monthly)',
+        duration: 15,
+        content: [
+            { type: 'paragraph', text: "A budget is a simple comparison of income and expenses. If your income is more than expenses, you have a surplus. If expenses are more, you have a deficit. The goal is to move your life slowly toward surplus. Budgeting should be done regularly — weekly first, then monthly." },
+            { type: 'video', text: "RcQi5SHYaf0" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "What is a budget | How to make a 10-minute weekly budget | Simple saving formula" },
+            { type: 'heading', text: "Try it now: Interactive Checklist" },
+            { type: 'checklist', text: "Write: Weekly income = ₹____ | Weekly expenses = ₹____ | Weekly saving goal = ₹____" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Use this simple rule: Saving = Income – Expenses. Write your own example with real numbers." }
+        ],
+        quiz: {
+            id: 'q_mon_3',
+            question: "If income is ₹700 and expenses are ₹600, you have:",
+            options: [{ id: 'a', text: "Deficit" }, { id: 'b', text: "Surplus" }, { id: 'c', text: "Loan" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'mon_l4',
+        title: 'Saving & Emergency Fund',
+        duration: 12,
+        content: [
+            { type: 'paragraph', text: "Saving creates safety. Even ₹10–₹20 daily can become meaningful. An emergency fund is money kept for sudden needs like illness, travel, or phone repair. Start small. The important part is consistency." },
+            { type: 'video', text: "saAyROxeLwg" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "Why saving matters | Emergency fund meaning | Simple goal setting" },
+            { type: 'heading', text: "Interactive Checklist" },
+            { type: 'checklist', text: "Pick 1 goal: New phone, Course fee, or Family support | Decide total goal amount ₹____ | Decide monthly saving ₹____" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create a small 'Emergency' folder in your notes. Write 3 situations where you will use this money." }
+        ],
+        quiz: {
+            id: 'q_mon_4',
+            question: "Emergency fund is for:",
+            options: [{ id: 'a', text: "Festivals" }, { id: 'b', text: "Random shopping" }, { id: 'c', text: "Sudden urgent needs" }],
+            correctOptionId: 'c'
+        }
+    },
+    {
+        id: 'mon_l5',
+        title: 'Getting Paid: Bank + UPI Basics',
+        duration: 15,
+        content: [
+            { type: 'paragraph', text: "To do freelancing work, you should be able to receive money safely. Most clients in India pay using UPI or bank transfer. You can create a UPI ID, receive money through QR, and check transaction history." },
+            { type: 'video', text: "51TM2IwzzIg" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "How freelancers receive payments | UPI ID and QR basics | Checking payment history" },
+            { type: 'heading', text: "Interactive Checklist" },
+            { type: 'checklist', text: "Open your UPI app | Find UPI ID | Find QR Code | Check Transaction History" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create a sample message you can send to a client: 'Hello, please pay ₹____ to my UPI: ______. Thank you.'" }
+        ],
+        quiz: {
+            id: 'q_mon_5',
+            question: "What is a QR code used for?",
+            options: [{ id: 'a', text: "To take selfies" }, { id: 'b', text: "To receive or pay money easily" }, { id: 'c', text: "To download games" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'mon_l6',
+        title: 'UPI Safety & Scam Protection',
+        duration: 12,
+        content: [
+            { type: 'paragraph', text: "Many new users get tricked by fake calls and messages. The most important rule: You enter your UPI PIN only to send money, not to receive money. If someone asks for PIN/OTP to 'receive' money, it is a scam." },
+            { type: 'video', text: "MGC0r1Ou4hg" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "The golden UPI safety rules | Common scam tricks | What to do if you feel unsure" },
+            { type: 'heading', text: "Interactive Checklist" },
+            { type: 'checklist', text: "Never share: UPI PIN, OTP, Bank password | Verify: Name shown before paying, Amount typed before confirming" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Write this sentence in your notes: 'My UPI PIN is private. I never share it with anyone.'" }
+        ],
+        quiz: {
+            id: 'q_mon_6',
+            question: "A person says: 'Share your UPI PIN to receive money.' Is it true?",
+            options: [{ id: 'a', text: "True" }, { id: 'b', text: "False (Scam)" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'mon_l7',
+        title: 'Pricing, Quotation & Invoices',
+        duration: 15,
+        content: [
+            { type: 'paragraph', text: "Freelancers must price their work clearly. A simple way is to charge per task or per hour. Always confirm price before starting. A basic invoice makes you look professional and helps you track earnings." },
+            { type: 'video', text: "EJY3gl0QtGw" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "Simple pricing methods | How to send a quotation | What an invoice includes" },
+            { type: 'heading', text: "Interactive Checklist" },
+            { type: 'checklist', text: "Choose one: Per task price or Per hour price | Write: 'My price for this work is ₹____.'" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create a sample invoice in Google Docs: Name, Service, Date, Amount, UPI ID. Take a screenshot." }
+        ],
+        quiz: {
+            id: 'q_mon_7',
+            question: "Why is an invoice useful?",
+            options: [{ id: 'a', text: "It looks fancy" }, { id: 'b', text: "It helps track income and builds trust" }, { id: 'c', text: "It is only for big companies" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'mon_l8',
+        title: 'Growing Legally: PAN, Tax Awareness & GST',
+        duration: 10,
+        content: [
+            { type: 'paragraph', text: "At the beginning stage, focus on skills, payments, and saving. As your income grows, you may need to use PAN and file an ITR with help from a trusted adult. GST is usually relevant only when your annual turnover crosses ₹20 lakh." },
+            { type: 'video', text: "PLACEHOLDER_VIDEO_ID" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "Why basic legal awareness matters | When to ask for help | The idea of business growth stages" },
+            { type: 'heading', text: "Interactive Checklist" },
+            { type: 'checklist', text: "Write: 'Right now, my focus is skill + safe payments.' | Write: 'If my income grows a lot, I will ask for tax help.'" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Talk to a parent/guardian about: 'What will we do if my freelancing income becomes big?'" }
+        ],
+        quiz: {
+            id: 'q_mon_8',
+            question: "GST is usually needed only when:",
+            options: [{ id: 'a', text: "You earn ₹200" }, { id: 'b', text: "You grow into a larger business (₹20L+)" }, { id: 'c', text: "You open any app" }],
+            correctOptionId: 'b'
         }
     }
 ];
+
