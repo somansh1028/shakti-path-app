@@ -1,136 +1,102 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useI18n } from '../../../contexts/I18nContext';
 import { generateGeminiResponse } from '../../../services/geminiService';
-import { Type } from '@google/genai';
-import type { Gig, UserProfile } from '../../../types';
 import { SparkleIcon } from '../../icons/SparkleIcon';
 import { useCareer } from '../../../contexts/CareerContext';
 import { useToast } from '../../../contexts/ToastContext';
-import { API_BASE_URL, getHeaders } from '../../../config';
 
 interface LocalGigFinderPageProps {
   onBack: () => void;
 }
 
+interface StrategyResult {
+    needs: string[];
+    earningEstimate: string;
+    pitch: string;
+}
+
 const LocalGigFinderPage: React.FC<LocalGigFinderPageProps> = ({ onBack }) => {
   const { t, language } = useI18n();
-  const { addProspectFromGig, isGigAdded } = useCareer();
+  const { addManualProspect } = useCareer();
   const { showToast } = useToast();
   
+  const [businessName, setBusinessName] = useState('');
+  const [city, setCity] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [gigs, setGigs] = useState<Gig[]>([]);
-  
-  // Profile State
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [result, setResult] = useState<StrategyResult | null>(null);
 
-  useEffect(() => {
-      const fetchProfile = async () => {
-          const token = localStorage.getItem('authToken');
-          if (!token) {
-              setIsProfileLoading(false);
-              return;
-          }
-          try {
-              const res = await fetch(`${API_BASE_URL}/api/user/profile`, { headers: getHeaders(token) });
-              if (res.ok) {
-                  const data = await res.json();
-                  setProfile(data);
-              }
-          } catch (e) {
-              console.error("Failed to fetch profile for gig finder", e);
-          } finally {
-              setIsProfileLoading(false);
-          }
-      };
-      fetchProfile();
-  }, []);
+  const categories = [
+      { id: 'restaurants', labelKey: 'gig_finder_category_restaurants', icon: '🍔' },
+      { id: 'gyms', labelKey: 'gig_finder_category_gyms', icon: '💪' },
+      { id: 'salons', labelKey: 'gig_finder_category_salons', icon: '💇‍♀️' },
+      { id: 'boutiques', labelKey: 'gig_finder_category_boutiques', icon: '👗' },
+      { id: 'clinics', labelKey: 'gig_finder_category_clinics', icon: '🏥' },
+  ];
 
-  
-  const handleFindGigs = useCallback(async () => {
-    if (!profile || !profile.city || !profile.skills || profile.skills.length === 0) {
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    setGigs([]);
+  const handleOpenMaps = (category: string) => {
+      const query = encodeURIComponent(`${category} near me`);
+      window.open(`https://www.google.com/maps/search/${query}`, '_blank');
+  };
 
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-        setError("UNAUTHORIZED");
-        setIsLoading(false);
-        return;
-    }
-    
-    const prompt = `I am a freelancer in ${profile.city}, India, with skills in: ${profile.skills.join(', ')}. Find 5 fictional but realistic potential local businesses that could hire me. For each business, suggest a specific "serviceToOffer" that is an actionable task based on my skills. Provide a realistic "earningPotential" in INR. Invent plausible contact info (phone, email, or website). The response must be in ${language}.`;
-    
-    const responseSchema = {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
+  const handleAnalyze = async () => {
+      if (!businessName || !city) {
+          showToast("Please enter Business Name and City.");
+          return;
+      }
+      setIsLoading(true);
+      setResult(null);
+
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const prompt = `I want to pitch freelance digital services to a business called "${businessName}" located in "${city}" (${businessType}).
+      Act as a business consultant.
+      1. Identify 3 specific digital services this type of business likely needs (e.g. Google Maps SEO, Instagram Reels, Menu Design).
+      2. Estimate a realistic monthly earning potential for a freelancer helping them (in INR).
+      3. Write a short, polite, professional cold pitch message (for WhatsApp) that I can send to the owner.
+
+      Respond in ${language} language.`;
+
+      // Use literal strings for Type enum to ensure cross-env compatibility
+      const schema = {
+          type: "OBJECT",
           properties: {
-            name: { type: Type.STRING },
-            businessType: { type: Type.STRING },
-            earningPotential: { type: Type.STRING },
-            serviceToOffer: { type: Type.STRING },
-            contact: { 
-              type: Type.OBJECT,
-              properties: {
-                  phone: { type: Type.STRING },
-                  email: { type: Type.STRING },
-                  website: { type: Type.STRING }
-              }
-            },
+              needs: {
+                  type: "ARRAY",
+                  items: { type: "STRING" }
+              },
+              earningEstimate: { type: "STRING" },
+              pitch: { type: "STRING" }
           },
-          required: ["name", "businessType", "earningPotential", "serviceToOffer"]
-        }
-    };
+          required: ["needs", "earningEstimate", "pitch"]
+      };
 
-    try {
-      const response = await generateGeminiResponse([{ text: prompt }], token, responseSchema);
-      if (Array.isArray(response)) {
-          setGigs(response.map((gig, index) => ({...gig, id: `gig-${index}`})));
-      } else {
-          throw new Error("Invalid response format from AI.");
+      try {
+          const data = await generateGeminiResponse([{ text: prompt }], token, schema);
+          setResult(data);
+      } catch (e) {
+          console.error("Analysis Error:", e);
+          showToast(e instanceof Error ? e.message : "Analysis failed. Please try again.");
+      } finally {
+          setIsLoading(false);
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      
-      if (errorMessage.includes("UNAUTHORIZED")) {
-          setError("UNAUTHORIZED");
-      } else if (errorMessage.includes("quota")) {
-        setError(t('gig_finder_error_ratelimit'));
-      } else {
-        setError(errorMessage);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [language, t, profile]);
-
-  const handleSessionExpired = () => {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userEmail');
-      window.location.reload();
   };
 
-  const handleAddProspect = (gig: Gig) => {
-      addProspectFromGig(gig);
-      showToast(`Added ${gig.name} to Prospects!`);
+  const handleSaveLead = () => {
+      if (!businessName) return;
+      addManualProspect(businessName, businessType || 'Local Business');
+      showToast("Lead saved to My Prospects!");
   };
 
-  if (isProfileLoading) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-full h-64">
-            <SparkleIcon className="w-8 h-8 text-blue-500 animate-spin mb-2" />
-            <p className="text-sm text-neutral-500">Loading profile data...</p>
-        </div>
-      );
-  }
-
-  const hasPrerequisites = profile && profile.city && profile.skills && profile.skills.length > 0;
+  const handleCopyPitch = () => {
+      if (result?.pitch) {
+          navigator.clipboard.writeText(result.pitch);
+          showToast("Pitch copied!");
+      }
+  };
 
   return (
     <div className="p-4 md:p-6 bg-blue-50 dark:bg-blue-950/30 min-h-full">
@@ -143,102 +109,129 @@ const LocalGigFinderPage: React.FC<LocalGigFinderPageProps> = ({ onBack }) => {
         <h1 className="text-xl font-bold text-blue-900 dark:text-blue-100 text-center flex-1">{t('career_tool_gig_finder_title')}</h1>
       </header>
 
-      <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-4 mb-6">
-        <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-2">{t('gig_finder_finding_based_on')}</p>
-        <div className="space-y-1">
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 flex justify-between">
-                <span><strong>{t('gig_finder_location')}:</strong> {profile?.city || 'Not set'}</span>
-                {!profile?.city && <span className="text-red-500 text-xs font-bold">Missing</span>}
-            </p>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 flex justify-between">
-                <span><strong>{t('gig_finder_my_skills')}:</strong> {profile?.skills?.length ? profile.skills.join(', ') : t('gig_finder_none_yet')}</span>
-                {(!profile?.skills || profile.skills.length === 0) && <span className="text-red-500 text-xs font-bold">Missing</span>}
-            </p>
-        </div>
+      {/* Step 1: Find on Maps */}
+      <div className="mb-8">
+          <h2 className="text-sm font-bold text-blue-800 dark:text-blue-200 uppercase tracking-wide mb-3 flex items-center">
+              <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2 text-blue-600">1</span>
+              {t('gig_finder_search_maps')}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {categories.map(cat => (
+                  <button 
+                    key={cat.id}
+                    onClick={() => handleOpenMaps(t(cat.labelKey))}
+                    className="flex flex-col items-center justify-center bg-white dark:bg-neutral-800 p-3 rounded-2xl shadow-sm border border-transparent hover:border-blue-300 transition-all active:scale-95"
+                  >
+                      <span className="text-2xl mb-1">{cat.icon}</span>
+                      <span className="text-[10px] font-bold text-neutral-600 dark:text-neutral-300 text-center leading-tight">{t(cat.labelKey)}</span>
+                  </button>
+              ))}
+          </div>
+          <p className="text-[10px] text-neutral-500 mt-2 text-center">
+              *Opens Google Maps app. Look for businesses with few reviews or no photos.
+          </p>
       </div>
 
-      {!hasPrerequisites && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
-            <h2 className="text-lg font-bold text-red-700 dark:text-red-300">{t('gig_finder_error_title')}</h2>
-            <p className="text-sm text-red-600 dark:text-red-400 mt-2">To find gigs, you need to set your <strong>City</strong> and <strong>Skills</strong> in your profile.</p>
-            <p className="text-xs text-red-500 mt-4">Go to <strong>Settings &gt; My Profile</strong> to update.</p>
-        </div>
-      )}
-
-      {hasPrerequisites && !isLoading && gigs.length === 0 && !error && (
-         <div className="text-center mt-4">
-            <button 
-                onClick={handleFindGigs}
-                className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
-            >
-                {t('gig_finder_find_gigs_button')}
-            </button>
-        </div>
-      )}
-      
-      {isLoading && (
-        <div className="text-center py-10">
-            <SparkleIcon className="w-10 h-10 text-primary-500 animate-spin mx-auto"/>
-            <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">{t('gig_finder_finding_gigs_message')}</p>
-        </div>
-      )}
-      
-      {error && !isLoading && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center mt-4">
-          <h2 className="text-lg font-bold text-red-700 dark:text-red-300">
-              {error === "UNAUTHORIZED" ? "Session Expired" : t('gig_finder_error_title')}
+      {/* Step 2: Analyze */}
+      <div>
+          <h2 className="text-sm font-bold text-blue-800 dark:text-blue-200 uppercase tracking-wide mb-3 flex items-center">
+              <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2 text-blue-600">2</span>
+              {t('gig_finder_analyze')}
           </h2>
-          <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-              {error === "UNAUTHORIZED" ? "Please log in again to continue." : error}
-          </p>
-          {error === "UNAUTHORIZED" && (
-              <button onClick={handleSessionExpired} className="mt-4 bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition-colors">
-                  Log In Again
+          
+          <div className="bg-white dark:bg-neutral-800 p-5 rounded-3xl shadow-sm">
+              <div className="space-y-3">
+                  <input 
+                    placeholder={t('gig_finder_input_name')}
+                    className="w-full p-3 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    value={businessName}
+                    onChange={e => setBusinessName(e.target.value)}
+                  />
+                  <div className="flex gap-3">
+                      <input 
+                        placeholder={t('gig_finder_input_city')}
+                        className="flex-1 p-3 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        value={city}
+                        onChange={e => setCity(e.target.value)}
+                      />
+                      <input 
+                        placeholder={t('gig_finder_input_type')}
+                        className="flex-1 p-3 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-700 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        value={businessType}
+                        onChange={e => setBusinessType(e.target.value)}
+                      />
+                  </div>
+              </div>
+
+              <button 
+                onClick={handleAnalyze}
+                disabled={isLoading || !businessName || !city}
+                className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center disabled:opacity-70 disabled:shadow-none hover:scale-[1.02] transition-transform"
+              >
+                  {isLoading ? (
+                      <>
+                        <SparkleIcon className="w-5 h-5 mr-2 animate-spin" />
+                        {t('gig_finder_analyzing')}
+                      </>
+                  ) : t('gig_finder_btn_analyze')}
               </button>
-          )}
-        </div>
-      )}
-      
-      {gigs.length > 0 && !isLoading && (
-         <div className="mt-6 animate-fade-in">
-            <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">{t('gig_finder_potential_clients_in', { city: profile?.city })}</h2>
-            <div className="space-y-4">
-                {gigs.map(gig => {
-                    const isAdded = isGigAdded(gig.name);
-                    return (
-                        <div key={gig.id} className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-4 border-l-4 border-blue-500">
-                            <h3 className="font-bold text-lg text-neutral-900 dark:text-white">{gig.name}</h3>
-                            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-3">{gig.businessType}</p>
-                            
-                            <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300 mb-4">
-                                <p><strong>{t('gig_finder_earning_potential')}:</strong> {gig.earningPotential}</p>
-                                <p><strong>💡 {t('gig_finder_service_to_offer')}:</strong> {gig.serviceToOffer}</p>
-                                {gig.contact?.phone && <p>📞 {gig.contact.phone}</p>}
-                                {gig.contact?.email && <p>📧 {gig.contact.email}</p>}
-                                {gig.contact?.website && <p>🌐 {gig.contact.website}</p>}
-                            </div>
-                            
-                            <div className="flex gap-3">
-                                <button 
-                                    onClick={() => handleAddProspect(gig)}
-                                    disabled={isAdded}
-                                    className={`flex-1 font-bold py-2 px-4 rounded-lg text-sm transition-colors ${
-                                        isAdded 
-                                        ? 'bg-green-100 text-green-700 cursor-default' 
-                                        : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600'
-                                    }`}
-                                >
-                                    {isAdded ? 'Added ✓' : t('gig_finder_add_to_prospects')}
-                                </button>
-                                <button className="flex-1 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 text-sm">
-                                    {t('gig_finder_generate_pitch')}
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-         </div>
+          </div>
+      </div>
+
+      {/* Result Card */}
+      {result && (
+          <div className="mt-8 animate-fade-in-up">
+              <div className="bg-white dark:bg-neutral-800 rounded-3xl shadow-xl overflow-hidden border border-blue-100 dark:border-blue-900">
+                  <div className="bg-blue-600 p-4 text-white">
+                      <h3 className="font-bold text-lg">{businessName}</h3>
+                      <p className="text-xs text-blue-100 opacity-90">Strategy Card</p>
+                  </div>
+                  
+                  <div className="p-5 space-y-5">
+                      {/* Needs */}
+                      <div>
+                          <h4 className="text-xs font-bold text-neutral-400 uppercase mb-2">{t('gig_finder_result_needs')}</h4>
+                          <div className="flex flex-wrap gap-2">
+                              {result.needs?.map((need: string, i: number) => (
+                                  <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg border border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                                      {need}
+                                  </span>
+                              ))}
+                          </div>
+                      </div>
+
+                      {/* Earning */}
+                      <div className="flex items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
+                          <span className="text-2xl mr-3">💰</span>
+                          <div>
+                              <p className="text-[10px] font-bold text-green-800 dark:text-green-300 uppercase">{t('gig_finder_result_price')}</p>
+                              <p className="font-bold text-green-700 dark:text-green-400">{result.earningEstimate}</p>
+                          </div>
+                      </div>
+
+                      {/* Pitch */}
+                      <div>
+                          <h4 className="text-xs font-bold text-neutral-400 uppercase mb-2">{t('gig_finder_result_pitch')}</h4>
+                          <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed border border-neutral-100 dark:border-neutral-700 italic">
+                              "{result.pitch}"
+                          </div>
+                          <button onClick={handleCopyPitch} className="mt-2 text-xs text-blue-600 font-bold flex items-center hover:underline">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                              {t('gig_finder_action_copy')}
+                          </button>
+                      </div>
+                  </div>
+
+                  <div className="p-4 bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-100 dark:border-neutral-800">
+                      <button 
+                        onClick={handleSaveLead}
+                        className="w-full py-3 bg-white dark:bg-neutral-700 border-2 border-neutral-200 dark:border-neutral-600 text-neutral-700 dark:text-white font-bold rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"
+                      >
+                          {t('gig_finder_action_save')}
+                      </button>
+                  </div>
+              </div>
+          </div>
       )}
     </div>
   );

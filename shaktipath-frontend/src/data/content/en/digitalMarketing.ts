@@ -1,6 +1,135 @@
 
 import type { Lesson } from '../../../types';
 
+// --- CONTENT CREATION LESSONS ---
+export const contentCreationLessons: Lesson[] = [
+    {
+        id: 'cc_biz_1', title: 'Know Your Business & Audience', duration: 10,
+        content: [
+            { type: 'paragraph', text: "Before making any poster or reel, you must be clear about three things: Who is the business? Who are the customers? What is the goal?" },
+            { type: 'video', text: "cOHTSncXDic" },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "How to describe a local business in one line | How to imagine a simple 'customer profile' | How to choose 1–2 clear goals for content" },
+            { type: 'heading', text: "Try it now – Interactive Checklist" },
+            { type: 'checklist', text: "What do they sell? | Who comes there most often? | What would this shop want more of? (visits / calls / orders)" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Write 3 short lines: Business description, Customer description, and Main Goal." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_1', question: "Which is the best content goal for a new mehendi artist?",
+            options: [{ id: 'a', text: "Get 1,000 likes from random people" }, { id: 'b', text: "Get 10 booking enquiries for Diwali" }, { id: 'c', text: "Post 3 times a day" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_2', title: 'Content Buckets & Pillars', duration: 15,
+        content: [
+            { type: 'paragraph', text: "Big brands and small businesses both use content pillars. Your content should rotate between 5 buckets: Education, Offer, Story, Trust, and Festival." },
+            { type: 'video', text: "3f84PKzraLk" },
+            { type: 'heading', text: "5 Content Buckets" },
+            { type: 'list', text: "Education / Tips | Offer / Promotion | Story / Behind the Scenes | Trust / Testimonial | Festival / Culture" },
+            { type: 'heading', text: "Try it now" },
+            { type: 'checklist', text: "Think of one Education idea | Think of one Offer idea | Think of one Trust idea" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create a simple list: 'My 3 main pillars for this shop are...'" }
+        ],
+        quiz: {
+            id: 'q_cc_biz_2', question: "Which of these is a 'Trust / Testimonial' post?",
+            options: [{ id: 'a', text: "20% off only today!" }, { id: 'b', text: "Rashmi tai says: 'This tiffin tastes like home.'" }, { id: 'c', text: "How to store rotis." }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_3', title: 'Hooks, Captions & CTAs', duration: 12,
+        content: [
+            { type: 'paragraph', text: "A good post has three parts: Hook (grabs attention), Body (info), and CTA (tells people what to do next)." },
+            { type: 'video', text: "BKpJ24XerLE" },
+            { type: 'heading', text: "Examples" },
+            { type: 'list', text: "Hook: 'Tired of oily canteen food?' | CTA: 'Call now to book your slot.'" },
+            { type: 'heading', text: "Try it now" },
+            { type: 'checklist', text: "Write 1 hook line in Marathi/Hinglish | Write 2 simple info lines | Write 1 CTA line" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Fill this template: [HOOK] + [Benefit line] + [CTA]." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_3', question: "Which is the strongest CTA for a festive offer?",
+            options: [{ id: 'a', text: "Nice offer for you." }, { id: 'b', text: "Limited slots, call now to book." }, { id: 'c', text: "We are on Instagram." }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_4', title: 'Weekly & Festival Calendar', duration: 15,
+        content: [
+            { type: 'paragraph', text: "Plan content in advance so you’re not stressed. Start tiny: 2–3 posts per week are enough. Add extra posts for festivals." },
+            { type: 'heading', text: "What you will learn" },
+            { type: 'list', text: "How to plan a weekly schedule | How to plug in pillars | Marking important festivals" },
+            { type: 'heading', text: "Try it now" },
+            { type: 'checklist', text: "Decide posting days (e.g. Mon, Wed, Sat) | Assign a bucket to each day" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Draw a tiny table with Day, Bucket, and Idea for one week." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_4', question: "For a new small business, which plan is realistic?",
+            options: [{ id: 'a', text: "3 quality posts per week" }, { id: 'b', text: "5–6 posts every day" }, { id: 'c', text: "1 post every 2 months" }],
+            correctOptionId: 'a'
+        }
+    },
+    {
+        id: 'cc_biz_5', title: 'Match Content to Channels', duration: 12,
+        content: [
+            { type: 'paragraph', text: "Don’t try to be everywhere. For local shops, focus on: Instagram (visuals), WhatsApp (direct connection), and Google Business Profile (search)." },
+            { type: 'video', text: "9WVGLqiHVuk" },
+            { type: 'heading', text: "Adapting Content" },
+            { type: 'list', text: "Education tip → IG Reel | Offer → WhatsApp Status | Store Photo → GBP Update" },
+            { type: 'heading', text: "Try it now" },
+            { type: 'checklist', text: "Take one idea | Write how you'll show it on Instagram | Write how you'll show it on WhatsApp" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Create a mapping: Idea -> IG Format -> WhatsApp Format -> GBP Format." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_5', question: "Which channel helps new people nearby find a shop?",
+            options: [{ id: 'a', text: "WhatsApp private chat" }, { id: 'b', text: "Google Business Profile" }, { id: 'c', text: "SMS" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_6', title: 'Repurposing Ideas', duration: 15,
+        content: [
+            { type: 'paragraph', text: "Good creators repurpose – they take one strong idea and express it in many formats instead of starting from zero every time." },
+            { type: 'video', text: "UZ-4nLFJjVM" },
+            { type: 'heading', text: "Example: 'Fresh Tiffin'" },
+            { type: 'list', text: "Reel: Making roti | Canva: Menu card | Status: 'Order now' text | GBP: Photo of lunch box" },
+            { type: 'heading', text: "Try it now" },
+            { type: 'checklist', text: "Choose 1 strong idea | Write how it becomes a Reel | Write how it becomes a Poster" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "List 3 'Big Ideas' for a shop that can be reused every week." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_6', question: "Repurposing content means:",
+            options: [{ id: 'a', text: "Copy-pasting exact image everywhere" }, { id: 'b', text: "Turning one idea into different formats" }, { id: 'c', text: "Posting once a year" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_7', title: 'Analytics & Safety', duration: 10,
+        content: [
+            { type: 'paragraph', text: "Watch your numbers to see what works. Also, protect yourself from online abuse. Your safety is more important than engagement." },
+            { type: 'video', text: "HfCijj6Ddu8" },
+            { type: 'heading', text: "What to check" },
+            { type: 'list', text: "Views, Likes, Comments | Ask 'Why did this work?'" },
+            { type: 'heading', text: "Safety Rules" },
+            { type: 'list', text: "Delete/Block abusive comments | Never argue with trolls | Report serious threats" },
+            { type: 'heading', text: "Mini Task" },
+            { type: 'paragraph', text: "Write a simple weekly review template: Best post, Why it worked, What to avoid." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_7', question: "A comment is rude. What should you do?",
+            options: [{ id: 'a', text: "Fight in comments" }, { id: 'b', text: "Ignore, delete, block" }, { id: 'c', text: "Do whatever they say" }],
+            correctOptionId: 'b'
+        }
+    }
+];
+
 // --- CANVA LESSONS ---
 export const canvaLessons: Lesson[] = [
     { 
@@ -24,7 +153,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Create a simple post with your Name + One Word that describes you. Use any background color you love. Save it to your phone!" }
         ], 
         quiz: { 
-            id: 'q_l1', question: "Canva is mainly for...", 
+            id: 'q_canva_1', question: "Canva is mainly for...", 
             options: [{ id: 'a', text: "Reading news" }, { id: 'b', text: "Making designs" }, { id: 'c', text: "Making phone calls" }], 
             correctOptionId: 'b' 
         } 
@@ -45,7 +174,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Make 1 post with a short quote (e.g. 'Small steps. Big dreams.'). Apply the 3 rules: Strong contrast, neat alignment, and space." }
         ], 
         quiz: { 
-            id: 'q_l2', question: "Which color combination has better contrast?", 
+            id: 'q_canva_2', question: "Which color combination has better contrast?", 
             options: [{ id: 'a', text: "Yellow text on White" }, { id: 'b', text: "White text on Dark Purple" }], 
             correctOptionId: 'b' 
         } 
@@ -62,7 +191,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Choose a template for a shop, a club, or a cause. Customize the text, color, and image so it looks unique." }
         ], 
         quiz: { 
-            id: 'q_l3', question: "Using templates is cheating. True or False?", 
+            id: 'q_canva_3', question: "Using templates is cheating. True or False?", 
             options: [{ id: 'a', text: "True" }, { id: 'b', text: "False. They are a starting point." }, { id: 'c', text: "Only for experts" }], 
             correctOptionId: 'b' 
         } 
@@ -79,7 +208,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Use AI to design a post for homemade snacks/food. Customise the text, color, and contact info." }
         ], 
         quiz: { 
-            id: 'q_l4', question: "What is the best prompt for AI design?", 
+            id: 'q_canva_4', question: "What is the best prompt for AI design?", 
             options: [{ id: 'a', text: "Make something" }, { id: 'b', text: "Instagram post for Diwali sweets sale, bright Indian colors." }, { id: 'c', text: "Any post" }], 
             correctOptionId: 'b' 
         } 
@@ -96,7 +225,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Pick one of your designs. Create 2 AI captions. Edit them into 1 final caption that sounds like YOU." }
         ], 
         quiz: { 
-            id: 'q_l5', question: "A great caption sounds like...", 
+            id: 'q_canva_5', question: "A great caption sounds like...", 
             options: [{ id: 'a', text: "A robot" }, { id: 'b', text: "A real person talking" }, { id: 'c', text: "A dictionary" }], 
             correctOptionId: 'b' 
         } 
@@ -113,7 +242,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Create a post with your item. Show the messy 'before' and the clean 'after' design." }
         ], 
         quiz: { 
-            id: 'q_l6', question: "When should you prefer a real photo over AI?", 
+            id: 'q_canva_6', question: "When should you prefer a real photo over AI?", 
             options: [{ id: 'a', text: "When selling a real product you made" }, { id: 'b', text: "Never" }, { id: 'c', text: "Always" }], 
             correctOptionId: 'a' 
         } 
@@ -128,7 +257,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Create one full post for your chosen topic. Make it good enough to share in a WhatsApp group." }
         ], 
         quiz: { 
-            id: 'q_l7', question: "A campaign post must answer:", 
+            id: 'q_canva_7', question: "A campaign post must answer:", 
             options: [{ id: 'a', text: "What color is the sky?" }, { id: 'b', text: "What? When? How to respond?" }, { id: 'c', text: "Nothing" }], 
             correctOptionId: 'b' 
         } 
@@ -145,7 +274,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Create 2 versions of your campaign: 1 Feed Post + 1 Story/Status." }
         ], 
         quiz: { 
-            id: 'q_l8', question: "For a vertical Story/Status, you should:", 
+            id: 'q_canva_8', question: "For a vertical Story/Status, you should:", 
             options: [{ id: 'a', text: "Use tiny text" }, { id: 'b', text: "Have one big, clear message" }, { id: 'c', text: "Put no text at all" }], 
             correctOptionId: 'b' 
         } 
@@ -162,7 +291,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "Complete your 3 posts. Ensure they use the same colors/fonts. Submit them for your final badge!" }
         ], 
         quiz: { 
-            id: 'q_l9', question: "Planning 3 connected posts is better than 1 random post.", 
+            id: 'q_canva_9', question: "Planning 3 connected posts is better than 1 random post.", 
             options: [{ id: 'a', text: "True" }, { id: 'b', text: "False" }, { id: 'c', text: "It doesn't matter" }], 
             correctOptionId: 'a' 
         } 

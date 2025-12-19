@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useI18n } from '../../../contexts/I18nContext';
-import { userData } from '../../../data/userData';
-import { learningPaths } from '../../../data/learningData';
+import { useUserProgress } from '../../../contexts/UserProgressContext';
+import { getLearningPaths } from '../../../data/learningData';
 import { generateGeminiResponse } from '../../../services/geminiService';
 import { SparkleIcon } from '../../icons/SparkleIcon';
 
@@ -12,6 +11,7 @@ interface GigPitchGeneratorPageProps {
 
 const GigPitchGeneratorPage: React.FC<GigPitchGeneratorPageProps> = ({ onBack }) => {
   const { t, language } = useI18n();
+  const { completedCourseIds } = useUserProgress();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pitch, setPitch] = useState('');
@@ -19,13 +19,16 @@ const GigPitchGeneratorPage: React.FC<GigPitchGeneratorPageProps> = ({ onBack })
   const [selectedService, setSelectedService] = useState('');
   const [selectedClientType, setSelectedClientType] = useState('');
   
-  const userSkills = userData.completedCourses.map(courseId => {
+  const learningPaths = getLearningPaths(language);
+
+  // Use real completed courses from context
+  const userSkills = Array.from(completedCourseIds).map(courseId => {
     for (const path of learningPaths) {
       const course = path.courses.find(c => c.id === courseId);
-      if (course) return { id: course.id, name: t(course.titleKey) };
+      if (course) return { id: course.id, name: t(course.titleKey || '') };
     }
-    return { id: 'unknown', name: 'Unknown Skill' };
-  });
+    return null;
+  }).filter(Boolean) as { id: string, name: string }[];
 
   const clientTypes = [
     { id: 'restaurant', name: t('pitch_gen_client_type_restaurant') },
@@ -97,6 +100,9 @@ const GigPitchGeneratorPage: React.FC<GigPitchGeneratorPageProps> = ({ onBack })
                 <option value="">{t('pitch_gen_select_placeholder')}</option>
                 {userSkills.map(skill => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
             </select>
+            {userSkills.length === 0 && (
+                <p className="text-xs text-neutral-500 mt-1">Complete courses to unlock skills here.</p>
+            )}
         </div>
          <div>
             <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('pitch_gen_select_client_type')}</label>

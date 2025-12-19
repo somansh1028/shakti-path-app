@@ -1,11 +1,12 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import type { Course, AIReviewResult } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
 import { generateGeminiResponse } from '../../services/geminiService';
 import type { Part } from '@google/genai';
 import { Type } from '@google/genai';
 import { SparkleIcon } from '../icons/SparkleIcon';
+import LessonChatWidget from './LessonChatWidget';
 
 interface AssignmentPageProps {
   course: Course;
@@ -79,11 +80,11 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Helper to handle optional text/keys safely
-  const getText = (text: string | undefined, key: string | undefined): string => {
+  const getText = useCallback((text: string | undefined, key: string | undefined): string => {
     if (text) return text;
     if (key) return t(key);
     return '';
-  };
+  }, [t]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -199,8 +200,35 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
   const titleText = course.assignment ? getText(course.assignment.title, course.assignment.titleKey) : '';
   const descText = course.assignment ? getText(course.assignment.description, course.assignment.descriptionKey) : '';
 
+  // Construct context for the Guruji Assistant
+  const assignmentContext = useMemo(() => {
+    if (!course.assignment) return "";
+    
+    const criteriaText = course.assignment.reviewCriteria
+        .map(c => `- ${getText(c.name, c.nameKey)}: ${getText(c.description, c.descriptionKey)}`)
+        .join('\n');
+
+    return `
+    CURRENT TASK: ASSIGNMENT
+    TITLE: ${titleText}
+    DESCRIPTION: ${descText}
+    
+    SUBMISSION FORMAT: ${course.assignment.submissionFormat}
+    
+    REVIEW CRITERIA (RUBRIC):
+    ${criteriaText}
+    
+    IMPORTANT INSTRUCTION FOR GURUJI:
+    1. Help the student understand what this assignment is asking for.
+    2. Explain the criteria if they are confused.
+    3. You can provide SMALL examples or inspiration.
+    4. CRITICAL: DO NOT do the assignment for them. Do not generate the final images or write the full text they need to submit.
+    5. Be encouraging and helpful.
+    `;
+  }, [course.assignment, titleText, descText, getText]);
+
   return (
-    <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full relative">
+    <div className="p-4 md:p-6 bg-neutral-50 dark:bg-neutral-900/50 min-h-full relative pb-32">
       {/* Loading Overlay */}
       {isSubmitting && (
         <div className="absolute inset-0 z-50 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl">
@@ -290,6 +318,12 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
             </button>
         )}
       </div>
+
+      {/* Guruji Assistant for Assignment Help */}
+      <LessonChatWidget 
+        lessonTitle={t('lesson_chat_title')} // Uses generic title "Guruji Assistant"
+        lessonContent={assignmentContext}
+      />
     </div>
   );
 };

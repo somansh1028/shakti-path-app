@@ -153,13 +153,18 @@ export const generateGeminiResponse = async (
   contents: Part[], 
   token: string,
   responseSchema?: object,
+  location?: { latitude: number; longitude: number } | null,
   retries = MAX_RETRIES
 ): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/gemini/structured-generate`, {
       method: 'POST',
       headers: getHeaders(token),
-      body: JSON.stringify({ contents: [{ parts: contents }], responseSchema }), 
+      body: JSON.stringify({ 
+          contents: [{ parts: contents }], 
+          responseSchema,
+          location // Pass location if available for Maps Grounding
+      }), 
     });
 
     if (!response.ok) {
@@ -173,7 +178,7 @@ export const generateGeminiResponse = async (
         const delay = (MAX_RETRIES - retries + 1) * 1000; // 1s, 2s, 3s
         console.warn(`AI model is busy (503). Retrying in ${delay / 1000}s... (${retries - 1} retries left)`);
         await sleep(delay);
-        return generateGeminiResponse(contents, token, responseSchema, retries - 1);
+        return generateGeminiResponse(contents, token, responseSchema, location, retries - 1);
       }
 
       // For all other errors (like 429), fail immediately.
@@ -193,6 +198,7 @@ export const generateGeminiResponse = async (
 
     const data = await response.json();
     
+    // If structured JSON was requested via Schema, parse it
     if (responseSchema && typeof data.response === 'string') {
         try {
             return JSON.parse(data.response);
@@ -200,6 +206,12 @@ export const generateGeminiResponse = async (
              console.error("Failed to parse Gemini JSON response:", data.response, e);
              throw new Error("The AI returned an invalid data format.");
         }
+    }
+
+    // Return text response directly if no schema (e.g. Maps Tool used)
+    // We also return groundingMetadata if it exists so the UI can show the Maps verification
+    if (data.groundingMetadata) {
+        return { text: data.response, groundingMetadata: data.groundingMetadata };
     }
 
     return data.response;
@@ -442,10 +454,14 @@ export const startGurujiLiveSession = async (
             speechConfig: {
                 voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Charon' } }, // Using Charon for a wise, calm voice
             },
-            systemInstruction: `You are Guruji, a friendly, patient, and wise tutor for rural Indian students. 
-            Speak simply and encourage the student.
-            Context of the lesson they are reading: 
-            ${lessonContext.substring(0, 2000)}`, // Limit context length to be safe
+            systemInstruction: `You are Guruji, a friendly, patient, and wise tutor.
+            Current Context (Lesson or Assignment): 
+            ${lessonContext.substring(0, 2000)}
+            
+            Instructions:
+            - If it's an ASSIGNMENT: Help the student understand the task. Do NOT solve it for them.
+            - If it's a LESSON: Explain concepts simply.
+            - Speak slowly and clearly.`, 
         },
     });
 

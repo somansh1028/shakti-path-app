@@ -1,10 +1,9 @@
-
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Course, AIReviewResult, CriterionScore } from '../../types';
 import { useI18n } from '../../contexts/I18nContext';
 import { useUserProgress } from '../../contexts/UserProgressContext';
 import { useToast } from '../../contexts/ToastContext';
-import { userData } from '../../data/userData';
+import { API_BASE_URL, getHeaders } from '../../config';
 
 interface AssignmentReviewPageProps {
   course: Course;
@@ -18,6 +17,25 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
   const { showToast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [userName, setUserName] = useState<string>('Learner');
+
+  // Fetch real user name for certificate
+  useEffect(() => {
+    const fetchProfile = async () => {
+        const token = localStorage.getItem('authToken');
+        if(!token) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/user/profile`, { headers: getHeaders(token) });
+            if(res.ok) {
+                const data = await res.json();
+                if(data.name) setUserName(data.name);
+            }
+        } catch(e) {
+            console.error("Failed to fetch profile name for certificate");
+        }
+    };
+    fetchProfile();
+  }, []);
 
   // Safe helper to get text
   const getText = (text: string | undefined, key: string | undefined): string => {
@@ -103,7 +121,7 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
       // Name
       ctx.fillStyle = '#1F2937';
       ctx.font = 'bold 70px Arial';
-      ctx.fillText(userData.profile.name, width / 2, 380);
+      ctx.fillText(userName, width / 2, 380);
 
       // Course Name
       ctx.fillStyle = '#6B7280';

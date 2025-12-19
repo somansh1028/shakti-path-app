@@ -1,5 +1,4 @@
 
-
 console.log("--- Starting Gemini Backend Server (JWT Mode) ---");
 
 const express = require('express');
@@ -511,17 +510,20 @@ app.post('/api/learn/chat', ensureAuthenticated, async (req, res) => {
         const { history, message, context, userLanguage } = req.body;
         
         const systemInstruction = `You are Guruji, a friendly, patient, and wise tutor for rural Indian students.
-        Context: The student is currently reading a lesson.
-        Lesson Content: "${context.substring(0, 10000)}" 
+        
+        Current User Context:
+        The student is currently working on: 
+        ${context ? `"${context.substring(0, 10000)}"` : "General learning"}
         User Language: ${userLanguage}
         
         Instructions:
-        1. Answer the student's question based strictly on the lesson content provided above if possible.
-        2. If the answer is not in the lesson, use your general knowledge but mention that it is extra info.
-        3. Keep answers short, encouraging, and easy to understand.
-        4. Use emojis.
-        5. Speak in the requested User Language (${userLanguage}).
-        6. Do not lecture; guide them.`;
+        1. If the user asks about an Assignment, HELP them understand the task, clarify the criteria, or give creative inspiration.
+        2. CRITICAL: Do NOT complete the assignment for them. Do not write the full essay, design the final image, or provide the exact file they need to submit. Guide them to do it themselves.
+        3. If the user asks about a Lesson, explain the concepts simply.
+        4. Keep answers short, encouraging, and easy to understand.
+        5. Use emojis.
+        6. Speak in the requested User Language (${userLanguage}).
+        7. Do not lecture; guide them.`;
 
         // FILTER OUT EMPTY MESSAGES to prevent 400 Bad Request from Gemini
         const chatHistory = history
@@ -577,31 +579,57 @@ app.post('/api/learn/chat', ensureAuthenticated, async (req, res) => {
 app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res) => {
     if (!ai) return res.status(503).json({ error: 'AI Service missing key.' });
     try {
-        const { contents, responseSchema } = req.body;
+        const { contents, responseSchema, location } = req.body;
         
+        // --- REAL DATA GROUNDING LOGIC ---
+        let modelToUse = 'gemini-flash-lite-latest';
+        let tools = [];
+
+        // Rules from Instructions:
+        // 1. Maps grounding is only supported in Gemini 2.5 series models.
+        // 2. googleSearch grounding only available to `gemini-3-pro-image-preview`.
+        
+        if (location) {
+            console.log(`📍 Using Google Maps Grounding. Loc: ${JSON.stringify(location)}`);
+            modelToUse = 'gemini-2.5-flash';
+            tools = [{ googleMaps: {} }];
+        }
+
         const config = {};
-        // Only add responseSchema if it exists, and enforce JSON mime type
-        if (responseSchema) {
+        
+        if (tools.length > 0) {
+            config.tools = tools;
+            // NOTE: responseSchema is NOT allowed with googleMaps tool.
+            // When using tools, Gemini returns text or tool calls, so we don't set responseMimeType: application/json here.
+        } else if (responseSchema) {
             config.responseMimeType = "application/json";
             config.responseSchema = responseSchema;
         }
 
-        // Use gemini-flash-lite-latest for broader support (including multimodal) and better quota
         const result = await ai.models.generateContent({
-            model: 'gemini-flash-lite-latest',
+            model: modelToUse,
             contents: contents,
             config: config
         });
-        res.json({ response: result.text });
+        
+        // Extract Grounding Metadata if available (URLs, map links)
+        let groundingMetadata = null;
+        if (result.candidates && result.candidates[0] && result.candidates[0].groundingMetadata) {
+             groundingMetadata = result.candidates[0].groundingMetadata;
+        }
+
+        res.json({ 
+            response: result.text,
+            groundingMetadata: groundingMetadata
+        });
+
     } catch (e) { 
         console.error("Gemini API Failed:", e);
         
         let error = 'AI Generation failed.';
         let details = e.message;
 
-        // Sanitize Google GenAI error if possible
         try {
-            // If message is a JSON string (e.g. "Error: [403] ..."), try to extract inner message
             const jsonStart = e.message.indexOf('{');
             const jsonEnd = e.message.lastIndexOf('}');
             if (jsonStart !== -1 && jsonEnd !== -1) {
@@ -611,9 +639,7 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
                     details = parsed.error.message;
                 }
             }
-        } catch (parseErr) {
-            // If parsing fails, use original message
-        }
+        } catch (parseErr) {}
 
         if (details && (details.includes('API key') || details.includes('403'))) {
             error = 'AI Configuration Error: API Key Invalid or Expired.';
@@ -624,7 +650,6 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
 });
 
 // --- GLOBAL ERROR HANDLER ---
-// This prevents server crashes from unhandled errors in routes
 app.use((err, req, res, next) => {
     console.error("Unhandled Server Error:", err.stack);
     if (!res.headersSent) {

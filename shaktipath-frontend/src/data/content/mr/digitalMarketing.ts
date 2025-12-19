@@ -1,5 +1,142 @@
 
+
 import type { Lesson } from '../../../types';
+
+// --- CONTENT CREATION LESSONS (Marathi) ---
+export const contentCreationLessons: Lesson[] = [
+    {
+        id: 'cc_biz_1', title: 'तुमचा व्यवसाय आणि ग्राहक ओळखा', duration: 10,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "कोणतेही पोस्टर किंवा रील बनवण्यापूर्वी, तुम्हाला तीन गोष्टींबद्दल स्पष्टता हवी: व्यवसाय कोण आहे? (ते काय विकतात, काय विशेष आहे?) ग्राहक कोण आहेत? (वय, ठिकाण, गरजा). ध्येय काय आहे? (जास्त भेटी, जास्त कॉल्स, जास्त ऑर्डर्स, जास्त विश्वास)." },
+            { type: 'video', text: "cOHTSncXDic" },
+            { type: 'heading', text: "तुम्ही काय शिकाल" },
+            { type: 'list', text: "स्थानिक व्यवसायाचे एका ओळीत वर्णन कसे करावे | साध्या 'ग्राहक प्रोफाइल'ची कल्पना कशी करावी | कंटेंटसाठी १-२ स्पष्ट ध्येये कशी निवडावीत" },
+            { type: 'heading', text: "आता करून पहा - चेकलिस्ट" },
+            { type: 'checklist', text: "ते काय विकतात? | तिथे सर्वात जास्त कोण येते? (वय, लिंग) | या दुकानाला कशाची जास्त गरज आहे? (भेटी / कॉल्स / ऑर्डर्स / विश्वास)" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "३ लहान ओळी लिहा: व्यवसाय, ग्राहक आणि ध्येय." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_1', question: "नवीन मेहंदी कलाकारासाठी सर्वोत्तम कंटेंट ध्येय कोणते?",
+            options: [{ id: 'a', text: "अनोळखी लोकांकडून १,००० लाइक्स मिळवणे" }, { id: 'b', text: "दिवाळी आणि लग्नासाठी १० बुकिंग चौकशी मिळवणे" }, { id: 'c', text: "दिवसातून ३ वेळा पोस्ट करणे" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_2', title: 'कंटेंट बकेट्स आणि पिलर (काय पोस्ट करावे)', duration: 15,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "स्थानिक दुकानासाठी आपण हे सोपे ठेवूया. तुमची पोस्ट या ५ बकेट्स (गटां) मध्ये असावी: शिक्षण/टिप्स, ऑफर/प्रचार, कथा/पडद्यामागे, विश्वास/प्रशंसापत्र, आणि सण/संस्कृती." },
+            { type: 'video', text: "3f84PKzraLk" },
+            { type: 'heading', text: "५ कंटेंट बकेट्स" },
+            { type: 'list', text: "शिक्षण (Education) - काहीतरी छोटे शिकवा | ऑफर (Offer) - सवलत, कॉम्बो, नवीन उत्पादन | कथा (Story) - खरे लोक, बनवण्याची प्रक्रिया | विश्वास (Trust) - आनंदी ग्राहक, रिव्ह्यू | सण (Festival) - मराठी/भारतीय सण" },
+            { type: 'heading', text: "आता करून पहा" },
+            { type: 'checklist', text: "शिक्षण: एक कल्पना विचार करा | ऑफर: एक कल्पना विचार करा | विश्वास: एक कल्पना विचार करा" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "एक साधी यादी तयार करा: 'या दुकानासाठी माझे ३ मुख्य आधारस्तंभ (Pillars) आहेत...'" }
+        ],
+        quiz: {
+            id: 'q_cc_biz_2', question: "यापैकी कोणती 'विश्वास / प्रशंसापत्र' पोस्ट आहे?",
+            options: [{ id: 'a', text: "आज फक्त २०% सूट!" }, { id: 'b', text: "रश्मी ताई म्हणतात: 'या डब्याची चव घरच्यासारखी आहे.'" }, { id: 'c', text: "पोळ्या मऊ कशा ठेवाव्यात." }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_3', title: 'हुक, कॅप्शन आणि CTA', duration: 12,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "चांगल्या पोस्टचे तीन भाग असतात: हुक (लक्ष वेधून घेते), बॉडी (माहिती), आणि CTA (कॉल टू ॲक्शन - पुढे काय करायचे ते सांगते)." },
+            { type: 'video', text: "BKpJ24XerLE" },
+            { type: 'heading', text: "उदाहरणे" },
+            { type: 'list', text: "हुक: 'कँटीनच्या तेलकट अन्नाचा कंटाळा आलाय?' | CTA: 'तुमचा स्लॉट बुक करण्यासाठी आता कॉल करा.'" },
+            { type: 'heading', text: "आता करून पहा" },
+            { type: 'checklist', text: "मराठी/हिंग्लिशमध्ये १ हुक लाइन लिहा | २ साध्या माहितीच्या ओळी लिहा | १ CTA लाइन लिहा" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "हे टेम्पलेट भरा: [HOOK] + [फायदा] + [CTA]." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_3', question: "स्थानिक ब्युटी पार्लरच्या सणाच्या ऑफरसाठी सर्वात मजबूत CTA कोणता?",
+            options: [{ id: 'a', text: "तुमच्यासाठी छान ऑफर." }, { id: 'b', text: "मर्यादित स्लॉट्स, तुमचा सणाचा मेकओव्हर बुक करण्यासाठी आता कॉल करा." }, { id: 'c', text: "आम्ही इंस्टाग्रामवर आहोत." }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_4', title: 'साप्ताहिक आणि सण कॅलेंडर', duration: 15,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "कंटेंटचे नियोजन आधीच करा म्हणजे ताण येणार नाही. स्थानिक व्यवसायासाठी लहान सुरुवात करा: आठवड्यातून २-३ पोस्ट पुरेसे आहेत. सणांसाठी अतिरिक्त पोस्ट जोडा." },
+            { type: 'heading', text: "तुम्ही काय शिकाल" },
+            { type: 'list', text: "साप्ताहिक वेळापत्रक कसे बनवायचे | पिलर्स दिवसांमध्ये कसे बसवायचे | महत्त्वाचे सण चिन्हांकित करणे" },
+            { type: 'heading', text: "आता करून पहा" },
+            { type: 'checklist', text: "पोस्ट करण्याचे दिवस ठरवा (उदा. सोम, बुध, शनि) | प्रत्येक दिवसासाठी एक बकेट नेमा" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "एका आठवड्यासाठी दिवस, बकेट आणि कल्पनेसह एक छोटा तक्ता काढा." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_4', question: "नवीन लहान व्यवसायासाठी कोणती योजना वास्तववादी आहे?",
+            options: [{ id: 'a', text: "आठवड्यातून ३ दर्जेदार पोस्ट" }, { id: 'b', text: "दररोज ५-६ पोस्ट" }, { id: 'c', text: "दर २ महिन्यांनी १ पोस्ट" }],
+            correctOptionId: 'a'
+        }
+    },
+    {
+        id: 'cc_biz_5', title: 'कंटेंट आणि चॅनेल जुळवणे', duration: 12,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "सर्वत्र असण्याचा प्रयत्न करू नका. स्थानिक दुकानांसाठी, यावर लक्ष केंद्रित करा: Instagram (दृश्य), WhatsApp (थेट संपर्क), आणि Google Business Profile (शोध)." },
+            { type: 'video', text: "9WVGLqiHVuk" },
+            { type: 'heading', text: "कंटेंट जुळवणे" },
+            { type: 'list', text: "शिक्षण टिप → IG रील | ऑफर → WhatsApp स्टेटस | दुकानाचा फोटो → GBP अपडेट" },
+            { type: 'heading', text: "आता करून पहा" },
+            { type: 'checklist', text: "एक कल्पना घ्या | ती Instagram वर कशी दाखवाल ते लिहा | ती WhatsApp वर कशी दाखवाल ते लिहा" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "मॅपिंग तयार करा: कल्पना -> IG स्वरूप -> WhatsApp स्वरूप -> GBP स्वरूप." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_5', question: "जवळपासच्या नवीन लोकांना दुकान शोधण्यास कोणते चॅनेल मदत करते?",
+            options: [{ id: 'a', text: "WhatsApp खाजगी चॅट" }, { id: 'b', text: "Google Business Profile (पत्ता आणि फोटोसह)" }, { id: 'c', text: "SMS" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_6', title: 'कल्पनांचा पुनर्वापर (Repurposing)', duration: 15,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "चांगले क्रिएटर्स एक मजबूत कल्पना घेतात आणि प्रत्येक वेळी शून्यापासून सुरू करण्याऐवजी ती अनेक स्वरूपात वापरतात." },
+            { type: 'video', text: "UZ-4nLFJjVM" },
+            { type: 'heading', text: "उदाहरण: 'ताजे जेवण'" },
+            { type: 'list', text: "रील: पोळी बनवताना व्हिडिओ | कॅनवा: मेनू कार्ड | स्टेटस: 'आत्ताच ऑर्डर करा' मजकूर | GBP: जेवणाच्या डब्याचा फोटो" },
+            { type: 'heading', text: "आता करून पहा" },
+            { type: 'checklist', text: "१ मजबूत कल्पना निवडा | ती रील कशी होईल ते लिहा | ती पोस्टर कशी होईल ते लिहा" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "दुकानासाठी ३ 'मोठ्या कल्पना' (Big Ideas) लिहा ज्यांचा दर आठवड्याला पुनर्वापर केला जाऊ शकतो." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_6', question: "कंटेंट रिपर्पसिंग म्हणजे काय?",
+            options: [{ id: 'a', text: "तीच प्रतिमा सर्वत्र कॉपी-पेस्ट करणे" }, { id: 'b', text: "एका कल्पनेला वेगवेगळ्या स्वरूपात बदलणे" }, { id: 'c', text: "वर्षातून एकदाच पोस्ट करणे" }],
+            correctOptionId: 'b'
+        }
+    },
+    {
+        id: 'cc_biz_7', title: 'एनालिटिक्स आणि सुरक्षा', duration: 10,
+        content: [
+            { type: 'heading', text: "संकल्पना (Concept)" },
+            { type: 'paragraph', text: "काय काम करत आहे ते पाहण्यासाठी तुमचे आकडे पहा. तसेच, ऑनलाइन गैरवर्तनापासून स्वतःचे संरक्षण करा. तुमची सुरक्षा एन्गेजमेंटपेक्षा जास्त महत्त्वाची आहे." },
+            { type: 'video', text: "HfCijj6Ddu8" },
+            { type: 'heading', text: "काय तपासावे" },
+            { type: 'list', text: "Views, Likes, Comments | विचारा 'हे का चालले?' (Why did this work?)" },
+            { type: 'heading', text: "सुरक्षा नियम" },
+            { type: 'list', text: "अपमानजनक कमेंट्स डिलीट/ब्लॉक करा | ट्रोल्सशी कधीही वाद घालू नका | गंभीर धमक्यांची तक्रार करा" },
+            { type: 'heading', text: "लहान कार्य (Mini Task)" },
+            { type: 'paragraph', text: "साप्ताहिक आढावा टेम्पलेट लिहा: या आठवड्यातील सर्वोत्तम पोस्ट, ती का चालली, काय टाळावे." }
+        ],
+        quiz: {
+            id: 'q_cc_biz_7', question: "एक कमेंट अपमानजनक आहे. तुम्ही काय केले पाहिजे?",
+            options: [{ id: 'a', text: "कमेंट्समध्ये भांडण करा" }, { id: 'b', text: "दुर्लक्ष करा, डिलीट करा, ब्लॉक करा" }, { id: 'c', text: "त्यांना आनंदी ठेवण्यासाठी ते म्हणतात तसे करा" }],
+            correctOptionId: 'b'
+        }
+    }
+];
 
 // --- CANVA LESSONS ---
 export const canvaLessons: Lesson[] = [
@@ -24,7 +161,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "तुमचे नाव आणि तुमच्याबद्दल एक शब्द वापरून एक साधी पोस्ट तयार करा. तुम्हाला आवडणारा रंग वापरा आणि फोनमध्ये सेव्ह करा." }
         ], 
         quiz: { 
-            id: 'q_l1', question: "कॅनवा प्रामुख्याने कशासाठी आहे?", 
+            id: 'q_canva_1', question: "कॅनवा प्रामुख्याने कशासाठी आहे?", 
             options: [{ id: 'a', text: "बातम्या वाचण्यासाठी" }, { id: 'b', text: "डिझाइन करण्यासाठी" }, { id: 'c', text: "फोन कॉल करण्यासाठी" }], 
             correctOptionId: 'b' 
         } 
@@ -43,7 +180,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "एक सुविचार (Quote) असलेली पोस्ट बनवा आणि हे ३ नियम वापरा." }
         ], 
         quiz: { 
-            id: 'q_l2', question: "कोणते रंग संयोजन वाचायला सोपे आहे?", 
+            id: 'q_canva_2', question: "कोणते रंग संयोजन वाचायला सोपे आहे?", 
             options: [{ id: 'a', text: "पांढऱ्यावर पिवळा" }, { id: 'b', text: "गडद निळ्यावर पांढरा" }], 
             correctOptionId: 'b' 
         } 
@@ -60,7 +197,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "एखाद्या दुकानासाठी किंवा क्लबसाठी टेम्पलेट निवडा. मजकूर आणि रंग बदला म्हणजे ते वेगळे दिसेल." }
         ], 
         quiz: { 
-            id: 'q_l3', question: "टेम्पलेट्स वापरणे म्हणजे फसवणूक आहे का?", 
+            id: 'q_canva_3', question: "टेम्पलेट्स वापरणे म्हणजे फसवणूक आहे का?", 
             options: [{ id: 'a', text: "हो" }, { id: 'b', text: "नाही, ती एक चांगली सुरुवात आहे" }, { id: 'c', text: "फक्त तज्ञांसाठी" }], 
             correctOptionId: 'b' 
         } 
@@ -77,7 +214,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "AI वापरून घरगुती खाऊसाठी एक पोस्ट बनवा. मजकूर आणि संपर्क माहिती बदला." }
         ], 
         quiz: { 
-            id: 'q_l4', question: "AI डिझाइनसाठी सर्वोत्तम प्रॉम्प्ट कोणता?", 
+            id: 'q_canva_4', question: "AI डिझाइनसाठी सर्वोत्तम प्रॉम्प्ट कोणता?", 
             options: [{ id: 'a', text: "काहीतरी बनव" }, { id: 'b', text: "दिवाळी मिठाई सेलसाठी इंस्टाग्राम पोस्ट, भारतीय रंग" }, { id: 'c', text: "कोणतीही पोस्ट" }], 
             correctOptionId: 'b' 
         } 
@@ -94,7 +231,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "तुमच्या एका डिझाइनसाठी AI कडून २ कॅप्शन बनवा. त्यातून एक फाइनल कॅप्शन निवडा." }
         ], 
         quiz: { 
-            id: 'q_l5', question: "चांगले कॅप्शन कसे असावे?", 
+            id: 'q_canva_5', question: "चांगले कॅप्शन कसे असावे?", 
             options: [{ id: 'a', text: "रोबोटसारखे" }, { id: 'b', text: "खऱ्या माणसासारखे बोलणारे" }, { id: 'c', text: "शब्दकोशासारखे" }], 
             correctOptionId: 'b' 
         } 
@@ -111,7 +248,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "तुमच्या वस्तूचा एक फोटो घेऊन पोस्ट बनवा. 'आधी' आणि 'नंतर'चा फरक पहा." }
         ], 
         quiz: { 
-            id: 'q_l6', question: "खरा फोटो कधी वापरावा?", 
+            id: 'q_canva_6', question: "खरा फोटो कधी वापरावा?", 
             options: [{ id: 'a', text: "जेव्हा तुम्ही बनवलेली वस्तू विकता" }, { id: 'b', text: "कधीच नाही" }, { id: 'c', text: "नेहमी" }], 
             correctOptionId: 'a' 
         } 
@@ -126,7 +263,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "तुमच्या निवडलेल्या विषयावर एक पूर्ण पोस्ट तयार करा. ती व्हॉट्सॲप ग्रुपवर शेअर करण्यायोग्य असावी." }
         ], 
         quiz: { 
-            id: 'q_l7', question: "एका मोहीम पोस्टमध्ये काय असावे?", 
+            id: 'q_canva_7', question: "एका मोहीम पोस्टमध्ये काय असावे?", 
             options: [{ id: 'a', text: "आकाशाचा रंग काय आहे?" }, { id: 'b', text: "काय? कधी? संपर्क कसा करावा?" }, { id: 'c', text: "काहीच नाही" }], 
             correctOptionId: 'b' 
         } 
@@ -143,7 +280,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "तुमच्या मोहिमेच्या २ आवृत्त्या तयार करा: १ फीड पोस्ट + १ स्टोरी/स्टेटस." }
         ], 
         quiz: { 
-            id: 'q_l8', question: "उभ्या स्टोरी/स्टेटससाठी काय करावे?", 
+            id: 'q_canva_8', question: "उभ्या स्टोरी/स्टेटससाठी काय करावे?", 
             options: [{ id: 'a', text: "खूप लहान मजकूर वापरा" }, { id: 'b', text: "एक मोठा, स्पष्ट संदेश ठेवा" }, { id: 'c', text: "काहीच मजकूर ठेवू नका" }], 
             correctOptionId: 'b' 
         } 
@@ -160,7 +297,7 @@ export const canvaLessons: Lesson[] = [
             { type: 'paragraph', text: "तुमच्या ३ पोस्ट पूर्ण करा. त्यामध्ये समान रंग आणि फॉन्ट असल्याची खात्री करा. तुमच्या अंतिम बॅजसाठी त्या सबमिट करा!" }
         ], 
         quiz: { 
-            id: 'q_l9', question: "३ जोडलेल्या पोस्टचे नियोजन करणे १ यादृच्छिक पोस्टपेक्षा चांगले आहे.", 
+            id: 'q_canva_9', question: "३ जोडलेल्या पोस्टचे नियोजन करणे १ यादृच्छिक पोस्टपेक्षा चांगले आहे.", 
             options: [{ id: 'a', text: "बरोबर" }, { id: 'b', text: "चूक" }, { id: 'c', text: "फरक पडत नाही" }], 
             correctOptionId: 'a' 
         } 
@@ -313,7 +450,7 @@ export const reelsLessons: Lesson[] = [
         content: [
             { type: 'paragraph', text: "चला तुमच्या खिशात स्टुडिओ उघडूया." },
             { type: 'heading', text: "पहिली पावले" },
-            { type: 'checklist', text: "CapCut डाउनलोड करा | उघडा आणि 'New Project' वर टॅप करा | गॅलरीतून व्हिडिओ निवडा | 'टाइमलाइन' (खालची पट्टी) समजून घ्या" }
+            { type: 'checklist', text: "CapCut डाउनलोड करें | उघडा आणि 'New Project' वर टॅप करा | गॅलरीतून व्हिडिओ निवडा | 'टाइमलाइन' (खालची पट्टी) समजून घ्या" }
         ],
         quiz: {
             id: 'q_cc_1', question: "व्हिडिओ एडिट करण्याच्या जागेला काय म्हणतात?",

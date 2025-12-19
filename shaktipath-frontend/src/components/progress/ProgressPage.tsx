@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useI18n } from '../../contexts/I18nContext';
 import { useUserProgress } from '../../contexts/UserProgressContext';
@@ -39,13 +38,17 @@ const ProgressPage: React.FC = () => {
   const getText = (text?: string, key?: string) => text || (key ? t(key) : '');
 
   // 1. Identify Earned Course Certificates
-  // DEDUPLICATION FIX: Use a Map to ensure we only show one certificate per unique course ID
-  // because some courses (like Canva) appear in multiple Learning Paths.
+  // DEDUPLICATION FIX: Use a Map to ensure we only show one certificate per unique course TITLE.
+  // This handles cases where the same course content (e.g. Canva) is reused with different IDs in different paths.
   const uniqueEarnedCourses = new Map();
   learningPaths.forEach(path => {
       path.courses.forEach(course => {
           if (completedCourseIds.has(course.id)) {
-              uniqueEarnedCourses.set(course.id, course);
+              // Use titleKey as the unique identifier for the certificate content
+              const uniqueKey = course.titleKey || course.id;
+              if (!uniqueEarnedCourses.has(uniqueKey)) {
+                  uniqueEarnedCourses.set(uniqueKey, course);
+              }
           }
       });
   });
@@ -59,6 +62,7 @@ const ProgressPage: React.FC = () => {
 
   // 2. Identify Earned Path Certificates
   const earnedPathCerts = learningPaths.filter(path => {
+      // A path is mastered if it has courses AND all its courses are completed
       return path.courses.length > 0 && path.courses.every(course => completedCourseIds.has(course.id));
   }).map(path => ({
       id: path.id,
@@ -154,12 +158,6 @@ const ProgressPage: React.FC = () => {
       ctx.fillStyle = '#9CA3AF';
       ctx.font = '20px Arial';
       ctx.fillText('Shaktipath Learning • Verified by AI Review', width / 2, 750);
-
-      // Add Badge Icon (Simple Circle Placeholder if drawing image is complex, or just text)
-      // ctx.beginPath();
-      // ctx.arc(width - 150, height - 150, 60, 0, 2 * Math.PI);
-      // ctx.fillStyle = type === 'Path' ? '#FCD34D' : '#DDD6FE';
-      // ctx.fill();
 
       // Generate Download
       setTimeout(() => {

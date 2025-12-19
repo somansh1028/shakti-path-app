@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useI18n } from '../../../contexts/I18nContext';
-import { userData } from '../../../data/userData';
-import { learningPaths } from '../../../data/learningData';
+import { useUserProgress } from '../../../contexts/UserProgressContext';
+import { getLearningPaths } from '../../../data/learningData';
 import { generateGeminiResponse } from '../../../services/geminiService';
 import { SparkleIcon } from '../../icons/SparkleIcon';
 
@@ -12,19 +11,23 @@ interface PortfolioProjectWriterPageProps {
 
 const PortfolioProjectWriterPage: React.FC<PortfolioProjectWriterPageProps> = ({ onBack }) => {
   const { t, language } = useI18n();
+  const { completedCourseIds } = useUserProgress();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   
   const [selectedProject, setSelectedProject] = useState('');
   
-  const userProjects = userData.completedCourses.map(courseId => {
+  const learningPaths = getLearningPaths(language);
+
+  // Use real completed courses from context
+  const userProjects = Array.from(completedCourseIds).map(courseId => {
     for (const path of learningPaths) {
       const course = path.courses.find(c => c.id === courseId);
-      if (course) return { id: course.id, name: t(course.titleKey) };
+      if (course) return { id: course.id, name: t(course.titleKey || '') };
     }
-    return { id: 'unknown', name: 'Unknown Project' };
-  });
+    return null;
+  }).filter(Boolean) as { id: string, name: string }[];
 
   const handleGenerate = async () => {
     if (!selectedProject) {
@@ -88,6 +91,9 @@ const PortfolioProjectWriterPage: React.FC<PortfolioProjectWriterPageProps> = ({
                 <option value="">{t('pitch_gen_select_placeholder')}</option>
                 {userProjects.map(proj => <option key={proj.id} value={proj.id}>{proj.name}</option>)}
             </select>
+             {userProjects.length === 0 && (
+                <p className="text-xs text-neutral-500 mt-1">Complete courses to unlock projects here.</p>
+            )}
         </div>
       </div>
 

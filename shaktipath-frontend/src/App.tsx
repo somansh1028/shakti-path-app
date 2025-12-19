@@ -100,9 +100,6 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
 
   const checkSystemHealth = useCallback(async () => {
-    // If we are already in demo mode, don't check health
-    if (user?.isDemo) return;
-
     setAppStatus(null); 
     setShowLongWaitMessage(false);
 
@@ -126,19 +123,13 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
       console.error('Could not connect to the backend server.', error);
       setAppStatus('server-error');
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     checkSystemHealth();
   }, [checkSystemHealth]);
 
   const handleLogout = useCallback(async () => {
-    if (user?.isDemo) {
-      setUser(null);
-      setAppStatus(null); // Reset status to trigger health check next time
-      checkSystemHealth();
-      return;
-    }
     const token = localStorage.getItem('authToken');
     try {
       if (token) {
@@ -154,7 +145,7 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
       localStorage.removeItem('userEmail');
       setUser(null);
     }
-  }, [user, checkSystemHealth]);
+  }, []);
 
   // Global Event Listener for 401 Unauthorized
   useEffect(() => {
@@ -260,13 +251,6 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
     setAuthError(null);
     setAuthSuccess(null);
   };
-
-  // --- OFFLINE MODE HANDLER ---
-  const handleStartDemoMode = () => {
-    const demoUser: UserSession = { email: 'guest@shaktipath.demo', token: 'demo-token', isDemo: true };
-    setUser(demoUser);
-    setAppStatus('healthy'); // Fake healthy status to bypass error screens
-  };
   
   const renderStatusPage = (titleKey: string, p1Key: string, p2Key: string, listItems: string[] = []) => (
     <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900">
@@ -288,14 +272,6 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
              >
                 Retry Connection
              </button>
-             
-             <button 
-                onClick={handleStartDemoMode} 
-                className="px-6 py-3 bg-white border-2 border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors font-semibold"
-             >
-                Continue in Demo Mode (Offline)
-             </button>
-             <p className="text-xs text-neutral-500 mt-2">Demo mode allows you to view the app layout without a server connection.</p>
          </div>
       </div>
     </div>

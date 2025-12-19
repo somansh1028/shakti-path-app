@@ -1,11 +1,12 @@
 
+
 import type { LearningPath, Course, Assignment, Badge, CourseMetadata } from '../types';
 import { smartphoneLessons as en_sm, computerLessons as en_comp, englishLessons as en_eng, freelanceLessons as en_free, moneyLessons as en_mon } from './content/en/foundational';
 import { smartphoneLessons as hi_sm, computerLessons as hi_comp, englishLessons as hi_eng, freelanceLessons as hi_free, moneyLessons as hi_mon } from './content/hi/foundational';
 import { smartphoneLessons as mr_sm, computerLessons as mr_comp, englishLessons as mr_eng, freelanceLessons as mr_free, moneyLessons as mr_mon } from './content/mr/foundational';
 
-import { canvaLessons as en_canva, whatsappLessons as en_wa, reelsLessons as en_reels, gbpLessons as en_gbp } from './content/en/digitalMarketing';
-import { canvaLessons as mr_canva, whatsappLessons as mr_wa, reelsLessons as mr_reels, gbpLessons as mr_gbp } from './content/mr/digitalMarketing';
+import { contentCreationLessons as en_cc_biz, canvaLessons as en_canva, whatsappLessons as en_wa, reelsLessons as en_reels, gbpLessons as en_gbp } from './content/en/digitalMarketing';
+import { contentCreationLessons as mr_cc_biz, canvaLessons as mr_canva, whatsappLessons as mr_wa, reelsLessons as mr_reels, gbpLessons as mr_gbp } from './content/mr/digitalMarketing';
 
 import { dataEntryLessons as en_data, researchLessons as en_res, adminLessons as en_admin } from './content/en/virtualAssistant';
 import { dataEntryLessons as mr_data, researchLessons as mr_res, adminLessons as mr_admin } from './content/mr/virtualAssistant';
@@ -40,9 +41,9 @@ const getFoundationalContent = (lang: string) => {
 }
 
 const getDigitalMarketingContent = (lang: string) => {
-    if (lang === 'mr') return { canva: mr_canva, wa: mr_wa, reels: mr_reels, gbp: mr_gbp };
-    // Fallback to English for Hindi for now (or add Hindi files later)
-    return { canva: en_canva, wa: en_wa, reels: en_reels, gbp: en_gbp };
+    if (lang === 'mr') return { cc_biz: mr_cc_biz, canva: mr_canva, wa: mr_wa, reels: mr_reels, gbp: mr_gbp };
+    // Fallback to English for Hindi for now
+    return { cc_biz: en_cc_biz, canva: en_canva, wa: en_wa, reels: en_reels, gbp: en_gbp };
 }
 
 const getVAContent = (lang: string) => {
@@ -249,13 +250,24 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
         descriptionKey: 'assignment_canva_desc',
         submissionFormat: lang === 'mr' ? "3 फाइल्स" : "3 Files",
         reviewCriteria: [
-            { nameKey: 'assignment_criteria_1_name', descriptionKey: 'assignment_criteria_1_desc', maxScore: 30 },
-            { nameKey: 'assignment_criteria_2_name', descriptionKey: 'assignment_criteria_2_desc', maxScore: 40 },
-            { nameKey: 'assignment_criteria_3_name', descriptionKey: 'assignment_criteria_3_desc', maxScore: 30 }
+            { nameKey: 'assignment_canva_crit1_name', descriptionKey: 'assignment_canva_crit1_desc', maxScore: 30 },
+            { nameKey: 'assignment_canva_crit2_name', descriptionKey: 'assignment_canva_crit2_desc', maxScore: 40 },
+            { nameKey: 'assignment_canva_crit3_name', descriptionKey: 'assignment_canva_crit3_desc', maxScore: 30 }
         ]
     };
     const canvaBadgeObj: Badge = { id: 'badge-canva-1', nameKey: 'badge_canva_name', icon: '🎨' };
     
+    // New Content Creation Course
+    const course_content_creation: Course = {
+        id: 'c_cc_1',
+        titleKey: 'course_content_creation_title',
+        descriptionKey: 'course_content_creation_desc',
+        icon: '📝',
+        lessons: dmContent.cc_biz,
+        assignment: createAssignment('content_creation', '4 Images'),
+        badge: createBadge('cc_biz', 'content_creation', '📝')
+    };
+
     const course_canva: Course = { id: 'c1', titleKey: 'course_canva_title', descriptionKey: 'course_canva_desc', icon: '🎨', lessons: dmContent.canva, assignment: canvaAssignmentObj, badge: canvaBadgeObj };
     const course_whatsapp: Course = { id: 'c2', titleKey: 'course_whatsapp_title', descriptionKey: 'course_whatsapp_desc', icon: '💬', lessons: dmContent.wa, assignment: createAssignment('wa'), badge: createBadge('wa', 'whatsapp', '💬') };
     const course_reels: Course = { id: 'c3', titleKey: 'course_reels_title', descriptionKey: 'course_reels_desc', icon: '🎬', lessons: dmContent.reels, assignment: createAssignment('cc'), badge: createBadge('cc', 'cc', '🎬') };
@@ -284,7 +296,8 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
             titleKey: 'path_digital_marketing_title',
             descriptionKey: 'path_digital_marketing_desc',
             icon: '📢',
-            courses: [course_canva, course_whatsapp, course_reels, course_gbp],
+            // Content Creation added first
+            courses: [course_content_creation, course_canva, course_whatsapp, course_reels, course_gbp],
         },
         {
             id: 'lp_va',
@@ -298,7 +311,7 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
             titleKey: 'path_local_biz_title',
             descriptionKey: 'path_local_biz_desc',
             icon: '🏘️',
-            courses: [course_whatsapp, course_gbp, course_canva], // Reuse existing
+            courses: [course_content_creation, course_whatsapp, course_gbp, course_canva], // Also added here as it's relevant
         },
         {
             id: 'lp_ai',
