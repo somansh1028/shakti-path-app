@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { getCareerGuidePrompt } from '../../data/prompts';
 import { generateGeminiResponse } from '../../services/geminiService';
@@ -76,6 +77,9 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isChatComplete, setIsChatComplete] = useState(false);
+  
+  // New state to track if user has clicked "Start"
+  const [hasStarted, setHasStarted] = useState(false);
 
   // Get the system prompt based on current language
   const systemPrompt = getCareerGuidePrompt(language);
@@ -86,27 +90,36 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
 
   // OPTIMIZATION: Use static greeting instead of API call to save quota
   useEffect(() => {
-    // Check local storage or context if chat was already started to persist state
-    // For now, we just reset on mount to ensure a clean slate, but avoid the API call.
+    // Reset state on language change
+    setHasStarted(false);
+    setIsChatComplete(false);
     
-    let greetingText = "Namaste! Ready to start finding your path?";
+    let greetingText = "Namaste! I am your ShaktiPath Career Guide. Lets find what you like by answering few questions. Are you ready?";
     if (language === 'hi') {
-        greetingText = "नमस्ते! मैं आपकी शक्तिपथ करियर गाइड हूं। मैं 2 मिनट में आपके लिए सही रास्ता खोजने में मदद कर सकती हूं।\n\nक्या आप शुरू करने के लिए तैयार हैं?";
+        greetingText = "नमस्ते! मैं आपकी शक्तिपथ करियर गाइड हूं। आइए कुछ सवालों के जवाब देकर जानें कि आपको क्या पसंद है। क्या आप तैयार हैं?";
     } else if (language === 'mr') {
-        greetingText = "नमस्ते! मी तुमची शक्तिपथ करिअर मार्गदर्शक आहे. मी फक्त २ मिनिटांत तुमच्यासाठी योग्य मार्ग शोधण्यात मदत करू शकते.\n\nतुम्ही तयार आहात का?";
-    } else {
-        greetingText = "Namaste! I am your ShaktiPath Career Guide. I can help you find the right path for you in just 2 minutes.\n\nAre you ready to start?";
+        greetingText = "नमस्ते! मी तुमची शक्तिपथ करिअर मार्गदर्शक आहे. काही प्रश्नांची उत्तरे देऊन तुम्हाला काय आवडते ते शोधूया. तुम्ही तयार आहात का?";
     }
 
     setMessages([{ role: 'model', text: greetingText }]);
   }, [language]);
 
+  const handleStartChat = () => {
+      setHasStarted(true);
+      // We send a hidden message to the AI to trigger the first question
+      handleSendMessage("I am ready to start. Ask me the first question.");
+  };
+
   const handleSendMessage = async (textOverride?: string) => {
     const textToSend = textOverride || input;
     if (!textToSend.trim()) return;
     
-    const userMsg: ChatMessage = { role: 'user', text: textToSend };
-    setMessages(prev => [...prev, userMsg]);
+    // Only show user message if it's NOT the hidden start command
+    if (!textToSend.includes("I am ready to start")) {
+        const userMsg: ChatMessage = { role: 'user', text: textToSend };
+        setMessages(prev => [...prev, userMsg]);
+    }
+    
     setInput('');
     setIsLoading(true);
     setError(null);
@@ -292,11 +305,24 @@ const CareerGuideChat: React.FC<CareerGuideChatProps> = ({ onRecommendationCompl
             </div>
         )}
 
-        <div ref={messagesEndRef}></div>
+        {/* Start Button - Only shows initially */}
+        {!hasStarted && !isLoading && (
+            <div className="flex justify-center mt-6 animate-fade-in-up">
+                <button
+                    onClick={handleStartChat}
+                    className="bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-lg flex items-center"
+                >
+                    <span className="mr-2">✨</span>
+                    {language === 'hi' ? 'हाँ, शुरू करें' : language === 'mr' ? 'हो, सुरू करूया' : 'Yes, Let\'s Start'}
+                </button>
+            </div>
+        )}
+
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      {!isChatComplete && error !== "UNAUTHORIZED" && !error?.includes("API Key") && (
+      {/* Input Area - Only shows AFTER start button is clicked */}
+      {hasStarted && !isChatComplete && error !== "UNAUTHORIZED" && !error?.includes("API Key") && (
           <div className="p-4 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 z-10">
             <div className="flex space-x-3 items-end">
                 <div className="flex-1 bg-neutral-100 dark:bg-neutral-700 rounded-2xl flex items-center px-4 border border-transparent focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100 dark:focus-within:ring-neutral-600 transition-all">

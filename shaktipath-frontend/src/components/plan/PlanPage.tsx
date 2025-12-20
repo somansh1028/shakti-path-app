@@ -3,26 +3,38 @@ import React, { useState } from 'react';
 import { useI18n } from '../../contexts/I18nContext';
 import CareerGuideChat from './CareerGuideChat';
 import type { CareerPathRecommendation, UserProfile } from '../../types';
-import { learningPaths } from '../../data/learningData';
+import { getLearningPaths } from '../../data/learningData';
 import { API_BASE_URL, getHeaders } from '../../config';
 import { useToast } from '../../contexts/ToastContext';
 
-const PlanPage: React.FC = () => {
-  const { t } = useI18n();
+interface PlanPageProps {
+  onNavigateToPath?: (pathId: string) => void;
+}
+
+const PlanPage: React.FC<PlanPageProps> = ({ onNavigateToPath }) => {
+  const { t, language } = useI18n();
   const { showToast } = useToast();
   const [recommendation, setRecommendation] = useState<CareerPathRecommendation | null>(null);
+  
+  const learningPaths = getLearningPaths(language);
 
-  // Map the AI's ID to our actual App Path IDs
+  // Map the AI's ID to our actual App Path IDs from src/data/learningData.ts
   const getPathById = (aiPathId: string) => {
       const mapping: Record<string, string> = {
+          // Digital Marketing -> Digital Marketing Path
+          'path_digital_marketing_title': 'lp_digital_marketing',
+          // Content Writing -> Digital Marketing Path (closest match for content creation)
+          'path_content_writing_title': 'lp_digital_marketing',
+          // Business Ops -> Foundational Path (closest match for basic skills/freelancing)
+          'path_business_ops_title': 'lp_found', 
+          
+          // Legacy mappings just in case
           'digital_design_and_social_media': 'lp_digital_marketing',
-          'business_support_and_digital_services': 'lp_local_biz',
-          'teaching_and_kids_support': 'lp_found', // Mapping teaching to foundational for now
-          'health_and_community_care': 'lp_va', // Mapping care to VA/Office admin for clinics
-          'tech_and_ai_basics_explorer': 'lp_ai'
+          'business_support_and_digital_services': 'lp_found',
+          'teaching_and_kids_support': 'lp_found' 
       };
       
-      const appPathId = mapping[aiPathId] || 'lp_found';
+      const appPathId = mapping[aiPathId] || 'lp_digital_marketing';
       return learningPaths.find(p => p.id === appPathId);
   };
 
@@ -30,18 +42,14 @@ const PlanPage: React.FC = () => {
       setRecommendation(rec);
 
       // --- SYNC TO PROFILE ---
-      // We automatically add the "Good At" summary to Skills and "Love" summary to Interests
       try {
           const token = localStorage.getItem('authToken');
           if (!token) return;
 
-          // 1. Fetch current profile to ensure we don't overwrite existing tags
           const getRes = await fetch(`${API_BASE_URL}/api/user/profile`, { headers: getHeaders(token) });
           if (getRes.ok) {
               const currentProfile: UserProfile = await getRes.json();
               
-              // 2. Create clean arrays (avoid duplicates)
-              // The AI summary might be a sentence, so we treat it as one tag for now.
               const newSkills = currentProfile.skills || [];
               if (!newSkills.includes(rec.good_at_summary)) {
                   newSkills.push(rec.good_at_summary);
@@ -52,7 +60,6 @@ const PlanPage: React.FC = () => {
                   newInterests.push(rec.love_summary);
               }
 
-              // 3. Update Profile
               await fetch(`${API_BASE_URL}/api/user/profile`, {
                   method: 'PUT',
                   headers: getHeaders(token),
@@ -66,7 +73,6 @@ const PlanPage: React.FC = () => {
           }
       } catch (error) {
           console.error("Failed to sync plan to profile", error);
-          // Fail silently, user still sees the plan
       }
   };
 
@@ -93,15 +99,29 @@ const PlanPage: React.FC = () => {
               <h3 className="text-lg font-bold text-neutral-800 dark:text-neutral-200 mb-4">{t('plan_recommendation_title')}</h3>
               
               {primaryPath && (
-                  <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-md p-5 border-l-4 border-accent-500">
+                  <div 
+                    onClick={() => onNavigateToPath && onNavigateToPath(primaryPath.id)}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-md p-5 border-l-4 border-accent-500 cursor-pointer transition-all hover:shadow-xl hover:scale-[1.01] group relative"
+                  >
+                      {/* Click indicator */}
+                      <div className="absolute top-4 right-4 text-accent-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </div>
+
                       <div className="flex items-start justify-between mb-3">
                           <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-700 rounded-xl flex items-center justify-center text-2xl">
                               {primaryPath.icon}
                           </div>
                           <span className="bg-accent-100 text-accent-800 text-xs font-bold px-3 py-1 rounded-full">{t('plan_best_match')}</span>
                       </div>
-                      <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">{t(primaryPath.titleKey)}</h3>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">{t(primaryPath.descriptionKey)}</p>
+                      <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1 group-hover:text-accent-600 transition-colors">
+                        {primaryPath.titleKey ? t(primaryPath.titleKey) : primaryPath.title}
+                      </h3>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                        {primaryPath.descriptionKey ? t(primaryPath.descriptionKey) : primaryPath.description}
+                      </p>
                       
                       <div className="bg-neutral-50 dark:bg-neutral-700/50 rounded-xl p-4 mb-4">
                           <p className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase mb-2">{t('plan_first_step')}</p>

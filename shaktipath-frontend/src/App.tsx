@@ -84,7 +84,7 @@ interface MainAppProps {
 
 const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const { t } = useI18n();
-  const { refreshProgress } = useUserProgress(); // Import refreshProgress
+  const { refreshProgress } = useUserProgress();
   const [appStatus, setAppStatus] = useState<AppStatus | null>(null);
   const [user, setUser] = useState<UserSession | null>(() => {
     const token = localStorage.getItem('authToken');
@@ -98,6 +98,9 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const [resetTokenForPage, setResetTokenForPage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>('learn');
   const [showLongWaitMessage, setShowLongWaitMessage] = useState(false);
+  
+  // State to handle deep linking to specific learning paths
+  const [targetPathId, setTargetPathId] = useState<string | undefined>(undefined);
 
   const checkSystemHealth = useCallback(async () => {
     setAppStatus(null); 
@@ -174,7 +177,6 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
         localStorage.setItem('userEmail', userSession.email);
         setUser(userSession);
         
-        // CRITICAL FIX: Fetch progress immediately after login so the user sees their data
         await refreshProgress(); 
       } else {
         setAuthError(data.error || 'Invalid email or password.');
@@ -252,6 +254,17 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
     setAuthSuccess(null);
   };
   
+  const handleTabClick = (tab: ActiveTab) => {
+      setActiveTab(tab);
+      // Clear target path when manually switching tabs to prevent getting stuck
+      setTargetPathId(undefined);
+  };
+
+  const handleNavigateToPath = (pathId: string) => {
+      setTargetPathId(pathId);
+      setActiveTab('learn');
+  };
+  
   const renderStatusPage = (titleKey: string, p1Key: string, p2Key: string, listItems: string[] = []) => (
     <div className="flex items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900">
       <div className="w-full max-w-lg p-8 space-y-4 bg-white rounded-2xl shadow-xl dark:bg-neutral-800 text-center">
@@ -325,9 +338,9 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'plan':
-        return <PlanPage />;
+        return <PlanPage onNavigateToPath={handleNavigateToPath} />;
       case 'learn':
-        return <LearnPage />;
+        return <LearnPage initialPathId={targetPathId} />;
       case 'community':
         return <CommunityPage />;
       case 'progress':
@@ -346,7 +359,7 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
       <main className="flex-1 overflow-y-auto pb-20">
         {renderActiveTab()}
       </main>
-      <BottomNavBar activeTab={activeTab} onTabClick={setActiveTab} />
+      <BottomNavBar activeTab={activeTab} onTabClick={handleTabClick} />
     </div>
   );
 };

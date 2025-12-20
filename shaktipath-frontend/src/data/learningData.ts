@@ -1,15 +1,30 @@
 
-
 import type { LearningPath, Course, Assignment, Badge, CourseMetadata } from '../types';
 import { smartphoneLessons as en_sm, computerLessons as en_comp, englishLessons as en_eng, freelanceLessons as en_free, moneyLessons as en_mon } from './content/en/foundational';
 import { smartphoneLessons as hi_sm, computerLessons as hi_comp, englishLessons as hi_eng, freelanceLessons as hi_free, moneyLessons as hi_mon } from './content/hi/foundational';
 import { smartphoneLessons as mr_sm, computerLessons as mr_comp, englishLessons as mr_eng, freelanceLessons as mr_free, moneyLessons as mr_mon } from './content/mr/foundational';
 
 import { contentCreationLessons as en_cc_biz, canvaLessons as en_canva, whatsappLessons as en_wa, reelsLessons as en_reels, gbpLessons as en_gbp } from './content/en/digitalMarketing';
+// Fix: Import from the newly created file
+import { contentCreationLessons as hi_cc_biz } from './content/hi/digitalMarketing';
 import { contentCreationLessons as mr_cc_biz, canvaLessons as mr_canva, whatsappLessons as mr_wa, reelsLessons as mr_reels, gbpLessons as mr_gbp } from './content/mr/digitalMarketing';
 
-import { dataEntryLessons as en_data, researchLessons as en_res, adminLessons as en_admin } from './content/en/virtualAssistant';
-import { dataEntryLessons as mr_data, researchLessons as mr_res, adminLessons as mr_admin } from './content/mr/virtualAssistant';
+// --- NEW VA IMPORTS (Correctly mapping to the new files) ---
+import {
+    officeToolsLessons as en_office,
+    adminSupportLessons as en_admin,
+    internetResearchLessons as en_res,
+    clientMgmtLessons as en_client,
+    aiVaLessons as en_aiva
+} from './content/en/virtualAssistant';
+
+import {
+    dataEntryLessons as mr_office,
+    adminLessons as mr_admin,
+    researchLessons as mr_res,
+    adminLessons_c4 as mr_client,
+    adminLessons_c5 as mr_aiva
+} from './content/mr/virtualAssistant';
 
 import { aiBasicsLessons as en_aib, chatPromptingLessons as en_chat, aiToolsLessons as en_tools } from './content/en/aiSkills';
 import { aiBasicsLessons as mr_aib, chatPromptingLessons as mr_chat, aiToolsLessons as mr_tools } from './content/mr/aiSkills';
@@ -42,13 +57,28 @@ const getFoundationalContent = (lang: string) => {
 
 const getDigitalMarketingContent = (lang: string) => {
     if (lang === 'mr') return { cc_biz: mr_cc_biz, canva: mr_canva, wa: mr_wa, reels: mr_reels, gbp: mr_gbp };
-    // Fallback to English for Hindi for now
+    // Fallback to English/Hindi mix if needed
+    if (lang === 'hi') return { cc_biz: hi_cc_biz, canva: en_canva, wa: en_wa, reels: en_reels, gbp: en_gbp };
     return { cc_biz: en_cc_biz, canva: en_canva, wa: en_wa, reels: en_reels, gbp: en_gbp };
 }
 
+// Updated VA Content Selector to handle 5 courses
 const getVAContent = (lang: string) => {
-    if (lang === 'mr') return { data: mr_data, res: mr_res, admin: mr_admin };
-    return { data: en_data, res: en_res, admin: en_admin };
+    if (lang === 'mr') return {
+        office: mr_office,
+        admin: mr_admin,
+        res: mr_res,
+        client: mr_client,
+        aiva: mr_aiva
+    };
+    // Default to English (and Hindi fallback for now)
+    return {
+        office: en_office,
+        admin: en_admin,
+        res: en_res,
+        client: en_client,
+        aiva: en_aiva
+    };
 }
 
 const getAIContent = (lang: string) => {
@@ -166,6 +196,129 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
         }
     };
 
+    // 2. Digital Marketing
+const ccMetadata: CourseMetadata = {
+    audience: { titleKey: 'course_cc_audience_title', textKey: 'course_cc_audience_text' },
+    outcomes: { titleKey: 'course_cc_outcomes_title', itemsKeys: ['course_cc_outcomes_1', 'course_cc_outcomes_2', 'course_cc_outcomes_3', 'course_cc_outcomes_4', 'course_cc_outcomes_5'] },
+    format: { titleKey: 'course_cc_format_title', itemsKeys: ['course_cc_format_1', 'course_cc_format_2', 'course_cc_format_3'] }
+};
+
+const canvaMetadata: CourseMetadata = {
+    audience: { titleKey: 'course_canva_audience_title', textKey: 'course_canva_audience_text' },
+    outcomes: { titleKey: 'course_canva_outcomes_title', itemsKeys: ['course_canva_outcomes_1', 'course_canva_outcomes_2', 'course_canva_outcomes_3', 'course_canva_outcomes_4', 'course_canva_outcomes_5'] },
+    format: { titleKey: 'course_canva_format_title', itemsKeys: ['course_canva_format_1', 'course_canva_format_2', 'course_canva_format_3'] }
+};
+
+const waMetadata: CourseMetadata = {
+    audience: { titleKey: 'course_wa_audience_title', textKey: 'course_wa_audience_text' },
+    outcomes: { titleKey: 'course_wa_outcomes_title', itemsKeys: ['course_wa_outcomes_1', 'course_wa_outcomes_2', 'course_wa_outcomes_3', 'course_wa_outcomes_4', 'course_wa_outcomes_5'] },
+    format: { titleKey: 'course_wa_format_title', itemsKeys: ['course_wa_format_1', 'course_wa_format_2', 'course_wa_format_3'] }
+};
+
+const reelsMetadata: CourseMetadata = {
+    audience: { titleKey: 'course_reels_audience_title', textKey: 'course_reels_audience_text' },
+    outcomes: { titleKey: 'course_reels_outcomes_title', itemsKeys: ['course_reels_outcomes_1', 'course_reels_outcomes_2', 'course_reels_outcomes_3', 'course_reels_outcomes_4', 'course_reels_outcomes_5'] },
+    format: { titleKey: 'course_reels_format_title', itemsKeys: ['course_reels_format_1', 'course_reels_format_2', 'course_reels_format_3'] }
+};
+
+const gbpMetadata: CourseMetadata = {
+    audience: { titleKey: 'course_gbp_audience_title', textKey: 'course_gbp_audience_text' },
+    outcomes: { titleKey: 'course_gbp_outcomes_title', itemsKeys: ['course_gbp_outcomes_1', 'course_gbp_outcomes_2', 'course_gbp_outcomes_3', 'course_gbp_outcomes_4', 'course_gbp_outcomes_5'] },
+    format: { titleKey: 'course_gbp_format_title', itemsKeys: ['course_gbp_format_1', 'course_gbp_format_2', 'course_gbp_format_3'] }
+};
+    
+    // --- VA COURSE METADATA ---
+    const vaToolsMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_va_tools_audience_title', textKey: 'course_va_tools_audience_text' },
+        outcomes: {
+            titleKey: 'course_va_tools_outcomes_title',
+            itemsKeys: [
+                'course_va_tools_outcome_1', 'course_va_tools_outcome_2', 'course_va_tools_outcome_3',
+                'course_va_tools_outcome_4', 'course_va_tools_outcome_5', 'course_va_tools_outcome_6'
+            ]
+        },
+        format: {
+            titleKey: 'course_va_tools_format_title',
+            subtitleKey: 'course_va_tools_format_subtitle',
+            itemsKeys: [
+                'course_va_tools_format_1', 'course_va_tools_format_2', 'course_va_tools_format_3'
+            ]
+        }
+    };
+
+    const vaAdminMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_va_admin_audience_title', textKey: 'course_va_admin_audience_text' },
+        outcomes: {
+            titleKey: 'course_va_admin_outcomes_title',
+            itemsKeys: [
+                'course_va_admin_outcome_1', 'course_va_admin_outcome_2', 'course_va_admin_outcome_3',
+                'course_va_admin_outcome_4', 'course_va_admin_outcome_5', 'course_va_admin_outcome_6'
+            ]
+        },
+        format: {
+            titleKey: 'course_va_admin_format_title',
+            subtitleKey: 'course_va_admin_format_subtitle',
+            itemsKeys: [
+                'course_va_admin_format_1', 'course_va_admin_format_2', 'course_va_admin_format_3'
+            ]
+        }
+    };
+
+    const vaResMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_va_res_audience_title', textKey: 'course_va_res_audience_text' },
+        outcomes: {
+            titleKey: 'course_va_res_outcomes_title',
+            itemsKeys: [
+                'course_va_res_outcome_1', 'course_va_res_outcome_2', 'course_va_res_outcome_3',
+                'course_va_res_outcome_4', 'course_va_res_outcome_5'
+            ]
+        },
+        format: {
+            titleKey: 'course_va_res_format_title',
+            subtitleKey: 'course_va_res_format_subtitle',
+            itemsKeys: [
+                'course_va_res_format_1', 'course_va_res_format_2', 'course_va_res_format_3'
+            ]
+        }
+    };
+
+    const vaClientMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_va_client_audience_title', textKey: 'course_va_client_audience_text' },
+        outcomes: {
+            titleKey: 'course_va_client_outcomes_title',
+            itemsKeys: [
+                'course_va_client_outcome_1', 'course_va_client_outcome_2', 'course_va_client_outcome_3',
+                'course_va_client_outcome_4', 'course_va_client_outcome_5'
+            ]
+        },
+        format: {
+            titleKey: 'course_va_client_format_title',
+            subtitleKey: 'course_va_client_format_subtitle',
+            itemsKeys: [
+                'course_va_client_format_1', 'course_va_client_format_2', 'course_va_client_format_3'
+            ]
+        }
+    };
+
+    const vaAiMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_va_ai_audience_title', textKey: 'course_va_ai_audience_text' },
+        outcomes: {
+            titleKey: 'course_va_ai_outcomes_title',
+            itemsKeys: [
+                'course_va_ai_outcome_1', 'course_va_ai_outcome_2', 'course_va_ai_outcome_3',
+                'course_va_ai_outcome_4'
+            ]
+        },
+        format: {
+            titleKey: 'course_va_ai_format_title',
+            subtitleKey: 'course_va_ai_format_subtitle',
+            itemsKeys: [
+                'course_va_ai_format_1', 'course_va_ai_format_2', 'course_va_ai_format_3'
+            ]
+        }
+    };
+
+
     // Freelancing Assignment
     const freelanceAssignment: Assignment = {
         titleKey: 'assignment_freelance_project_title',
@@ -265,20 +418,108 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
         icon: '📝',
         lessons: dmContent.cc_biz,
         assignment: createAssignment('content_creation', '4 Images'),
-        badge: createBadge('cc_biz', 'content_creation', '📝')
+        badge: createBadge('cc_biz', 'content_creation', '📝'),
+        metadata: ccMetadata
     };
 
-    const course_canva: Course = { id: 'c1', titleKey: 'course_canva_title', descriptionKey: 'course_canva_desc', icon: '🎨', lessons: dmContent.canva, assignment: canvaAssignmentObj, badge: canvaBadgeObj };
-    const course_whatsapp: Course = { id: 'c2', titleKey: 'course_whatsapp_title', descriptionKey: 'course_whatsapp_desc', icon: '💬', lessons: dmContent.wa, assignment: createAssignment('wa'), badge: createBadge('wa', 'whatsapp', '💬') };
-    const course_reels: Course = { id: 'c3', titleKey: 'course_reels_title', descriptionKey: 'course_reels_desc', icon: '🎬', lessons: dmContent.reels, assignment: createAssignment('cc'), badge: createBadge('cc', 'cc', '🎬') };
-    const course_gbp: Course = { id: 'c4', titleKey: 'course_google_profile_title', descriptionKey: 'course_google_profile_desc', icon: '🗺️', lessons: dmContent.gbp, assignment: createAssignment('gbp'), badge: createBadge('gbp', 'gbp', '🗺️') };
+        const course_canva: Course = { 
+        id: 'c1', 
+        titleKey: 'course_canva_title', 
+        descriptionKey: 'course_canva_desc', 
+        icon: '🎨', 
+        lessons: dmContent.canva, 
+        assignment: canvaAssignmentObj, 
+        badge: canvaBadgeObj,
+        metadata: canvaMetadata
+    };
+    
+    const course_whatsapp: Course = { 
+        id: 'c2', 
+        titleKey: 'course_whatsapp_title', 
+        descriptionKey: 'course_whatsapp_desc', 
+        icon: '💬', 
+        lessons: dmContent.wa, 
+        assignment: createAssignment('wa'), 
+        badge: createBadge('wa', 'whatsapp', '💬'),
+        metadata: waMetadata
+    };
+    
+    const course_reels: Course = { 
+        id: 'c3', 
+        titleKey: 'course_reels_title', 
+        descriptionKey: 'course_reels_desc', 
+        icon: '🎬', 
+        lessons: dmContent.reels, 
+        assignment: createAssignment('cc'), 
+        badge: createBadge('cc', 'cc', '🎬'),
+        metadata: reelsMetadata
+    };
+    
+    const course_gbp: Course = { 
+        id: 'c4', 
+        titleKey: 'course_google_profile_title', 
+        descriptionKey: 'course_google_profile_desc', 
+        icon: '🗺️', 
+        lessons: dmContent.gbp, 
+        assignment: createAssignment('gbp'), 
+        badge: createBadge('gbp', 'gbp', '🗺️'),
+        metadata: gbpMetadata
+    };
+    
+    // --- NEW VIRTUAL ASSISTANT COURSES (5 Distinct Courses) ---
+    const course_va_tools: Course = { 
+        id: 'c_va_1', 
+        titleKey: 'course_data_entry_title', 
+        descriptionKey: 'course_data_entry_desc', 
+        icon: '📊', 
+        lessons: vaContent.office, 
+        assignment: createAssignment('va', '1 PDF'), 
+        badge: createBadge('data', 'va', '📊'),
+        metadata: vaToolsMetadata
+    };
+    const course_va_admin: Course = { 
+        id: 'c_va_2', 
+        titleKey: 'course_admin_title', 
+        descriptionKey: 'course_admin_desc', 
+        icon: '📅', 
+        lessons: vaContent.admin, 
+        assignment: createAssignment('va', '1 Doc'), 
+        badge: createBadge('admin', 'va', '📅'),
+        metadata: vaAdminMetadata
+    };
+    const course_va_research: Course = { 
+        id: 'c_va_3', 
+        titleKey: 'course_research_title', 
+        descriptionKey: 'course_research_desc', 
+        icon: '🔍', 
+        lessons: vaContent.res, 
+        assignment: createAssignment('va', '1 Sheet'), 
+        badge: createBadge('res', 'va', '🔍'),
+        metadata: vaResMetadata
+    };
+    const course_va_client: Course = { 
+        id: 'c_va_4', 
+        titleKey: 'course_client_mgmt_title', 
+        descriptionKey: 'course_client_mgmt_desc', 
+        icon: '🤝', 
+        lessons: vaContent.client, 
+        assignment: createAssignment('va', '1 Invoice'), 
+        badge: createBadge('client', 'va', '🤝'),
+        metadata: vaClientMetadata
+    };
+    const course_va_ai: Course = { 
+        id: 'c_va_5', 
+        titleKey: 'course_ai_tools_title', 
+        descriptionKey: 'course_ai_tools_desc', 
+        icon: '🤖', 
+        lessons: vaContent.aiva, 
+        assignment: createAssignment('ai', '1 Email'), 
+        badge: createBadge('ai_va', 'ai', '🤖'),
+        metadata: vaAiMetadata
+    };
 
-    // VA
-    const course_data: Course = { id: 'c_va_1', titleKey: 'course_data_entry_title', descriptionKey: 'course_data_entry_desc', icon: '📊', lessons: vaContent.data, assignment: createAssignment('va'), badge: createBadge('data', 'va', '📊') };
-    const course_res: Course = { id: 'c_va_2', titleKey: 'course_research_title', descriptionKey: 'course_research_desc', icon: '🔍', lessons: vaContent.res, assignment: createAssignment('va'), badge: createBadge('res', 'va', '🔍') };
-    const course_admin: Course = { id: 'c_va_3', titleKey: 'course_admin_title', descriptionKey: 'course_admin_desc', icon: '📅', lessons: vaContent.admin, assignment: createAssignment('va'), badge: createBadge('admin', 'va', '📅') };
 
-    // AI
+    // AI Courses
     const course_aib: Course = { id: 'c_ai_1', titleKey: 'course_ai_basics_title', descriptionKey: 'course_ai_basics_desc', icon: '🤖', lessons: aiContent.aib, assignment: createAssignment('ai'), badge: createBadge('ai', 'ai', '🤖') };
     const course_chat: Course = { id: 'c_ai_2', titleKey: 'course_chatbots_title', descriptionKey: 'course_chatbots_desc', icon: '💭', lessons: aiContent.chat, assignment: createAssignment('ai'), badge: createBadge('chat', 'ai', '💭') };
     const course_tools: Course = { id: 'c_ai_3', titleKey: 'course_ai_tools_title', descriptionKey: 'course_ai_tools_desc', icon: '🛠️', lessons: aiContent.tools, assignment: createAssignment('ai'), badge: createBadge('tools', 'ai', '🛠️') };
@@ -296,7 +537,7 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
             titleKey: 'path_digital_marketing_title',
             descriptionKey: 'path_digital_marketing_desc',
             icon: '📢',
-            // Content Creation added first
+            // Content Creation added first as per old structure logic
             courses: [course_content_creation, course_canva, course_whatsapp, course_reels, course_gbp],
         },
         {
@@ -304,14 +545,15 @@ export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
             titleKey: 'path_va_title',
             descriptionKey: 'path_va_desc',
             icon: '⌨️',
-            courses: [course_data, course_res, course_admin],
+            // Now includes the 5 specialized courses instead of the old 3
+            courses: [course_va_tools, course_va_admin, course_va_research, course_va_client, course_va_ai],
         },
         {
             id: 'lp_local_biz',
             titleKey: 'path_local_biz_title',
             descriptionKey: 'path_local_biz_desc',
             icon: '🏘️',
-            courses: [course_content_creation, course_whatsapp, course_gbp, course_canva], // Also added here as it's relevant
+            courses: [course_content_creation, course_whatsapp, course_gbp, course_canva],
         },
         {
             id: 'lp_ai',

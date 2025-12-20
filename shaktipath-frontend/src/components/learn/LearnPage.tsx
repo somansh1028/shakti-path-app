@@ -13,10 +13,13 @@ import { SparkleIcon } from '../icons/SparkleIcon';
 
 type LearnView = 'pathsList' | 'pathDetails' | 'courseDetails' | 'lesson' | 'assignment' | 'assignmentLoading' | 'assignmentReview';
 
-const LearnPage: React.FC = () => {
-  const { language } = useI18n(); // Get current language
+interface LearnPageProps {
+    initialPathId?: string;
+}
+
+const LearnPage: React.FC<LearnPageProps> = ({ initialPathId }) => {
+  const { language } = useI18n(); 
   const [view, setView] = useState<LearnView>('pathsList');
-  // Initialize with data immediately to prevent empty flash
   const [paths, setPaths] = useState<LearningPath[]>(() => getLearningPaths(language));
   
   const [selectedPath, setSelectedPath] = useState<LearningPath | null>(null);
@@ -24,14 +27,21 @@ const LearnPage: React.FC = () => {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [reviewResult, setReviewResult] = useState<AIReviewResult | null>(null);
 
+  // Handle deep linking from PlanPage
+  useEffect(() => {
+    if (initialPathId) {
+       const target = paths.find(p => p.id === initialPathId);
+       if (target) {
+           setSelectedPath(target);
+           setView('pathDetails');
+       }
+    }
+  }, [initialPathId, paths]);
+
   // Refresh content and sync selected items when language changes
   useEffect(() => {
       const newPaths = getLearningPaths(language);
       setPaths(newPaths);
-
-      // Sync currently selected items to the new language version
-      // This ensures that if you are on "WhatsApp Course" in English and switch to Marathi,
-      // the view immediately updates to "व्हॉट्सॲप कोर्स" without kicking you back to the list.
       
       setSelectedPath(prevPath => {
           if (!prevPath) return null;
@@ -40,7 +50,6 @@ const LearnPage: React.FC = () => {
 
       setSelectedCourse(prevCourse => {
           if (!prevCourse) return null;
-          // Find the course in the new structure
           for (const path of newPaths) {
               const course = path.courses.find(c => c.id === prevCourse.id);
               if (course) return course;
@@ -109,7 +118,6 @@ const LearnPage: React.FC = () => {
     if (nextIndex >= 0 && nextIndex < selectedCourse.lessons.length) {
       setSelectedLesson(selectedCourse.lessons[nextIndex]);
     } else if (direction === 'next' && nextIndex >= selectedCourse.lessons.length) {
-      // If it was the last lesson, go back to course details
       handleBack();
     }
   };
