@@ -136,7 +136,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l0', title: 'Watch: How Canva Works', duration: 5, 
         content: [
             { type: 'paragraph', text: "Before we start designing, watch this short video to see what you can do with Canva on your phone." }, 
-            { type: 'video', text: "yWJp7gQqCQ8" }, 
+            { type: 'video', text: "yWJp7gQqCQ8?start=0000&end=2320"},
             { type: 'heading', text: "Key Takeaways" }, 
             { type: 'list', text: "Canva has thousands of free templates | You can change text and colors in seconds | It works perfectly on your phone" }
         ] 
@@ -145,6 +145,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l1', title: 'Welcome to Canva on Your Phone', duration: 10, 
         content: [
             { type: 'paragraph', text: "Design from your pocket. Today is your first tiny step to making posts for yourself or small businesses. You don't need a degree, just your phone." }, 
+            { type: 'video', text: "yWJp7gQqCQ8?start=2321&end=4010"},
             { type: 'heading', text: "Today's Goal" },
             { type: 'list', text: "1. Open Canva and sign in. | 2. Pick the right size for a post. | 3. Type your first line of text." },
             { type: 'heading', text: "Do it with me" },
@@ -162,6 +163,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l2', title: '3 Simple Rules of Beautiful Design', duration: 15, 
         content: [
             { type: 'paragraph', text: "No big theories. Just 3 secrets professionals use daily to make things look good." }, 
+            { type: 'video', text: "yWJp7gQqCQ8?start=4015&end=4491"},
             { type: 'heading', text: "Rule 1: Contrast" },
             { type: 'paragraph', text: "Light text on dark background. Or dark text on light. Never 'light on light' or 'dark on dark'." },
             { type: 'heading', text: "Rule 2: Alignment" },
@@ -183,6 +185,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l3', title: 'Templates That Do the Hard Work', duration: 15, 
         content: [
             { type: 'paragraph', text: "Designers don't start from zero. You don't have to either. Templates save time and teach you good layouts." }, 
+            { type: 'video', text: "yWJp7gQqCQ8?start=9534&end=10110"},
             { type: 'heading', text: "Step 1: Search" },
             { type: 'paragraph', text: "Open Canva. Tap 'Templates'. Search for 'sale', 'motivation', or 'small business'." },
             { type: 'heading', text: "Step 2: Make it Yours" },
@@ -200,6 +203,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l4', title: 'Magic Design: Layouts in Seconds', duration: 20, 
         content: [
             { type: 'paragraph', text: "Stuck on layout? Let AI suggest designs for you. You describe the idea, AI shows ready-made posts." }, 
+            { type: 'video', text: "OoVA0nWcQAU"},
             { type: 'heading', text: "Try these prompts" },
             { type: 'list', text: "'Bakery sale this weekend' | 'Motivational quote for girls' | 'Free health camp invitation'" },
             { type: 'heading', text: "Generate & Customise" },
@@ -217,6 +221,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l5', title: 'Magic Write: Captions & Hooks with AI', duration: 20, 
         content: [
             { type: 'paragraph', text: "Words feel hard? Let AI suggest, you polish. AI gives ideas, you edit the voice, you make the final call." }, 
+            { type: 'video', text: "FtwSi7Fn3e4"},
             { type: 'heading', text: "3 Caption Styles" },
             { type: 'list', text: "1. Hook + Info + Action | 2. Problem + Promise | 3. Tiny Story" },
             { type: 'heading', text: "Draft and Edit" },
@@ -234,6 +239,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l6', title: 'AI Images & Photo Glow-Up', duration: 20, 
         content: [
             { type: 'paragraph', text: "No fancy camera needed. AI and simple edits are enough. You have two options: Clean a real photo OR Generate an AI illustration." }, 
+            { type: 'video', text: "Rk_rkLQpDAc"},
             { type: 'heading', text: "Option 1: Clean a Real Photo" },
             { type: 'checklist', text: "Take photo of an item | Upload to Canva | Remove background (if possible) | Pick a simple background color" },
             { type: 'heading', text: "Option 2: AI Illustration" },
@@ -251,6 +257,7 @@ export const canvaLessons: Lesson[] = [
         id: 'l7', title: 'Your First AI-Powered Campaign Post', duration: 25, 
         content: [
             { type: 'paragraph', text: "Today we combine layout, image, and caption into one full post. Choose a topic: Small Business, School Club, or Social Cause." }, 
+            { type: 'video', text: "6IrqN2diTmY"},
             { type: 'heading', text: "Design Steps" },
             { type: 'checklist', text: "Use Magic Design for layout | Add real or AI image | Apply contrast & alignment | Use Magic Write for caption | Add Date/Offer/Action" },
             { type: 'heading', text: "Mini Assignment: Campaign Post" },
