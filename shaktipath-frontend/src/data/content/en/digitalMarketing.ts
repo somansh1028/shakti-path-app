@@ -435,24 +435,23 @@ export const whatsappLessons: Lesson[] = [
     }
 ];
 
-// --- REELS / CAPCUT LESSONS ---
+// --- REELS / VN EDITOR LESSONS ---
 export const reelsLessons: Lesson[] = [
     {
-        id: 'cc_l0', title: 'Watch: Easy Viral Reels', duration: 5,
+        id: 'cc_l0', title: 'Watch: Easy Viral Reels with VN', duration: 5,
         content: [
             { type: 'paragraph', text: "Short videos are the best way to grow today. See what you can create from your phone." },
-            { type: 'video', text: "LTXpNz_ymrs" },
+            { type: 'video', text: "j2A2_ebZd6E?start=0000&end=480"},
             { type: 'heading', text: "Key Takeaways" },
-            { type: 'list', text: "CapCut is free and powerful | Music makes or breaks your video | Transitions keep people watching" }
+            { type: 'list', text: "VN Editor is free and has NO Watermark | Music makes or breaks your video | Transitions keep people watching" }
         ]
     },
     {
         id: 'cc_l1', title: 'Getting Started', duration: 15,
         content: [
-            { type: 'paragraph', text: "Let's open the studio in your pocket." },
-            { type: 'video', text: "RbzYFdIY2y8" },            
+            { type: 'paragraph', text: "Let's open the studio in your pocket (VN Editor)." },
             { type: 'heading', text: "First Steps" },
-            { type: 'checklist', text: "Download CapCut | Open and tap 'New Project' | Select a video from your gallery | Understand the 'Timeline' (bottom bar)" }
+            { type: 'checklist', text: "Download VN Video Editor | Open and tap blue '+' (New Project) | Select a video from your gallery | Understand the 'Timeline' (bottom bar)" }
         ],
         quiz: {
             id: 'q_cc_1', question: "The area where you edit clips is called...",
@@ -461,11 +460,12 @@ export const reelsLessons: Lesson[] = [
         }
     },
     {
-        id: 'cc_l2', title: 'Trimming & Splitting', duration: 20,
+        id: 'cc_l2', title: 'Splitting & Trimming', duration: 20,
         content: [
             { type: 'paragraph', text: "Cut the boring parts. Keep it fast!" },
+            { type: 'video', text: "j2A2_ebZd6E?start=821&end=1124"},
             { type: 'heading', text: "Cutting Video" },
-            { type: 'checklist', text: "Tap the video strip | Move the white line to where you want to cut | Tap 'Split' | Delete the bad part" }
+            { type: 'checklist', text: "Tap the video strip | Move the white line to where you want to cut | Tap 'Split' (Scissors icon) | Delete the bad part" }
         ],
         quiz: {
             id: 'q_cc_2', question: "If a video is too long, you should...",
@@ -474,11 +474,12 @@ export const reelsLessons: Lesson[] = [
         }
     },
     {
-        id: 'cc_l3', title: 'Adding Music', duration: 15,
+        id: 'cc_l3', title: 'Extracting & Adding Sound/Music', duration: 15,
         content: [
-            { type: 'paragraph', text: "Music sets the mood." },
+            { type: 'paragraph', text: "You will learn how to extract audio from another Youtube Vidoe and add it your own video" },
+            { type: 'video', text: "j2A2_ebZd6E?start=1126&end=1326"},
             { type: 'heading', text: "Soundtrack" },
-            { type: 'checklist', text: "Tap 'Audio' > 'Sounds' | Pick a trending song | Drag it to match the start of your video" }
+            { type: 'checklist', text: "Tap blue Music icon (top of timeline) > 'Music' | Pick a trending song | Drag it to match the start of your video" }
         ],
         quiz: {
             id: 'q_cc_3', question: "Why is music important?",
@@ -487,15 +488,15 @@ export const reelsLessons: Lesson[] = [
         }
     },
     {
-        id: 'cc_l4', title: 'Text & Auto Captions', duration: 15,
+        id: 'cc_l4', title: 'Text & Titles', duration: 15,
         content: [
             { type: 'paragraph', text: "Many watch without sound. Text is mandatory." },
-            { type: 'video', text: "pWUanwL-9m0" }, 
+            { type: 'video', text: "j2A2_ebZd6E?start=1470&end=1718"},
             { type: 'heading', text: "Adding Text" },
-            { type: 'checklist', text: "Tap 'Text' | 'Auto Captions' > Start | Watch AI write your words | Correct any spelling mistakes" }
+            { type: 'checklist', text: "Tap 'T' icon (Text) | Choose 'Standard' or a style | Type your headline | Place it safely away from edges" }
         ],
         quiz: {
-            id: 'q_cc_4', question: "Auto captions help when...",
+            id: 'q_cc_4', question: "Text helps when...",
             options: [{ id: 'a', text: "Video is too bright" }, { id: 'b', text: "Viewers have sound off" }],
             correctOptionId: 'b'
         }
@@ -504,8 +505,9 @@ export const reelsLessons: Lesson[] = [
         id: 'cc_l5', title: 'Transitions', duration: 10,
         content: [
             { type: 'paragraph', text: "Move from one clip to another smoothly." },
+            { type: 'video', text: "j2A2_ebZd6E?start=2746&end=3090"},
             { type: 'heading', text: "Smooth Moves" },
-            { type: 'checklist', text: "Find the white box between two clips | Tap it | Choose 'Pull In' or 'Blink' | Keep duration short (0.5s)" }
+            { type: 'checklist', text: "Find the '+' icon between two clips | Tap it | Choose 'Zoom' or 'Dissolve' | Keep duration short (0.5s)" }
         ],
         quiz: {
             id: 'q_cc_5', question: "A good transition is...",
@@ -517,8 +519,9 @@ export const reelsLessons: Lesson[] = [
         id: 'cc_l6', title: 'Speed Control', duration: 15,
         content: [
             { type: 'paragraph', text: "Fast for boring parts, slow for cool parts." },
+            { type: 'video', text: "j2A2_ebZd6E?start=3415&end=3667"},
             { type: 'heading', text: "Change Speed" },
-            { type: 'checklist', text: "Tap a clip | Tap 'Speed' | 'Normal' > 2x (Fast) or 0.5x (Slow Mo)" }
+            { type: 'checklist', text: "Tap a clip | Tap 'Speed' | Use 'Regular' for simple speed or 'Curve' for advanced effects" }
         ],
         quiz: {
             id: 'q_cc_6', question: "To show a long process quickly, use...",
@@ -530,8 +533,9 @@ export const reelsLessons: Lesson[] = [
         id: 'cc_l7', title: 'Filters & Effects', duration: 10,
         content: [
             { type: 'paragraph', text: "Make the colors pop." },
+            { type: 'video', text: "qQdcYdFM17k?start=1698&end=1765"},
             { type: 'heading', text: "Enhance Look" },
-            { type: 'checklist', text: "Tap 'Effects' > 'Video Effects' | Try 'Diamond Zoom' or 'Sparkle' | Tap 'Adjust' to fix brightness" }
+            { type: 'checklist', text: "Tap 'Filter' to change colors | Tap 'FX' to add cool effects like Jitter or Zoom In" }
         ],
         quiz: {
             id: 'q_cc_7', question: "Filters change the...",
@@ -543,6 +547,7 @@ export const reelsLessons: Lesson[] = [
         id: 'cc_l8', title: 'Viral Strategy', duration: 20,
         content: [
             { type: 'paragraph', text: "A great video needs a hook." },
+            { type: 'video', text: "L6loyJBtHK0"}, 
             { type: 'heading', text: "Hook the Viewer" },
             { type: 'checklist', text: "Start with action or a question | Don't say 'Hello friends' for 5 seconds | Get straight to the point" }
         ],
@@ -557,15 +562,16 @@ export const reelsLessons: Lesson[] = [
         content: [
             { type: 'paragraph', text: "Ready to ship?" },
             { type: 'heading', text: "Save Video" },
-            { type: 'checklist', text: "Check your captions | Ensure music ends with video | Tap '1080p' top right | Export!" }
+            { type: 'checklist', text: "Check your spelling | Ensure music ends with video | Tap Blue Arrow (Top Right) | Export!" }
         ],
         quiz: {
             id: 'q_cc_9', question: "Before exporting...",
-            options: [{ id: 'a', text: "Check music and captions" }, { id: 'b', text: "Close the app" }],
+            options: [{ id: 'a', text: "Check music and text" }, { id: 'b', text: "Close the app" }],
             correctOptionId: 'a'
         }
     }
 ];
+
 
 // --- GOOGLE BUSINESS PROFILE LESSONS ---
 export const gbpLessons: Lesson[] = [
