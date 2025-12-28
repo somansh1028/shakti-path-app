@@ -209,12 +209,14 @@ const AssignmentReviewPage: React.FC<AssignmentReviewPageProps> = ({ course, res
         
         <div className="py-6 border-b border-neutral-200 dark:border-neutral-700">
             <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 mb-2">{t('review_did_well')}</h3>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">{result.whatYouDidWellKey}</p>
+            {/* Display raw text directly, do not use t() */}
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">{result.whatYouDidWell}</p>
         </div>
         
         <div className="py-6">
             <h3 className="font-semibold text-neutral-800 dark:text-neutral-200 mb-2">{t('review_improvement_tip')}</h3>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">{result.tipForImprovementKey}</p>
+           {/* Display raw text directly, do not use t() */}
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">{result.tipForImprovement}</p>
         </div>
       </div>
       

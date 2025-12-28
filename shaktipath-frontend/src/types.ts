@@ -45,7 +45,7 @@ export interface Prospect {
 
 export interface Badge {
   id: string;
-  nameKey?: string;
+  nameKey: string;
   name?: string; // Direct text support
   icon: string;
 }
@@ -71,17 +71,17 @@ export interface LessonContent {
 }
 
 export interface AssignmentCriterion {
-    nameKey?: string;
+    nameKey: string;
     name?: string;
-    descriptionKey?: string;
+    descriptionKey: string;
     description?: string;
     maxScore: number;
 }
 
 export interface Assignment {
-    titleKey?: string;
+    titleKey: string;
     title?: string;
-    descriptionKey?: string;
+    descriptionKey: string;
     description?: string;
     submissionFormat: string;
     reviewCriteria: AssignmentCriterion[];
@@ -114,9 +114,9 @@ export interface CourseMetadata {
 
 export interface Course {
   id: string;
-  titleKey?: string;
+  titleKey: string;
   title?: string;
-  descriptionKey?: string;
+  descriptionKey: string;
   description?: string;
   icon: string;
   lessons: Lesson[];
@@ -127,9 +127,9 @@ export interface Course {
 
 export interface LearningPath {
   id: string;
-  titleKey?: string;
+  titleKey: string;
   title?: string;
-  descriptionKey?: string;
+  descriptionKey: string;
   description?: string;
   icon: string;
   courses: Course[];
@@ -144,8 +144,8 @@ export interface CriterionScore {
 export interface AIReviewResult {
     overallScore: number;
     finalVerdictKey: string;
-    whatYouDidWellKey: string;
-    tipForImprovementKey: string;
+    whatYouDidWell: string;
+    tipForImprovement: string;
     criteriaScores: CriterionScore[];
 }
 

@@ -151,9 +151,18 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
       Please evaluate the three attached images based on the following criteria:
       ${reviewCriteriaText}
 
-      Provide a final verdict (choose one: 'Excellent work!', 'Good job!', or 'A good start!'). Also provide a 'What You Did Well' summary and one key 'Tip for Improvement'.
+ Provide a final verdict (choose one: 'Excellent work!', 'Good job!', or 'A good start!').
+      
+      Also provide:
+      1. A 'What You Did Well' summary (full sentence).
+      2. One important 'Tip for Improvement' (full sentence).
+      
       Your response must be in ${language} and structured as a JSON object.
-      The final verdict should map to these keys: 'review_verdict_excellent', 'review_verdict_good', 'review_verdict_needs_improvement'.
+      
+      IMPORTANT FORMATTING RULES:
+      - 'finalVerdictKey' must be one of: 'review_verdict_excellent', 'review_verdict_good', 'review_verdict_needs_improvement'.
+      DO NOT use underscores or keys like 'review_well...'. Write normal text.
+      - 'tipForImprovement' must be a full, actionable tip in ${language}. DO NOT use underscores or keys. Write normal text.
       Do not include markdown in your JSON response.`;
 
       const responseSchema = {
@@ -161,8 +170,8 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
           properties: {
               overallScore: { type: Type.NUMBER },
               finalVerdictKey: { type: Type.STRING },
-              whatYouDidWellKey: { type: Type.STRING },
-              tipForImprovementKey: { type: Type.STRING },
+              whatYouDidWell: { type: Type.STRING },
+              tipForImprovement: { type: Type.STRING },
               criteriaScores: {
                   type: Type.ARRAY,
                   items: {
@@ -175,7 +184,7 @@ const AssignmentPage: React.FC<AssignmentPageProps> = ({ course, onBack, onRevie
                   }
               }
           },
-          required: ["overallScore", "finalVerdictKey", "whatYouDidWellKey", "tipForImprovementKey", "criteriaScores"]
+          required: ["overallScore", "finalVerdictKey", "whatYouDidWell", "tipForImprovement", "criteriaScores"]
       };
 
       try {
