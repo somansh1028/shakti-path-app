@@ -9,6 +9,11 @@ import { contentCreationLessons as en_cc_biz, canvaLessons as en_canva, whatsapp
 import { contentCreationLessons as hi_cc_biz } from './content/hi/digitalMarketing';
 import { contentCreationLessons as mr_cc_biz, canvaLessons as mr_canva, whatsappLessons as mr_wa, reelsLessons as mr_reels, gbpLessons as mr_gbp } from './content/mr/digitalMarketing';
 
+import { contentWritingLessons as en_cw } from './content/en/contentWriting';
+import { contentWritingLessons as mr_cw } from './content/mr/contentWriting';
+// Hindi Import Placeholder
+import { contentWritingLessons as hi_cw } from './content/hi/contentWriting';
+
 // --- NEW VA IMPORTS (Correctly mapping to the new files) ---
 import {
     officeToolsLessons as en_office,
@@ -62,6 +67,12 @@ const getDigitalMarketingContent = (lang: string) => {
     return { cc_biz: en_cc_biz, canva: en_canva, wa: en_wa, reels: en_reels, gbp: en_gbp };
 }
 
+const getContentWritingContent = (lang: string) => {
+    if (lang === 'mr') return { cw: mr_cw };
+    if (lang === 'hi') return { cw: hi_cw };
+    return { cw: en_cw };
+}
+
 // Updated VA Content Selector to handle 5 courses
 const getVAContent = (lang: string) => {
     if (lang === 'mr') return {
@@ -90,6 +101,7 @@ const getAIContent = (lang: string) => {
 export const getLearningPaths = (lang: string = 'en'): LearningPath[] => {
     const foundationalContent = getFoundationalContent(lang);
     const dmContent = getDigitalMarketingContent(lang);
+    const cwContent = getContentWritingContent(lang);
     const vaContent = getVAContent(lang);
     const aiContent = getAIContent(lang);
 
@@ -318,6 +330,12 @@ const gbpMetadata: CourseMetadata = {
         }
     };
 
+// 4. Content Writing Metadata
+    const cwMetadata: CourseMetadata = {
+        audience: { titleKey: 'course_cw_audience_title', textKey: 'course_cw_audience_text' },
+        outcomes: { titleKey: 'course_cw_outcomes_title', itemsKeys: ['course_cw_outcome_1', 'course_cw_outcome_2', 'course_cw_outcome_3', 'course_cw_outcome_4', 'course_cw_outcome_5'] },
+        format: { titleKey: 'course_cw_format_title', itemsKeys: ['course_cw_format_1', 'course_cw_format_2', 'course_cw_format_3'] }
+    };
 
     // Freelancing Assignment
     const freelanceAssignment: Assignment = {
@@ -410,6 +428,18 @@ const gbpMetadata: CourseMetadata = {
     };
     const canvaBadgeObj: Badge = { id: 'badge-canva-1', nameKey: 'badge_canva_name', icon: '🎨' };
     
+        // Content Writing Assignment
+    const cwAssignment: Assignment = {
+        titleKey: 'assignment_cw_title',
+        descriptionKey: 'assignment_cw_desc',
+        submissionFormat: "1 Document (PDF/Image)",
+        reviewCriteria: [
+            { nameKey: 'assignment_cw_crit1_name', descriptionKey: 'assignment_cw_crit1_desc', maxScore: 40 },
+            { nameKey: 'assignment_cw_crit2_name', descriptionKey: 'assignment_cw_crit2_desc', maxScore: 30 },
+            { nameKey: 'assignment_cw_crit3_name', descriptionKey: 'assignment_cw_crit3_desc', maxScore: 30 }
+        ]
+    }; 
+
     // New Content Creation Course
     const course_content_creation: Course = {
         id: 'c_cc_1',
@@ -465,7 +495,19 @@ const gbpMetadata: CourseMetadata = {
         badge: createBadge('gbp', 'gbp', '🗺️'),
         metadata: gbpMetadata
     };
-    
+
+    // Content Writing Course
+    const course_cw: Course = {
+        id: 'c_cw_1',
+        titleKey: 'course_cw_title',
+        descriptionKey: 'course_cw_desc',
+        icon: '✍️',
+        lessons: cwContent.cw,
+        assignment: cwAssignment,
+        badge: createBadge('cw', 'cw', '✍️'),
+        metadata: cwMetadata
+    };
+
     // --- NEW VIRTUAL ASSISTANT COURSES (5 Distinct Courses) ---
     const course_va_tools: Course = { 
         id: 'c_va_1', 
@@ -539,6 +581,13 @@ const gbpMetadata: CourseMetadata = {
             icon: '📢',
             // Content Creation added first as per old structure logic
             courses: [course_content_creation, course_canva, course_whatsapp, course_reels, course_gbp],
+        },
+        {
+            id: 'lp_content_writing',
+            titleKey: 'path_content_writing_title',
+            descriptionKey: 'path_content_writing_desc',
+            icon: '✍️',
+            courses: [course_cw], // Adding AI Basics and Chat as they are relevant
         },
         {
             id: 'lp_va',

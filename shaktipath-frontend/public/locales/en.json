@@ -281,6 +281,9 @@
   "course_google_profile_title": "Google Business Profile Setup",
   "course_google_profile_desc": "Get your customers found on Google Maps & Search.",
 
+  "course_cw_title": "Digital Content Writing",
+  "course_cw_desc": "Write engaging text for social media, blogs, and websites.",
+
   "assignment_canva_title": "3 Social Media Posts",
   "assignment_canva_desc": "Design 3 distinct social media posts for a fictional 'Seema's Salon' or a local business of your choice. 1. Sale Announcement (Text-heavy). 2. Product/Service Showcase (Image-heavy). 3. Customer Testimonial (Trust-building). Ensure consistent brand colors.",
   "assignment_canva_format": "3 PNG or JPG Files",
@@ -555,6 +558,21 @@
   "course_money_format_4": "Budgeting templates",
   "course_money_format_5": "Guruji AI support",
 
+  "course_cw_audience_title": "Who this is for",
+  "course_cw_audience_text": "Aspiring writers, students, and homemakers who want to earn money writing from home.",
+  "course_cw_outcomes_title": "What you will master",
+  "course_cw_outcome_1": "Writing catchy headlines and hooks",
+  "course_cw_outcome_2": "Structuring blog posts for readability",
+  "course_cw_outcome_3": "Writing engaging social media captions",
+  "course_cw_outcome_4": "Using AI tools (like ChatGPT) to write faster",
+  "course_cw_outcome_5": "Building a simple writing portfolio",
+  "course_cw_format_title": "Course Format",
+  "course_cw_format_subtitle": "Practical Writing:",
+  "course_cw_format_1": "8 Practical Lessons",
+  "course_cw_format_2": "Writing Exercises",
+  "course_cw_format_3": "AI Tools Demo",
+
+
   "course_cc_audience_title": "Who this is for",
   "course_cc_audience_text": "Small business owners and social media managers who want to plan content without stress.",
   "course_cc_outcomes_title": "What you will master",
@@ -731,5 +749,15 @@
   "assignment_gbp_crit2_name": "Info Accuracy",
   "assignment_gbp_crit2_desc": "Are hours and category clear?",
   "assignment_gbp_crit3_name": "Engagement",
-  "assignment_gbp_crit3_desc": "Are there photos and reviews/updates?"
+  "assignment_gbp_crit3_desc": "Are there photos and reviews/updates?",
+
+  "assignment_cw_title": "Content Writing Portfolio",
+  "assignment_cw_desc": "Create a mini-portfolio for a home bakery. Upload one document containing: 1. An Instagram Caption (with Hook, Story, CTA). 2. A short Blog Intro (100 words). 3. A Service Description.",
+  "assignment_cw_crit1_name": "Clarity & Tone",
+  "assignment_cw_crit1_desc": "Is the writing simple, clear, and friendly?",
+  "assignment_cw_crit2_name": "Structure",
+  "assignment_cw_crit2_desc": "Does it have a strong Hook and clear CTA?",
+  "assignment_cw_crit3_name": "Professionalism",
+  "assignment_cw_crit3_desc": "Are there spelling mistakes? Is it formatted well?"
+
 }

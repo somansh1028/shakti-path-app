@@ -183,6 +183,20 @@
   "course_ai_project_title": "मिनी AI प्रकल्प",
   "course_ai_project_desc": "AI सह वास्तविक समस्या सोडवा.",
 
+  "course_cw_audience_title": "हे कोणासाठी आहे",
+  "course_cw_audience_text": "लेखक, विद्यार्थी आणि गृहिणी ज्यांना घरबसल्या लिहून पैसे कमवायचे आहेत.",
+  "course_cw_outcomes_title": "तुम्ही काय शिकाल",
+  "course_cw_outcomes_1": "आकर्षक हेडलाईन्स आणि हुक लिहिणे",
+  "course_cw_outcomes_2": "वाचकांना खिळवून ठेवणारे ब्लॉग लिहिणे",
+  "course_cw_outcomes_3": "सोशल मीडियासाठी उत्तम कॅप्शन लिहिणे",
+  "course_cw_outcomes_4": "AI टूल्सचा वापर करून वेगाने लिहिणे",
+  "course_cw_outcomes_5": "लेखनाचा पोर्टफोलिओ तयार करणे",
+  "course_cw_format_title": "कोर्स स्वरूप",
+  "course_cw_format_subtitle": "व्यावहारिक लेखन:",
+  "course_cw_format_1": "८ प्रॅक्टिकल धडे",
+  "course_cw_format_2": "लेखनाचा सराव",
+  "course_cw_format_3": "AI टूल्स डेमो",
+
   "course_content_creation_title": "स्थानिक व्यवसायांसाठी कंटेंट निर्मिती",
   "course_content_creation_desc": "स्थानिक दुकानांना ग्राहक मिळवून देण्यासाठी कंटेंटचे नियोजन आणि लेखन करा.",
 
@@ -276,6 +290,9 @@
   "course_google_profile_title": "गुगल बिझनेस प्रोफाइल सेटअप",
   "course_google_profile_desc": "तुमच्या ग्राहकांना गुगल मॅप्स आणि सर्चवर शोधा.",
 
+  "course_cw_title": "डिजिटल कंटेंट रायटिंग",
+  "course_cw_desc": "सोशल मीडिया, ब्लॉग्स आणि व्यवसायांसाठी मजकूर लिहा.",
+
   "assignment_canva_title": "3 सोशल मीडिया पोस्ट तयार करा",
   "assignment_canva_desc": "काल्पनिक 'सीमा सलून' किंवा तुमच्या आवडीच्या स्थानिक व्यवसायासाठी 3 वेगळ्या सोशल मीडिया पोस्ट डिझाइन करा. 1. सेलची घोषणा (मजकूर-भारी). 2. उत्पादन/सेवा प्रदर्शन (प्रतिमा-भारी). 3. ग्राहक प्रशंसापत्र (विश्वास निर्माण करणारे). ब्रँडचे रंग समान ठेवा.",
   "assignment_canva_format": "3 PNG/JPG फाइल्स",
@@ -293,6 +310,15 @@
   "assignment_error_file_count": "कृपया नक्की 3 इमेज फाइल्स निवडा.",
   "assignment_error_file_type": "अवैध फाइल प्रकार. कृपया फक्त PNG किंवा JPG अपलोड करा.",
 
+  "assignment_cw_title": "कंटेंट रायटिंग पोर्टफोलिओ",
+  "assignment_cw_desc": "एका घरगुती बेकरीसाठी मिनी-पोर्टफोलिओ तयार करा. अपलोड करा: १. इंस्टाग्राम कॅप्शन (हुक, स्टोरी, CTA सह). २. एक छोटा ब्लॉग परिचय (१०० शब्द). ३. तुमची सेवा माहिती.",
+  "assignment_cw_crit1_name": "स्पष्टता आणि टोन",
+  "assignment_cw_crit1_desc": "लिखाण सोपे, स्पष्ट आणि मैत्रीपूर्ण आहे का?",
+  "assignment_cw_crit2_name": "रचना",
+  "assignment_cw_crit2_desc": "हुक आणि CTA प्रभावी आहेत का?",
+  "assignment_cw_crit3_name": "प्रोफेशनालिझम",
+  "assignment_cw_crit3_desc": "शुद्धलेखनाच्या चुका नाहीत ना? फॉर्मेटिंग चांगले आहे का?",
+
   "review_scorecard_title": "तुमचे AI स्कोअरकार्ड",
   "review_overall_score": "एकूण गुण",
   "review_final_verdict": "अंतिम निर्णय",
@@ -309,8 +335,10 @@
   "badge_canva_name": "सोशल डिझाइन स्टार्टर",
   "badge_whatsapp_name": "डिजिटल दुकानदार",
   "badge_cc_name": "रील डायरेक्टर",
+  "badge_cw_name": "प्रोफेशनल रायटर",
   "badge_gbp_name": "लोकल मॅप स्टार",
   "toast_new_badge": "नवीन बॅज मिळाला!",
+  
 
   "lesson_previous": "मागे",
   "lesson_next": "पुढे",

@@ -301,10 +301,10 @@ export const canvaLessons: Lesson[] = [
 // --- WHATSAPP BUSINESS LESSONS ---
 export const whatsappLessons: Lesson[] = [
     {
-        id: 'wa_l0', title: 'Watch: Why WhatsApp Business?', duration: 5,
+        id: 'wa_l0', title: 'Watch: What is WhatsApp Business?', duration: 5,
         content: [
             { type: 'paragraph', text: "Learn how WhatsApp Business helps you manage orders and look professional." },
-            { type: 'video', text: "YI2qPPP-3OY?start=206" },
+            { type: 'video', text: "ZBOtWyOuVgU" },
             { type: 'heading', text: "Key Takeaways" },
             { type: 'list', text: "Separate your business chats from personal ones | Automatically show your products | Reply to customers even when you sleep" }
         ]
@@ -313,6 +313,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l1', title: 'Setting Up the App', duration: 10,
         content: [
             { type: 'paragraph', text: "First, get the right app. It's different from normal WhatsApp." },
+            { type: 'video', text: "2_Wp22JjCKU" },
             { type: 'heading', text: "Installation Steps" },
             { type: 'checklist', text: "Backup your chats in normal WhatsApp if using same number | Download 'WhatsApp Business' from Play Store | Register with your number" }
         ],
@@ -326,6 +327,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l2', title: 'Your Professional Profile', duration: 15,
         content: [
             { type: 'paragraph', text: "Your profile is your shop's digital signboard." },
+            { type: 'video', text: "vqqOD4pFzGs" },
             { type: 'heading', text: "Profile Setup" },
             { type: 'checklist', text: "Add a clear logo or shop photo | Write a short description of what you sell | Add your exact address so people can find you" }
         ],
@@ -339,6 +341,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l3', title: 'Setting Business Hours', duration: 10,
         content: [
             { type: 'paragraph', text: "Tell customers when you are open so they don't expect replies at 2 AM." },
+            { type: 'video', text: "vqqOD4pFzGs" },
             { type: 'heading', text: "Set Timings" },
             { type: 'checklist', text: "Go to Business Tools > Business Profile | Tap 'Schedule' | Select 'Open for selected hours' | Set your shop timings" }
         ],
@@ -352,6 +355,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l4', title: 'Your First Catalog Item', duration: 20,
         content: [
             { type: 'paragraph', text: "The Catalog is your digital menu. No need to send 50 photos to every customer." },
+            { type: 'video', text: "vqqOD4pFzGs" },
             { type: 'heading', text: "Add Products" },
             { type: 'checklist', text: "Go to Business Tools > Catalog | Tap 'Add new item' | Upload 1-3 good photos | Add Name, Price, and Description" }
         ],
@@ -378,6 +382,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l6', title: 'Greeting & Away Messages', duration: 15,
         content: [
             { type: 'paragraph', text: "Be polite automatically. Welcome new customers instantly." },
+            { type: 'video', text: "hwu3wq73Czw" },
             { type: 'heading', text: "Automation" },
             { type: 'checklist', text: "Tools > Greeting Message | Turn on 'Send greeting' | Write: 'Namaste! Welcome to [Shop Name]. How can we help?'" }
         ],
@@ -391,6 +396,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l7', title: 'Quick Replies for Speed', duration: 10,
         content: [
             { type: 'paragraph', text: "Stop typing 'My UPI number is...' 10 times a day." },
+            { type: 'video', text: "W8pNT9i5qH4" },
             { type: 'heading', text: "Setup Shortcuts" },
             { type: 'checklist', text: "Tools > Quick Replies | Tap + | Shortcut: /pay | Message: 'Here is our UPI ID: abc@upi. Thank you!' | Save" }
         ],
@@ -404,6 +410,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l8', title: 'Using Labels', duration: 10,
         content: [
             { type: 'paragraph', text: "Who paid? Who is new? Use colored tags to remember." },
+            { type: 'video', text: "0NnCvjHceMg" },
             { type: 'heading', text: "Organize Chats" },
             { type: 'checklist', text: "Long press a chat | Tap 'Labels' tag icon | Select 'New Order' or 'Payment Pending' | See all labels in Menu later" }
         ],
@@ -443,6 +450,7 @@ export const reelsLessons: Lesson[] = [
         id: 'cc_l1', title: 'Getting Started', duration: 15,
         content: [
             { type: 'paragraph', text: "Let's open the studio in your pocket." },
+            { type: 'video', text: "RbzYFdIY2y8" },            
             { type: 'heading', text: "First Steps" },
             { type: 'checklist', text: "Download CapCut | Open and tap 'New Project' | Select a video from your gallery | Understand the 'Timeline' (bottom bar)" }
         ],
@@ -482,6 +490,7 @@ export const reelsLessons: Lesson[] = [
         id: 'cc_l4', title: 'Text & Auto Captions', duration: 15,
         content: [
             { type: 'paragraph', text: "Many watch without sound. Text is mandatory." },
+            { type: 'video', text: "pWUanwL-9m0" }, 
             { type: 'heading', text: "Adding Text" },
             { type: 'checklist', text: "Tap 'Text' | 'Auto Captions' > Start | Watch AI write your words | Correct any spelling mistakes" }
         ],

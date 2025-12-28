@@ -310,7 +310,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l0', title: 'पहा: व्हॉट्सॲप बिझनेस का?', duration: 5,
         content: [
             { type: 'paragraph', text: "व्हॉट्सॲप बिझनेस तुम्हाला ऑर्डर व्यवस्थापित करण्यात आणि प्रोफेशनल दिसण्यात कशी मदत करते ते शिका." },
-            { type: 'video', text: "YI2qPPP-3OY?start=206" },
+            { type: 'video', text: "ZBOtWyOuVgU" },
             { type: 'heading', text: "महत्वाचे मुद्दे" },
             { type: 'list', text: "तुमचे वैयक्तिक आणि व्यावसायिक चॅट्स वेगळे ठेवा | तुमची उत्पादने आपोआप दाखवा | तुम्ही झोपलेले असतानाही ग्राहकांना उत्तर द्या" }
         ]
@@ -319,6 +319,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l1', title: 'ॲप सेट करणे', duration: 10,
         content: [
             { type: 'paragraph', text: "प्रथम, योग्य ॲप मिळवा. 'व्हॉट्सॲप बिझनेस' हे सामान्य व्हॉट्सॲपपेक्षा वेगळे आहे." },
+            { type: 'video', text: "2_Wp22JjCKU" },
             { type: 'heading', text: "इंस्टॉलेशन पायऱ्या" },
             { type: 'checklist', text: "त्याच नंबरवर असल्यास सामान्य व्हॉट्सॲपचा बॅकअप घ्या | प्ले स्टोअरवरून 'WhatsApp Business' डाउनलोड करा | तुमच्या नंबरसह नोंदणी करा" }
         ],
@@ -332,6 +333,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l2', title: 'तुमची व्यावसायिक प्रोफाइल', duration: 15,
         content: [
             { type: 'paragraph', text: "तुमची प्रोफाइल म्हणजे तुमच्या दुकानाची डिजिटल पाटी आहे." },
+            { type: 'video', text: "vqqOD4pFzGs" },
             { type: 'heading', text: "प्रोफाइल सेटअप" },
             { type: 'checklist', text: "दुकानाचा लोगो किंवा स्पष्ट फोटो जोडा | तुम्ही काय विकता त्याचे वर्णन लिहा | तुमचा पत्ता नकाशावर सेट करा" }
         ],
@@ -345,6 +347,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l3', title: 'दुकानाची वेळ सेट करणे', duration: 10,
         content: [
             { type: 'paragraph', text: "ग्राहकांना सांगा की तुम्ही कधी उघडे असता, जेणेकरून ते रात्री २ वाजता उत्तराची अपेक्षा करणार नाहीत." },
+            { type: 'video', text: "vqqOD4pFzGs" },            
             { type: 'heading', text: "वेळ सेट करा" },
             { type: 'checklist', text: "Business Tools > Business Profile मध्ये जा | 'Schedule' वर टॅप करा | 'Open for selected hours' निवडा | तुमच्या दुकानाची वेळ सेट करा" }
         ],
@@ -358,6 +361,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l4', title: 'तुमची पहिली वस्तू (Item)', duration: 20,
         content: [
             { type: 'paragraph', text: "कॅटलॉग म्हणजे तुमचे डिजिटल मेनू कार्ड. ग्राहकांना ५० फोटो पाठवण्याची गरज नाही." },
+            { type: 'video', text: "vqqOD4pFzGs" },
             { type: 'heading', text: "वस्तू जोडा" },
             { type: 'checklist', text: "Business Tools > Catalog मध्ये जा | 'Add new item' दाबा | १-३ चांगले फोटो अपलोड करा | नाव, किंमत आणि वर्णन टाका" }
         ],
@@ -384,6 +388,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l6', title: 'स्वागत आणि रजा संदेश', duration: 15,
         content: [
             { type: 'paragraph', text: "आपोआप विनम्र बना. नवीन ग्राहकांचे त्वरित स्वागत करा." },
+            { type: 'video', text: "hwu3wq73Czw" },
             { type: 'heading', text: "ऑटोमेशन" },
             { type: 'checklist', text: "Tools > Greeting Message | 'Send greeting' चालू करा | लिहा: 'नमस्ते! [दुकानाचे नाव] मध्ये स्वागत आहे. आम्ही कशी मदत करू शकतो?'" }
         ],
@@ -397,6 +402,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l7', title: 'क्विक रिप्लाय (Quick Replies)', duration: 10,
         content: [
             { type: 'paragraph', text: "दिवसातून १० वेळा 'माझा UPI नंबर आहे...' टाइप करणे थांबवा." },
+            { type: 'video', text: "W8pNT9i5qH4" },
             { type: 'heading', text: "शॉर्टकट सेट करा" },
             { type: 'checklist', text: "Tools > Quick Replies | + टॅप करा | शॉर्टकट: /pay | संदेश: 'येथे आमचा UPI ID आहे: abc@upi. धन्यवाद!' | सेव्ह करा" }
         ],
@@ -410,6 +416,7 @@ export const whatsappLessons: Lesson[] = [
         id: 'wa_l8', title: 'लेबल्स (Labels) वापरणे', duration: 10,
         content: [
             { type: 'paragraph', text: "कोणी पैसे दिले? कोण नवीन आहे? लक्षात ठेवण्यासाठी रंगीत टॅग वापरा." },
+            { type: 'video', text: "0NnCvjHceMg" },
             { type: 'heading', text: "चॅट्स व्यवस्थापित करा" },
             { type: 'checklist', text: "चॅटवर दाबून ठेवा | 'Labels' टॅग चिन्हावर टॅप करा | 'New Order' किंवा 'Payment Pending' निवडा | मेनूमध्ये सर्व लेबल्स पहा" }
         ],
