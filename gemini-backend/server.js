@@ -24,6 +24,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET;
 const JWT_SECRET = SESSION_SECRET || 'fallback_dev_secret';
 
 let dbStatus = 'disconnected';
+let dbError = null; // Capture specific connection errors
 let ai = null;
 if (API_KEY) ai = new GoogleGenAI({ apiKey: API_KEY });
 
@@ -50,16 +51,44 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // --- FAVICON FIX ---
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-// --- DATABASE CONNECTION ---
+// --- DATABASE CONNECTION (ROBUST FIX) ---
 if (DATABASE_URL) {
-    const connectDB = async () => {
-        try {
-            await mongoose.connect(DATABASE_URL, { serverSelectionTimeoutMS: 5000 });
-            console.log('✅ MongoDB Connected!');
-            dbStatus = 'connected';
-        } catch (err) {
-            console.error('❌ MongoDB Connection Error:', err.message);
-            dbStatus = 'error';
+    const connectDB = async (retries = 5) => {
+        while (retries > 0) {
+            try {
+                console.log(`[DB] Attempting connection... (Retries left: ${retries})`);
+                
+                // Mongoose 6+ / 8+ Connection Options for Stability
+                await mongoose.connect(DATABASE_URL, { 
+                    serverSelectionTimeoutMS: 30000, // Increase to 30 seconds
+                    socketTimeoutMS: 45000,          // Keep sockets alive longer
+                    family: 4                        // Force IPv4 (Crucial for Render <-> Atlas)
+                });
+
+                console.log('✅ MongoDB Connected!');
+                dbStatus = 'connected';
+                dbError = null;
+                break; // Connected successfully, exit loop
+            } catch (err) {
+                console.error(`❌ MongoDB Connection Error:`, err.message);
+                
+                let msg = err.message;
+                // Add helpful hints for common errors
+                if (msg.includes('bad auth') || msg.includes('Authentication failed')) {
+                    msg += ' (HINT: Check your DB Password in Render Environment Variables. Ensure special chars are URL encoded)';
+                } else if (msg.includes('querySrv') || msg.includes('ENOTFOUND')) {
+                    msg += ' (HINT: DNS Error. The app cannot find the database address. Check DATABASE_URL)';
+                } else if (msg.includes('Invalid scheme')) {
+                    msg += ' (HINT: Ensure string starts with mongodb+srv://)';
+                }
+
+                dbStatus = 'error';
+                dbError = msg; 
+                retries -= 1;
+                if (retries === 0) break;
+                // Wait 5 seconds before retrying
+                await new Promise(res => setTimeout(res, 5000));
+            }
         }
     };
     connectDB();
@@ -68,6 +97,7 @@ if (DATABASE_URL) {
     mongoose.connection.on('error', err => {
         console.error('MongoDB Runtime Error:', err);
         dbStatus = 'error';
+        dbError = err.message;
     });
     mongoose.connection.on('disconnected', () => {
         console.warn('MongoDB Disconnected');
@@ -75,6 +105,8 @@ if (DATABASE_URL) {
     });
 } else {
     console.warn("⚠️ No DATABASE_URL provided. App will run in limited mode.");
+    dbStatus = 'error';
+    dbError = "DATABASE_URL is missing in Environment Variables.";
 }
 
 // --- AUTH MIDDLEWARE ---
@@ -108,7 +140,13 @@ const ensureAuthenticated = async (req, res, next) => {
 
 // --- ROUTES ---
 app.get('/', (req, res) => res.send('✅ Backend Running'));
-app.get('/api/health', (req, res) => res.json({ server: 'running', dbConnection: dbStatus }));
+
+// Improved Health Check: Returns detailed DB status
+app.get('/api/health', (req, res) => res.json({ 
+    server: 'running', 
+    dbConnection: dbStatus,
+    dbError: dbError // Send specific error to frontend
+}));
 
 // --- CONFIG ROUTE (Safe proxy for frontend voice) ---
 // This allows the frontend to fetch the API key securely for the Live Client
@@ -135,8 +173,29 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
     if (dbStatus !== 'connected') return res.status(503).json({ error: 'Database not connected' });
     try {
-        const user = await User.findOne({ email: req.body.email });
-        if (!user || !(await bcrypt.compare(req.body.password, user.password))) return res.status(401).json({ error: 'Invalid credentials' });
+        const { email, password } = req.body;
+        let user = await User.findOne({ email });
+
+        // --- MOCK GOOGLE LOGIN SUPPORT ---
+        // If the frontend sends the specific google mock password, we allow it.
+        // In a production app, you would verify the OAuth token from Google here.
+        if (password === 'google-mock-password') {
+            if (!user) {
+                // Auto-register demo google user if they don't exist
+                user = new User({ 
+                    email, 
+                    password: await bcrypt.hash('google-placeholder-secret', 10), 
+                    profile: { name: 'Google User' } 
+                });
+                await user.save();
+            }
+        } else {
+            // Standard Password Check
+            if (!user || !(await bcrypt.compare(password, user.password))) {
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
+        }
+        
         const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
         res.json({ token, user: { email: user.email, name: user.profile?.name || 'User' } });
     } catch (e) { 
@@ -479,6 +538,7 @@ app.post('/api/community/ask-guruji', ensureAuthenticated, async (req, res) => {
             Use emojis. Keep it professional but warm.`;
         }
 
+        // Use 'gemini-flash-lite-latest' for higher throughput/lower cost for general chat
         const result = await ai.models.generateContent({
             model: 'gemini-flash-lite-latest',
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -546,6 +606,7 @@ app.post('/api/learn/chat', ensureAuthenticated, async (req, res) => {
              return;
         }
 
+        // Use 'gemini-flash-lite-latest' for the chat to save quota
         const result = await ai.models.generateContentStream({
             model: 'gemini-flash-lite-latest',
             contents: chatHistory,
@@ -569,7 +630,7 @@ app.post('/api/learn/chat', ensureAuthenticated, async (req, res) => {
     } catch (e) {
         console.error("Lesson Chat Failed:", e);
         // Clean error message for user
-        const safeError = e.message?.includes('429') ? "Guruji is busy. Please wait." : "Guruji is having trouble connecting.";
+        const safeError = e.message?.includes('429') ? "Guruji is busy (Quota Limit). Please wait a moment." : "Guruji is having trouble connecting.";
         res.write(`data: ${JSON.stringify({ error: safeError })}\n\n`);
         res.end();
     }
@@ -582,25 +643,26 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
         const { contents, responseSchema, location } = req.body;
         
         // --- REAL DATA GROUNDING LOGIC ---
+        // DEFAULT: Use 'gemini-flash-lite-latest' for all standard text/structured tasks to save quota.
+        // EXCEPTION: If 'location' is provided (Gig Finder), we MUST use 'gemini-2.5-flash' to access Google Maps tools.
+        
         let modelToUse = 'gemini-flash-lite-latest';
         let tools = [];
 
-        // Rules from Instructions:
-        // 1. Maps grounding is only supported in Gemini 2.5 series models.
-        // 2. googleSearch grounding only available to `gemini-3-pro-image-preview`.
-        
+        // Rule: Maps grounding is only supported in Gemini 2.5 series models.
         if (location) {
-            console.log(`📍 Using Google Maps Grounding. Loc: ${JSON.stringify(location)}`);
+            console.log(`📍 Using Google Maps Grounding via Gemini 2.5. Loc: ${JSON.stringify(location)}`);
             modelToUse = 'gemini-2.5-flash';
             tools = [{ googleMaps: {} }];
         }
 
-        const config = {};
+        const config = {
+            temperature: 0.1 // Keep it deterministic for structured data
+        };
         
         if (tools.length > 0) {
             config.tools = tools;
             // NOTE: responseSchema is NOT allowed with googleMaps tool.
-            // When using tools, Gemini returns text or tool calls, so we don't set responseMimeType: application/json here.
         } else if (responseSchema) {
             config.responseMimeType = "application/json";
             config.responseSchema = responseSchema;
@@ -641,11 +703,15 @@ app.post('/api/gemini/structured-generate', ensureAuthenticated, async (req, res
             }
         } catch (parseErr) {}
 
+        const status = (e.message.includes('429')) ? 429 : 500;
+        
         if (details && (details.includes('API key') || details.includes('403'))) {
             error = 'AI Configuration Error: API Key Invalid or Expired.';
+        } else if (status === 429) {
+            error = 'Quota Exceeded. Please wait a moment and try again.';
         }
 
-        res.status(500).json({ error, details }); 
+        res.status(status).json({ error, details }); 
     }
 });
 
