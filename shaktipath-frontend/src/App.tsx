@@ -86,6 +86,7 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
   const { t } = useI18n();
   const { refreshProgress } = useUserProgress();
   const [appStatus, setAppStatus] = useState<AppStatus | null>(null);
+  const [dbErrorDetails, setDbErrorDetails] = useState<string | null>(null);
   const [user, setUser] = useState<UserSession | null>(() => {
     const token = localStorage.getItem('authToken');
     const email = localStorage.getItem('userEmail');
@@ -104,12 +105,14 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
 
   const checkSystemHealth = useCallback(async () => {
     setAppStatus(null); 
+    setDbErrorDetails(null);
     setShowLongWaitMessage(false);
 
     // Set a timer to show a "please wait" message if it takes longer than 3 seconds
     const msgTimeout = setTimeout(() => setShowLongWaitMessage(true), 3000);
 
     try {
+           console.log(`🔄 [Health Check] Pinging ${API_BASE_URL}/api/health...`);
       // Render Free Tier sleeps after inactivity. We increase timeout to 60s to allow it to wake up.
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); 
@@ -118,12 +121,23 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
       clearTimeout(timeoutId);
       clearTimeout(msgTimeout);
 
-      if (!response.ok) throw new Error('Server not healthy');
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      
       const data = await response.json();
-      setAppStatus(data.dbConnection === 'connected' ? 'healthy' : 'db-error');
+      console.log("✅ [Health Check] Success:", data);
+
+      if (data.dbConnection === 'connected') {
+          setAppStatus('healthy');
+          setDbErrorDetails(null);
+      } else {
+          setAppStatus('db-error');
+          setDbErrorDetails(data.dbError || 'Unknown connection error');
+          console.error("❌ [Health Check] DB Error:", data.dbError);
+      }
     } catch (error) {
       clearTimeout(msgTimeout);
-      console.error('Could not connect to the backend server.', error);
+      console.error(`❌ [Health Check Failed] Could not connect to ${API_BASE_URL}`);
+      console.error('Error details:', error);
       setAppStatus('server-error');
     }
   }, []);
@@ -277,7 +291,23 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
           </ul>
         )}
          {titleKey === 'status_db_error_title' && <p className="text-neutral-700 dark:text-neutral-300">{t('status_db_error_p3')}</p>}
+         {dbErrorDetails && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-xs font-mono text-red-700 text-left overflow-auto max-h-32 shadow-inner">
+                <strong>Debug Info:</strong> {dbErrorDetails}
+            </div>
+         )}
          
+         {titleKey === 'status_server_error_title' && (
+             <div className="mt-4 p-3 bg-gray-100 border border-gray-300 rounded text-xs text-left">
+                 <p className="font-bold text-gray-700">Troubleshooting:</p>
+                 <ul className="list-disc list-inside mt-1 text-gray-600">
+                     <li>Is the backend deployed on Render?</li>
+                     <li>Did you add <code>VITE_API_URL</code> to Vercel Env Vars?</li>
+                     <li>Current API URL: <code className="bg-gray-200 px-1 rounded">{API_BASE_URL}</code></li>
+                 </ul>
+             </div>
+         )}
+
          <div className="flex flex-col gap-3 mt-6">
              <button 
                 onClick={checkSystemHealth} 

@@ -11,6 +11,7 @@ import LessonChatWidget from './LessonChatWidget';
 interface AssignmentPageProps {
   course: Course;
   onBack: () => void;
+  onSubmitting: () => void;
   onReviewReceived: (result: AIReviewResult) => void;
 }
 

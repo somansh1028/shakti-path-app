@@ -15,6 +15,9 @@ const rawUrl = (import.meta as any).env?.VITE_API_URL || (isLocal
 
 // Safely remove any trailing slash to prevent double-slash errors (e.g. //api)
 export const API_BASE_URL = rawUrl.replace(/\/$/, '');
+// DEBUG LOG: This will show up in your Chrome Console so you know where it's connecting.
+console.log(`🔌 [Config] App Mode: ${isLocal ? 'Local' : 'Production'}`);
+console.log(`🔌 [Config] Connecting to Backend at: ${API_BASE_URL}`);
 
 // 3. Common headers for API requests
 export const getHeaders = (token?: string) => {
