@@ -150,17 +150,18 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
     const token = localStorage.getItem('authToken');
     try {
       if (token) {
-        await fetch(`${API_BASE_URL}/api/auth/logout`, { 
+        // Attempt server-side logout, but don't block
+          fetch(`${API_BASE_URL}/api/auth/logout`, { 
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to call server logout:', error);
+        }).catch(err => console.warn('Logout fetch failed, clearing local state anyway', err));
+                 }
     } finally {
       localStorage.removeItem('authToken');
       localStorage.removeItem('userEmail');
       setUser(null);
+      // Force reload to clear any in-memory states/contexts
+      window.location.reload();
     }
   }, []);
 
@@ -314,6 +315,13 @@ const MainApp: React.FC<MainAppProps> = ({ onGoToLanguageSelection }) => {
                 className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold shadow-md"
              >
                 Retry Connection
+             </button>
+             {/* New Button to clear stale sessions */}
+             <button 
+                onClick={handleLogout} 
+                className="px-6 py-3 bg-neutral-200 text-neutral-800 rounded-lg hover:bg-neutral-300 transition-colors font-semibold text-sm"
+             >
+                Logout / Clear Session
              </button>
          </div>
       </div>

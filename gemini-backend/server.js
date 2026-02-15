@@ -100,8 +100,12 @@ if (DATABASE_URL) {
         dbError = err.message;
     });
     mongoose.connection.on('disconnected', () => {
-        console.warn('MongoDB Disconnected');
+     console.warn('⚠️ MongoDB Disconnected. Attempting to reconnect...');
         dbStatus = 'disconnected';
+    });
+    mongoose.connection.on('reconnected', () => {
+        console.log('✅ MongoDB Reconnected!');
+        dbStatus = 'connected';
     });
 } else {
     console.warn("⚠️ No DATABASE_URL provided. App will run in limited mode.");

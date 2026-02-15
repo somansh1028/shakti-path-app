@@ -1,6 +1,6 @@
 
-const CACHE_NAME = 'shaktipath-v2'; // Bumped version to force update
-const DYNAMIC_CACHE = 'shaktipath-dynamic-v2';
+const CACHE_NAME = 'shaktipath-v3'; // Bumped version to force update
+const DYNAMIC_CACHE = 'shaktipath-dynamic-v3';
 
 // Files to precache
 const PRECACHE_URLS = [
@@ -26,7 +26,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => Promise.all(
       keys.map((key) => {
         if (key !== CACHE_NAME && key !== DYNAMIC_CACHE) {
-          return caches.delete(key); // Delete old v1 cache
+          return caches.delete(key); // Delete old cache
         }
       })
     )).then(() => self.clients.claim())

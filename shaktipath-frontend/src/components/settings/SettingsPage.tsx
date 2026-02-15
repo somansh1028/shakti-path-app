@@ -772,7 +772,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onGoToLanguageSelection, on
       </div>
       
       <div className="mt-8 text-center">
-        <p className="text-xs text-neutral-400">Shaktipath v1.2.0</p>
+        <p className="text-xs text-neutral-400">Shaktipath v1.2.1</p>
       </div>
     </div>
   );
